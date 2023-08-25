@@ -1,8 +1,7 @@
 #include <iostream>
+#include <iterator>
 #include <fstream>
 #include <filesystem>
-
-namespace fs = std::filesystem;
 
 void run(std::string source);
 void runFile(const char* path);
@@ -19,19 +18,13 @@ int main(int argc, char *argv[]) {
     }
 }
 
-std::string readFile(std::string path) {
-    std::ifstream f(path, std::ios::in | std::ios::binary);
-    if (!f) {
+void runFile(const char* path) {
+    std::ifstream ifs(path, std::ios::in | std::ios::binary);
+    if (!ifs) {
         throw std::ios_base::failure("File does not exist!");
     }
-    const auto size = fs::file_size(path);
-    std::string result(size, '\0');
-    f.read(result.data(), size);
-    return result;
-}
-
-void runFile(const char* path) {
-    run(readFile(std::string(path)));
+    std::string source(std::istreambuf_iterator<char>{ifs}, {});
+    run(source);
 }
 
 void run(std::string source) {
