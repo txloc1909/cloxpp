@@ -2,6 +2,7 @@
 #include <iterator>
 #include <fstream>
 #include <filesystem>
+#include <string>
 
 void run(std::string source);
 void runFile(const char* path);
@@ -28,9 +29,14 @@ void runFile(const char* path) {
 }
 
 void run(std::string source) {
-    std::cout << source;
+    std::cout << source << std::endl;
 }
 
 void runPrompt() {
-
+    std::string line;
+    while(std::cin) {
+        std::cout << ">>> ";
+        std::getline(std::cin, line);
+        run(line);
+    }
 }
