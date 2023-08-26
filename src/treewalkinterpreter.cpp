@@ -32,3 +32,12 @@ void TreewalkInterpreter::runPrompt() {
         this->hadError = false;
     }
 }
+
+void TreewalkInterpreter::report(int line, std::string where, std::string message) {
+    std::cerr << "[line " << line << "] Error" << where << ": " << message;
+    this->hadError = true;
+}
+
+void TreewalkInterpreter::error(int line, std::string message) {
+    this->report(line, "", message);
+}
