@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <string>
 
+#include "scanner.hpp"
 #include "treewalkinterpreter.hpp"
 
 void TreewalkInterpreter::runFile(const char* path) {
@@ -20,7 +21,10 @@ void TreewalkInterpreter::runFile(const char* path) {
 }
 
 void TreewalkInterpreter::run(std::string source) {
-    std::cout << source << std::endl;
+    auto scanner = Scanner(source);
+    for(const auto& t: scanner.scanTokens()) {
+        std::cout << t << "\n";
+    }
 }
 
 void TreewalkInterpreter::runPrompt() {
@@ -33,11 +37,11 @@ void TreewalkInterpreter::runPrompt() {
     }
 }
 
-void TreewalkInterpreter::report(int line, std::string where, std::string message) {
+void TreewalkInterpreter::report(int line, const std::string& where, const std::string& message) {
     std::cerr << "[line " << line << "] Error" << where << ": " << message;
     this->hadError = true;
 }
 
-void TreewalkInterpreter::error(int line, std::string message) {
+void TreewalkInterpreter::error(int line, const std::string& message) {
     this->report(line, "", message);
 }

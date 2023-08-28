@@ -1,3 +1,6 @@
+#ifndef CLOXPP_TREEWALK_INTERPRETER_H
+#define CLOXPP_TREEWALK_INTERPRETER_H
+
 #include <string>
 
 class TreewalkInterpreter {
@@ -5,10 +8,12 @@ class TreewalkInterpreter {
         bool hadError = false;
         bool hadRuntimeError = false;
 
-        void error(int line, std::string message);
-        void report(int line, std::string where, std::string message);
+        void error(int line, const std::string& message);
+        void report(int line, const std::string& where, const std::string& message);
     public:
         void run(std::string source);
         void runFile(const char* path);
         void runPrompt();
 };
+
+#endif // !CLOXPP_TREEWALK_INTERPRETER_H
