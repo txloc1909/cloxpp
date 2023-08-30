@@ -2,10 +2,18 @@
 #include <iterator>
 #include <fstream>
 #include <filesystem>
+#include <memory>
 #include <string>
 
+#include "errorhandler.hpp"
 #include "scanner.hpp"
 #include "treewalkinterpreter.hpp"
+
+
+TreewalkInterpreter::TreewalkInterpreter() {
+    this->errorHandler = std::make_shared<ErrorHandler>();
+}
+
 
 void TreewalkInterpreter::runFile(const char* path) {
     std::ifstream ifs(path, std::ios::in | std::ios::binary);
@@ -15,13 +23,13 @@ void TreewalkInterpreter::runFile(const char* path) {
     std::string source(std::istreambuf_iterator<char>{ifs}, {});
     run(source);
 
-    if (this->hadError) {
+    if (errorHandler->hadError) {
         std::exit(65);
     }
 }
 
 void TreewalkInterpreter::run(std::string source) {
-    auto scanner = Scanner(source);
+    auto scanner = Scanner(source, this->errorHandler);
     for(const auto& t: scanner.scanTokens()) {
         std::cout << t << "\n";
     }
@@ -33,15 +41,6 @@ void TreewalkInterpreter::runPrompt() {
         std::cout << ">>> ";
         std::getline(std::cin, line);
         run(line);
-        this->hadError = false;
+        errorHandler->hadError = false;
     }
-}
-
-void TreewalkInterpreter::report(int line, const std::string& where, const std::string& message) {
-    std::cerr << "[line " << line << "] Error" << where << ": " << message;
-    this->hadError = true;
-}
-
-void TreewalkInterpreter::error(int line, const std::string& message) {
-    this->report(line, "", message);
 }

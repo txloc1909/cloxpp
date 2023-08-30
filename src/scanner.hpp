@@ -9,9 +9,11 @@
 #include <optional>
 
 #include "token.hpp"
+#include "errorhandler.hpp"
 
 class Scanner {
     private:
+        std::shared_ptr<ErrorHandler> errorHandler;
         std::unique_ptr<std::string> source;
         std::size_t start;
         std::size_t current;
@@ -30,7 +32,7 @@ class Scanner {
         char peekNext();
 
     public:
-        Scanner(std::string source_);
+        Scanner(std::string source_, std::shared_ptr<ErrorHandler> errorHandler_);
         std::vector<Token> scanTokens();
 };
 

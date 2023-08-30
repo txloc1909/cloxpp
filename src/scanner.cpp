@@ -1,8 +1,10 @@
+#include <memory>
 #include <optional>
 #include <unordered_map>
 #include <variant>
 #include <vector>
 
+#include "errorhandler.hpp"
 #include "token.hpp"
 #include "scanner.hpp"
 
@@ -40,7 +42,8 @@ static bool isalphanumeric(char c) {
     return isdigit(c) || isalpha(c);
 }
 
-Scanner::Scanner(std::string source_) {
+Scanner::Scanner(std::string source_, std::shared_ptr<ErrorHandler> errorHandler_) {
+    errorHandler = errorHandler_;
     source = std::make_unique<std::string>(source_);
     start = 0;
     current = 0;
@@ -101,7 +104,7 @@ std::optional<Token> Scanner::scanOneToken() {
             } else if (isalpha(c)) {
                 return consumeIdentifier();
             } else {
-                // Error: Unexpected character
+                errorHandler->error(line, "Unexpected character.");
                 return std::nullopt;
             }
         }
@@ -126,7 +129,7 @@ std::optional<Token> Scanner::consumeString() {
     }
 
     if (isAtEnd()) {
-        // error handling
+        errorHandler->error(line, "Unterminated string.");
         return std::nullopt;
     }
 
