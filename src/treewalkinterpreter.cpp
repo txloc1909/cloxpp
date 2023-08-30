@@ -1,27 +1,17 @@
 #include <iostream>
-#include <iterator>
-#include <fstream>
-#include <filesystem>
 #include <memory>
-#include <string>
 
 #include "errorhandler.hpp"
 #include "scanner.hpp"
 #include "treewalkinterpreter.hpp"
-
+#include "utils.hpp"
 
 TreewalkInterpreter::TreewalkInterpreter() {
     this->errorHandler = std::make_shared<ErrorHandler>();
 }
 
-
 void TreewalkInterpreter::runFile(const char* path) {
-    std::ifstream ifs(path, std::ios::in | std::ios::binary);
-    if (!ifs) {
-        throw std::ios_base::failure("File does not exist!");
-    }
-    std::string source(std::istreambuf_iterator<char>{ifs}, {});
-    run(source);
+    run(readFile(path));
 
     if (errorHandler->hadError) {
         std::exit(65);
