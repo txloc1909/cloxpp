@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "errorhandler.hpp"
+#include "error_handler.hpp"
 
 class TreewalkInterpreter {
     public:

@@ -9,7 +9,7 @@
 #include <optional>
 
 #include "token.hpp"
-#include "errorhandler.hpp"
+#include "error_handler.hpp"
 
 class Scanner {
     private:

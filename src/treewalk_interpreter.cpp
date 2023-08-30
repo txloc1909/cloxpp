@@ -1,9 +1,9 @@
 #include <iostream>
 #include <memory>
 
-#include "errorhandler.hpp"
+#include "error_handler.hpp"
 #include "scanner.hpp"
-#include "treewalkinterpreter.hpp"
+#include "treewalk_interpreter.hpp"
 #include "utils.hpp"
 
 TreewalkInterpreter::TreewalkInterpreter() {

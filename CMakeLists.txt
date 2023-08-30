@@ -3,8 +3,8 @@ project(cloxpp)
 
 add_executable(jlox
     src/main.cpp
-    src/treewalkinterpreter.cpp
-    src/errorhandler.cpp
+    src/treewalk_interpreter.cpp
+    src/error_handler.cpp
     src/scanner.cpp
     src/token.cpp
     src/utils.cpp

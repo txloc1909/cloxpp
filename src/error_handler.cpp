@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "errorhandler.hpp"
+#include "error_handler.hpp"
 
 
 void ErrorHandler::report(int line, const char* where, const char* message) {

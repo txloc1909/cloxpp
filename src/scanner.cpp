@@ -4,7 +4,7 @@
 #include <variant>
 #include <vector>
 
-#include "errorhandler.hpp"
+#include "error_handler.hpp"
 #include "token.hpp"
 #include "scanner.hpp"
 
