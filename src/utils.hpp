@@ -3,6 +3,6 @@
 
 #include <string>
 
-std::string readFile(const char *path);
+std::string readFile(const char* path);
 
 #endif // !CLOXPP_UTILS_H
