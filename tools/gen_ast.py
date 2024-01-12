@@ -5,19 +5,52 @@ import sys
 
 def define_type(file, basename, classname, fields):
     field_list = fields.split(', ')
-    file.write(f'struct {classname} final : {basename} {{\n')
+    file.write('template<typename R>\n')
+    file.write(f'struct {classname} : public {basename}<R> {{\n')
 
     # Fields
     for field in field_list:
-        file.write(f'    {field};\n')
+        type_, name = field.split(' ')
+        if type_ == basename:
+            file.write(f'    {type_}<R> {name};\n')
+        else:
+            file.write(f'    {type_} {name};\n')
     file.write('\n')
 
     # Constructor
-    file.write(f'    {classname} ({fields}) {{\n')
+    file.write(f'    {classname} (')
+    for i, field in enumerate(field_list):
+        type_, name = field.split(' ')
+        if type_ == basename:
+            file.write(f'{type_}<R> {name}')
+        else:
+            file.write(f'{type_} {name}')
+
+        if i < len(field_list) - 1:
+            file.write(', ')
+
+    file.write(') {\n')
     for field in field_list:
         name = field.split(' ')[1]
         file.write(f'        this->{name} = {name};\n')
+    file.write('    }\n\n')
+
+    # Accept visitor
+    file.write(f'    R accept({basename}Visitor<R> visitor) override {{\n')
+    file.write('        return visitor.visit(this);\n')
     file.write('    }\n')
+
+    file.write('};\n')
+
+
+def define_visitor(file, basename, types):
+    file.write('template<typename R>\n')
+    file.write(f'class {basename}Visitor {{\n')
+
+    for type_ in types:
+        classname = type_.split(':')[0].strip()
+        file.write(
+            f'    virtual R visit({classname}<R>* {basename.lower()}) = 0;\n')
 
     file.write('};\n')
 
@@ -30,10 +63,22 @@ def define_ast(output_dir, basename, types):
         # f.write('#include "token.hpp"\n')
         f.write('typedef struct Literal {} Literal;\n')
         f.write('typedef struct Token {} Token;\n')
-
         f.write('\n')
-        f.write(f'typedef struct {basename} {{\n')
-        f.write(f'}} {basename};\n')
+
+        # Forward-declare all AST types
+        for type_ in types:
+            classname = type_.split(':')[0].strip()
+            f.write('template<typename R>\n')
+            f.write(f'struct {classname};\n')
+            f.write('\n')
+
+        define_visitor(f, basename, types)
+        f.write('\n')
+
+        f.write('template<typename R>\n')
+        f.write(f'struct {basename} {{\n')
+        f.write(f'    virtual R accept({basename}Visitor<R> visitor) = 0;\n')
+        f.write('};\n\n')
 
         for type_ in types:
             classname = type_.split(':')[0].strip()
