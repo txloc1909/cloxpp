@@ -3,7 +3,6 @@
 
 #include "treewalk_interpreter.hpp"
 
-
 int main(int argc, char *argv[]) {
     TreewalkInterpreter interpreter;
     if (argc > 2) {

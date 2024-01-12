@@ -2,22 +2,19 @@
 #include <memory>
 #include <string>
 
-#include "scanner.hpp"
 #include "error_handler.hpp"
+#include "scanner.hpp"
 #include "token.hpp"
 #include "utils.hpp"
 
-
 void scan(std::string source) {
     auto scanner = Scanner(source, std::make_shared<ErrorHandler>());
-    for (const Token& t : scanner.scanTokens()) {
+    for (const Token &t : scanner.scanTokens()) {
         std::cout << t << "\n";
     }
 }
 
-void scanFile(const char* path) {
-    scan(readFile(path));
-}
+void scanFile(const char *path) { scan(readFile(path)); }
 
 void scanREPL() {
     std::string line;

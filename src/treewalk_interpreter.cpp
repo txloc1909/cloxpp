@@ -10,7 +10,7 @@ TreewalkInterpreter::TreewalkInterpreter() {
     this->errorHandler = std::make_shared<ErrorHandler>();
 }
 
-void TreewalkInterpreter::runFile(const char* path) {
+void TreewalkInterpreter::runFile(const char *path) {
     run(readFile(path));
 
     if (errorHandler->hadError) {
@@ -20,14 +20,14 @@ void TreewalkInterpreter::runFile(const char* path) {
 
 void TreewalkInterpreter::run(std::string source) {
     auto scanner = Scanner(source, this->errorHandler);
-    for(const auto& t: scanner.scanTokens()) {
+    for (const auto &t : scanner.scanTokens()) {
         std::cout << t << "\n";
     }
 }
 
 void TreewalkInterpreter::runPrompt() {
     std::string line;
-    while(std::cin) {
+    while (std::cin) {
         std::cout << ">>> ";
         std::getline(std::cin, line);
         run(line);
