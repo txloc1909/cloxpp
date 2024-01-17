@@ -23,3 +23,9 @@ add_executable(scanner
     src/utils.cpp
 )
 target_compile_options(scanner PRIVATE -Wall -Wextra)
+
+add_executable(ast_evaluator 
+    src/ast_evaluator.cpp 
+    src/token.cpp
+)
+target_compile_options(ast_evaluator PRIVATE -Wall -Wextra)
