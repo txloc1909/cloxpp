@@ -13,7 +13,8 @@ add_executable(jlox
     src/token.cpp
     src/utils.cpp
 )
-target_compile_options(jlox PRIVATE -Wall -Wextra)
+target_compile_options(jlox PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
+target_link_options(jlox PRIVATE -fsanitize=undefined -fsanitize=address)
 
 add_executable(scanner
     src/main_scanner.cpp
@@ -22,10 +23,12 @@ add_executable(scanner
     src/token.cpp
     src/utils.cpp
 )
-target_compile_options(scanner PRIVATE -Wall -Wextra)
+target_compile_options(scanner PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
+target_link_options(scanner PRIVATE -fsanitize=undefined -fsanitize=address)
 
 add_executable(ast_evaluator 
     src/ast_evaluator.cpp 
     src/token.cpp
 )
-target_compile_options(ast_evaluator PRIVATE -Wall -Wextra)
+target_compile_options(ast_evaluator PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
+target_link_options(ast_evaluator PRIVATE -fsanitize=undefined -fsanitize=address)
