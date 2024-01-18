@@ -6,7 +6,18 @@
 #include <optional>
 #include <vector>
 
-Parser::Parser(std::vector<Token> tokens) { this->tokens_ = tokens; }
+Parser::Parser(std::vector<Token> tokens, ErrorHandler *handler) {
+    this->tokens_ = tokens;
+    this->handler_ = handler;
+}
+
+Expr::ExprPtr Parser::parse() {
+    try {
+        return expression();
+    } catch (ParserError error) {
+        return nullptr;
+    }
+}
 
 Expr::ExprPtr Parser::expression() {
     auto expr = comparison();
@@ -87,6 +98,51 @@ Expr::ExprPtr Parser::primary() {
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression");
         return std::make_unique<Expr::Grouping>(std::move(expr));
     }
+
+    throw error(peek(), "Expect expression.");
+}
+
+void Parser::synchronize() {
+    advance();
+
+    while (!isAtEnd()) {
+        if (previous().type == TokenType::SEMICOLON)
+            return;
+
+        switch (peek().type) {
+        case TokenType::CLASS:
+        case TokenType::FUN:
+        case TokenType::VAR:
+        case TokenType::FOR:
+        case TokenType::IF:
+        case TokenType::WHILE:
+        case TokenType::PRINT:
+        case TokenType::RETURN:
+            return;
+        }
+
+        advance();
+    }
+}
+
+auto Parser::error(Token token, const char *message) -> Parser::ParserError {
+    handler_->error(token, message);
+    return ParserError();
+}
+
+Token Parser::consume(TokenType type, const char *message) {
+    if (check(type))
+        return advance();
+
+    throw error(peek(), message);
+}
+
+bool Parser::match(TokenType type) {
+    if (check(type)) {
+        advance();
+        return true;
+    }
+    return false;
 }
 
 bool Parser::match(std::initializer_list<TokenType> types) {

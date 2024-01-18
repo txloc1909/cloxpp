@@ -12,6 +12,8 @@ add_executable(jlox
     src/scanner.cpp
     src/token.cpp
     src/utils.cpp
+    src/parser.cpp
+    src/ast_stringifier.cpp
 )
 target_compile_options(jlox PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(jlox PRIVATE -fsanitize=undefined -fsanitize=address)
@@ -34,6 +36,7 @@ target_compile_options(ast_evaluator PRIVATE -Wall -Wextra -fsanitize=undefined 
 target_link_options(ast_evaluator PRIVATE -fsanitize=undefined -fsanitize=address)
 
 add_executable(ast_stringifier 
+    src/main_ast_stringifier.cpp
     src/ast_stringifier.cpp 
     src/token.cpp
 )

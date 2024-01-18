@@ -1,7 +1,9 @@
 #include <iostream>
 #include <memory>
 
+#include "ast_stringifier.hpp"
 #include "error_handler.hpp"
+#include "parser.hpp"
 #include "scanner.hpp"
 #include "treewalk_interpreter.hpp"
 #include "utils.hpp"
@@ -20,9 +22,14 @@ void TreewalkInterpreter::runFile(const char *path) {
 
 void TreewalkInterpreter::run(std::string source) {
     auto scanner = Scanner(source, this->errorHandler);
-    for (const auto &t : scanner.scanTokens()) {
-        std::cout << t << "\n";
+    auto parser = Parser(scanner.scanTokens(), this->errorHandler.get());
+    auto expr = parser.parse();
+
+    if (this->errorHandler->hadError) {
+        return;
     }
+
+    std::cout << ASTStringifier().visit(*expr) << "\n";
 }
 
 void TreewalkInterpreter::runPrompt() {
