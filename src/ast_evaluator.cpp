@@ -4,29 +4,22 @@
 
 using LoxValue = Literal;
 
+template <typename T> static T getFromValue(const LoxValue &value) {
+    if (value.has_value() && std::holds_alternative<T>(value.value())) {
+        return std::get<T>(value.value());
+    }
+
+    throw std::runtime_error("Unexpected value");
+}
+
 class ASTEvaluator : Expr::Visitor<LoxValue> {
 public:
     LoxValue visit(const Expr::BaseExpr &expr) { return expr.accept(*this); }
 
     LoxValue visitBinary(const Expr::Binary &expr) override {
-        auto leftval = this->visit(*expr.left_);
-        auto rightval = this->visit(*expr.right_);
+        auto left = getFromValue<double>(this->visit(*expr.left_));
+        auto right = getFromValue<double>(this->visit(*expr.right_));
 
-        double left{}, right{};
-        if (leftval.has_value() &&
-            std::holds_alternative<double>(leftval.value())) {
-            left = std::get<double>(leftval.value());
-        } else {
-            throw std::runtime_error("Must be double");
-        }
-        if (rightval.has_value() &&
-            std::holds_alternative<double>(rightval.value())) {
-            right = std::get<double>(rightval.value());
-        } else {
-            throw std::runtime_error("Must be double");
-        }
-
-        // std::cout << left << " " << expr.op_.lexeme << " " << right << "\n";
         if (expr.op_.type == TokenType::PLUS) {
             return left + right;
         } else if (expr.op_.type == TokenType::MINUS) {
@@ -39,31 +32,19 @@ public:
     }
 
     LoxValue visitGrouping(const Expr::Grouping &expr) override {
-        LoxValue val = expr.accept(*this);
-        // std::cout << "(" << val << ")\n";
-        return val;
+        return this->visit(*expr.inner_);
     }
 
     LoxValue visitUnary(const Expr::Unary &expr) override {
-        auto rightval = this->visit(*expr.right_);
-        double right{};
-        if (rightval.has_value() &&
-            std::holds_alternative<double>(rightval.value())) {
-            right = std::get<double>(rightval.value());
-        } else {
-            throw std::runtime_error("Must be double");
-        }
-
-        // std::cout << expr.op_.lexeme << " " << right << "\n";
+        auto right = getFromValue<double>(this->visit(*expr.right_));
         if (expr.op_.type == TokenType::MINUS) {
-            return 0.0 - right;
+            return -right;
         }
 
         throw std::runtime_error("Unsupported op");
     }
 
     LoxValue visitLiteral(const Expr::Literal &expr) override {
-        // std::cout << expr.value_ << "\n";
         return expr.value_;
     }
 
@@ -77,9 +58,9 @@ int main() {
             std::make_unique<Expr::Literal>(123.0)),
         std::make_unique<Expr::Grouping>(
             std::make_unique<Expr::Literal>(45.67)),
-        Token(TokenType::PLUS, "+", std::nullopt, 1));
+        Token(TokenType::STAR, "*", std::nullopt, 1));
 
-    auto evaluator = ASTEvaluator();
+    ASTEvaluator evaluator{};
     std::cout << evaluator.visit(*expr);
     return 0;
 }
