@@ -28,6 +28,7 @@ class BaseExpr {
 public:
     virtual ~BaseExpr() = default;
     virtual Value accept(Visitor<Value> &visitor) const = 0;
+    virtual std::string accept(Visitor<std::string> &visitor) const = 0;
 };
 
 using ExprPtr = std::unique_ptr<BaseExpr>;
@@ -37,6 +38,9 @@ public:
     Binary(ExprPtr left, ExprPtr right, Token op)
         : left_(std::move(left)), right_(std::move(right)), op_(op) {}
     Value accept(Visitor<Value> &visitor) const override {
+        return visitor.visitBinary(*this);
+    };
+    std::string accept(Visitor<std::string> &visitor) const override {
         return visitor.visitBinary(*this);
     };
 
@@ -51,6 +55,9 @@ public:
     Value accept(Visitor<Value> &visitor) const override {
         return visitor.visitGrouping(*this);
     };
+    std::string accept(Visitor<std::string> &visitor) const override {
+        return visitor.visitGrouping(*this);
+    };
 
     ExprPtr inner_;
 };
@@ -59,6 +66,9 @@ class Unary : public BaseExpr {
 public:
     Unary(Token op, ExprPtr right) : op_(op), right_(std::move(right)) {}
     Value accept(Visitor<Value> &visitor) const override {
+        return visitor.visitUnary(*this);
+    };
+    std::string accept(Visitor<std::string> &visitor) const override {
         return visitor.visitUnary(*this);
     };
 
@@ -70,6 +80,9 @@ class Literal : public BaseExpr {
 public:
     Literal(Value value) : value_(value) {}
     Value accept(Visitor<Value> &visitor) const override {
+        return visitor.visitLiteral(*this);
+    };
+    std::string accept(Visitor<std::string> &visitor) const override {
         return visitor.visitLiteral(*this);
     };
 

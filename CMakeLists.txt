@@ -32,3 +32,10 @@ add_executable(ast_evaluator
 )
 target_compile_options(ast_evaluator PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(ast_evaluator PRIVATE -fsanitize=undefined -fsanitize=address)
+
+add_executable(ast_stringifier 
+    src/ast_stringifier.cpp 
+    src/token.cpp
+)
+target_compile_options(ast_stringifier PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
+target_link_options(ast_stringifier PRIVATE -fsanitize=undefined -fsanitize=address)
