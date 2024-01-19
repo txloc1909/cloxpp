@@ -6,7 +6,8 @@
 
 class ASTStringifier : Expr::Visitor<std::string> {
 public:
-    std::string visit(const Expr::BaseExpr &expr);
+    std::string stringify(const Expr::BaseExpr &expr);
+
     std::string visitBinary(const Expr::Binary &expr) override;
     std::string visitGrouping(const Expr::Grouping &expr) override;
     std::string visitUnary(const Expr::Unary &expr) override;

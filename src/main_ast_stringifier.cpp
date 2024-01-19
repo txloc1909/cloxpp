@@ -11,7 +11,6 @@ int main() {
             std::make_unique<Expr::Literal>(45.67)),
         Token(TokenType::STAR, "*", std::nullopt, 1));
 
-    ASTStringifier printer{};
-    std::cout << printer.visit(*expr);
+    std::cout << ASTStringifier().stringify(*expr);
     return 0;
 }

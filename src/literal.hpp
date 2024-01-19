@@ -7,7 +7,7 @@
 
 using Literal = std::optional<std::variant<std::string, double, bool>>;
 
-inline std::string stringify(const Literal &literal) {
+inline std::string stringifyLiteral(const Literal &literal) {
     struct ToStringVisitor {
         std::string operator()(const std::string &str) const { return str; };
         std::string operator()(double d) { return std::to_string(d); }

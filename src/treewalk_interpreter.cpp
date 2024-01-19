@@ -29,7 +29,7 @@ void TreewalkInterpreter::run(std::string source) {
         return;
     }
 
-    std::cout << ASTStringifier().visit(*expr) << "\n";
+    std::cout << ASTStringifier().stringify(*expr) << "\n";
 }
 
 void TreewalkInterpreter::runPrompt() {

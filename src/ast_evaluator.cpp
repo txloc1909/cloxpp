@@ -14,11 +14,11 @@ template <typename T> static T getFromValue(const LoxValue &value) {
 
 class ASTEvaluator : Expr::Visitor<LoxValue> {
 public:
-    LoxValue visit(const Expr::BaseExpr &expr) { return expr.accept(*this); }
+    LoxValue evaluate(const Expr::BaseExpr &expr) { return expr.accept(*this); }
 
     LoxValue visitBinary(const Expr::Binary &expr) override {
-        auto left = getFromValue<double>(this->visit(*expr.left_));
-        auto right = getFromValue<double>(this->visit(*expr.right_));
+        auto left = getFromValue<double>(this->evaluate(*expr.left_));
+        auto right = getFromValue<double>(this->evaluate(*expr.right_));
 
         if (expr.op_.type == TokenType::PLUS) {
             return left + right;
@@ -32,11 +32,11 @@ public:
     }
 
     LoxValue visitGrouping(const Expr::Grouping &expr) override {
-        return this->visit(*expr.inner_);
+        return this->evaluate(*expr.inner_);
     }
 
     LoxValue visitUnary(const Expr::Unary &expr) override {
-        auto right = getFromValue<double>(this->visit(*expr.right_));
+        auto right = getFromValue<double>(this->evaluate(*expr.right_));
         if (expr.op_.type == TokenType::MINUS) {
             return -right;
         }
@@ -60,7 +60,6 @@ int main() {
             std::make_unique<Expr::Literal>(45.67)),
         Token(TokenType::STAR, "*", std::nullopt, 1));
 
-    ASTEvaluator evaluator{};
-    std::cout << evaluator.visit(*expr);
+    std::cout << ASTEvaluator().evaluate(*expr);
     return 0;
 }
