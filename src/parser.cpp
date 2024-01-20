@@ -88,7 +88,7 @@ Expr::ExprPtr Parser::primary() {
     if (match(TokenType::TRUE))
         return std::make_unique<Expr::Literal>(true);
     if (match(TokenType::NIL))
-        return std::make_unique<Expr::Literal>(std::nullopt);
+        return std::make_unique<Expr::Literal>(std::monostate{});
 
     if (match({TokenType::NUMBER, TokenType::STRING}))
         return std::make_unique<Expr::Literal>(previous().literal);

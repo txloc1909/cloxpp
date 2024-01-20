@@ -44,7 +44,7 @@ std::vector<Token> Scanner::scanTokens() {
         }
     }
 
-    tokens.push_back(Token(TokenType::EOF_, "", std::nullopt, this->line));
+    tokens.push_back(Token(TokenType::EOF_, "", {}, this->line));
     return tokens;
 }
 
@@ -121,9 +121,7 @@ std::optional<Token> Scanner::scanOneToken() {
     return std::nullopt;
 }
 
-Token Scanner::createToken(TokenType type) {
-    return createToken(type, std::nullopt);
-}
+Token Scanner::createToken(TokenType type) { return createToken(type, {}); }
 
 Token Scanner::createToken(TokenType type, Literal literal) {
     const auto lexeme = source->substr(start, current - start);

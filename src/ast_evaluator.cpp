@@ -4,21 +4,13 @@
 
 using LoxValue = Literal;
 
-template <typename T> static T getFromValue(const LoxValue &value) {
-    if (value.has_value() && std::holds_alternative<T>(value.value())) {
-        return std::get<T>(value.value());
-    }
-
-    throw std::runtime_error("Unexpected value");
-}
-
 class ASTEvaluator : Expr::Visitor<LoxValue> {
 public:
     LoxValue evaluate(const Expr::BaseExpr &expr) { return expr.accept(*this); }
 
     LoxValue visitBinary(const Expr::Binary &expr) override {
-        auto left = getFromValue<double>(this->evaluate(*expr.left_));
-        auto right = getFromValue<double>(this->evaluate(*expr.right_));
+        auto left = std::get<double>(this->evaluate(*expr.left_));
+        auto right = std::get<double>(this->evaluate(*expr.right_));
 
         if (expr.op_.type == TokenType::PLUS) {
             return left + right;
@@ -36,7 +28,7 @@ public:
     }
 
     LoxValue visitUnary(const Expr::Unary &expr) override {
-        auto right = getFromValue<double>(this->evaluate(*expr.right_));
+        auto right = std::get<double>(this->evaluate(*expr.right_));
         if (expr.op_.type == TokenType::MINUS) {
             return -right;
         }
@@ -53,12 +45,11 @@ public:
 
 int main() {
     const auto expr = std::make_unique<Expr::Binary>(
-        std::make_unique<Expr::Unary>(
-            Token(TokenType::MINUS, "-", std::nullopt, 1),
-            std::make_unique<Expr::Literal>(123.0)),
+        std::make_unique<Expr::Unary>(Token(TokenType::MINUS, "-", {}, 1),
+                                      std::make_unique<Expr::Literal>(123.0)),
         std::make_unique<Expr::Grouping>(
             std::make_unique<Expr::Literal>(45.67)),
-        Token(TokenType::STAR, "*", std::nullopt, 1));
+        Token(TokenType::STAR, "*", {}, 1));
 
     std::cout << ASTEvaluator().evaluate(*expr);
     return 0;
