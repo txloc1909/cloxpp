@@ -9,7 +9,7 @@
 #include "utils.hpp"
 
 TreewalkInterpreter::TreewalkInterpreter() {
-    this->errorHandler = std::make_shared<ErrorHandler>();
+    this->errorHandler = std::make_unique<ErrorHandler>();
 }
 
 void TreewalkInterpreter::runFile(const char *path) {
@@ -21,7 +21,7 @@ void TreewalkInterpreter::runFile(const char *path) {
 }
 
 void TreewalkInterpreter::run(std::string source) {
-    auto scanner = Scanner(source, this->errorHandler);
+    auto scanner = Scanner(source, this->errorHandler.get());
     auto parser = Parser(scanner.scanTokens(), this->errorHandler.get());
     auto expr = parser.parse();
 

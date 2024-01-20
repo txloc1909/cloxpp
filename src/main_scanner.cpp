@@ -1,5 +1,4 @@
 #include <iostream>
-#include <memory>
 #include <string>
 
 #include "error_handler.hpp"
@@ -8,7 +7,8 @@
 #include "utils.hpp"
 
 void scan(std::string source) {
-    auto scanner = Scanner(source, std::make_shared<ErrorHandler>());
+    auto handler = ErrorHandler();
+    auto scanner = Scanner(source, &handler);
     for (const Token &t : scanner.scanTokens()) {
         std::cout << t << "\n";
     }

@@ -15,7 +15,7 @@ public:
     void runPrompt();
 
 private:
-    std::shared_ptr<ErrorHandler> errorHandler;
+    std::unique_ptr<ErrorHandler> errorHandler;
 };
 
 #endif // !CLOXPP_TREEWALK_INTERPRETER_H

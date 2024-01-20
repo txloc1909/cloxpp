@@ -26,8 +26,7 @@ static bool isalpha(char c) {
 
 static bool isalphanumeric(char c) { return isdigit(c) || isalpha(c); }
 
-Scanner::Scanner(std::string source_,
-                 std::shared_ptr<ErrorHandler> errorHandler_) {
+Scanner::Scanner(std::string source_, ErrorHandler *errorHandler_) {
     errorHandler = errorHandler_;
     source = std::make_unique<std::string>(source_);
     start = 0;
