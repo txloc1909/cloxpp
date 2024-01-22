@@ -21,3 +21,9 @@ void ErrorHandler::error(Token token, const char *message) {
         report(token.line, " at '" + token.lexeme + "'", message);
     }
 }
+
+void ErrorHandler::runtimeError(const RuntimeError &error) {
+    std::cerr << error.what()
+              << "\n[line " + std::to_string(error.getToken().line) << "]\n";
+    hadRuntimeError = true;
+}

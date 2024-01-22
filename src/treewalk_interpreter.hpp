@@ -5,6 +5,7 @@
 #include <string>
 
 #include "error_handler.hpp"
+#include "interpreter.hpp"
 
 class TreewalkInterpreter {
 public:
@@ -15,6 +16,7 @@ public:
     void runPrompt();
 
 private:
+    Interpreter interpreter_;
     std::unique_ptr<ErrorHandler> errorHandler;
 };
 

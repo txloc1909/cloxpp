@@ -13,7 +13,7 @@ add_executable(jlox
     src/token.cpp
     src/utils.cpp
     src/parser.cpp
-    src/ast_stringifier.cpp
+    src/interpreter.cpp
 )
 target_compile_options(jlox PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(jlox PRIVATE -fsanitize=undefined -fsanitize=address)
