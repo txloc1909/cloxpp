@@ -11,7 +11,7 @@
 
 class Scanner {
 private:
-    ErrorHandler *errorHandler;
+    ErrorHandler &errorHandler;
     std::unique_ptr<std::string> source;
     std::size_t start;
     std::size_t current;
@@ -30,7 +30,7 @@ private:
     char peekNext();
 
 public:
-    Scanner(std::string source_, ErrorHandler *errorHandler_);
+    Scanner(std::string source_, ErrorHandler &errorHandler_);
     std::vector<Token> scanTokens();
 };
 

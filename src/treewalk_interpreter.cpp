@@ -24,8 +24,8 @@ void TreewalkInterpreter::runFile(const char *path) {
 }
 
 void TreewalkInterpreter::run(std::string source) {
-    Scanner scanner{source, errorHandler.get()};
-    Parser parser{scanner.scanTokens(), errorHandler.get()};
+    auto scanner = Scanner(source, *errorHandler.get());
+    auto parser = Parser(scanner.scanTokens(), *errorHandler.get());
     auto expr = parser.parse();
 
     if (errorHandler->hadError) {

@@ -8,7 +8,7 @@
 
 void scan(std::string source) {
     auto handler = ErrorHandler();
-    auto scanner = Scanner(source, &handler);
+    auto scanner = Scanner(source, handler);
     for (const Token &t : scanner.scanTokens()) {
         std::cout << t << "\n";
     }

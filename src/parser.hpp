@@ -13,7 +13,7 @@ class Parser {
 private:
     std::vector<Token> tokens_;
     std::size_t current;
-    ErrorHandler *handler_;
+    ErrorHandler &handler_;
 
     class ParserError : std::exception {};
 
@@ -36,7 +36,7 @@ private:
     ParserError error(Token token, const char *message);
 
 public:
-    Parser(std::vector<Token> token, ErrorHandler *handler);
+    Parser(std::vector<Token> token, ErrorHandler &handler);
     Expr::ExprPtr parse();
 };
 

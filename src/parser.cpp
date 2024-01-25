@@ -6,9 +6,9 @@
 #include "parser.hpp"
 #include "token.hpp"
 
-Parser::Parser(std::vector<Token> tokens, ErrorHandler *handler) {
+Parser::Parser(std::vector<Token> tokens, ErrorHandler &handler)
+    : handler_(handler) {
     this->tokens_ = tokens;
-    this->handler_ = handler;
 }
 
 Expr::ExprPtr Parser::parse() {
@@ -126,7 +126,7 @@ void Parser::synchronize() {
 }
 
 auto Parser::error(Token token, const char *message) -> Parser::ParserError {
-    handler_->error(token, message);
+    handler_.error(token, message);
     return ParserError();
 }
 
