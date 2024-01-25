@@ -1,8 +1,9 @@
+#include <iostream>
+#include <variant>
+
 #include "interpreter.hpp"
 #include "runtime_error.hpp"
 #include "token.hpp"
-#include <iostream>
-#include <variant>
 
 static bool isTruthy(LoxValue value) {
     if (std::holds_alternative<std::monostate>(value))

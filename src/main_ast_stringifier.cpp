@@ -1,6 +1,7 @@
+#include <iostream>
+
 #include "ast_stringifier.hpp"
 #include "expr.hpp"
-#include <iostream>
 
 int main() {
     const auto expr = std::make_unique<Expr::Binary>(

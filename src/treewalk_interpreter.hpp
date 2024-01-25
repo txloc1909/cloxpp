@@ -16,7 +16,7 @@ public:
     void runPrompt();
 
 private:
-    Interpreter interpreter_;
+    Interpreter interpreter;
     std::unique_ptr<ErrorHandler> errorHandler;
 };
 

@@ -1,12 +1,13 @@
 #ifndef CLOXPP_PARSER_H
 #define CLOXPP_PARSER_H
 
-#include "error_handler.hpp"
-#include "expr.hpp"
-#include "token.hpp"
 #include <cstddef>
 #include <initializer_list>
 #include <vector>
+
+#include "error_handler.hpp"
+#include "expr.hpp"
+#include "token.hpp"
 
 class Parser {
 private:

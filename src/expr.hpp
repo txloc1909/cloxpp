@@ -1,9 +1,10 @@
 #ifndef CLOXPP_EXPR_H
 #define CLOXPP_EXPR_H
 
+#include <memory>
+
 #include "literal.hpp"
 #include "token.hpp"
-#include <memory>
 
 using Value = Literal; // A hack to avoid `Literal` in `literal.hpp`
 

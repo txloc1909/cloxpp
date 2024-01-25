@@ -1,6 +1,7 @@
-#include "expr.hpp"
 #include <iostream>
 #include <stdexcept>
+
+#include "expr.hpp"
 
 using LoxValue = Literal;
 

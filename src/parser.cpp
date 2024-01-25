@@ -1,10 +1,10 @@
-#include "parser.hpp"
-#include "expr.hpp"
-#include "token.hpp"
 #include <initializer_list>
 #include <memory>
-#include <optional>
 #include <vector>
+
+#include "expr.hpp"
+#include "parser.hpp"
+#include "token.hpp"
 
 Parser::Parser(std::vector<Token> tokens, ErrorHandler *handler) {
     this->tokens_ = tokens;

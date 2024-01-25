@@ -8,8 +8,8 @@
 #include "utils.hpp"
 
 TreewalkInterpreter::TreewalkInterpreter() {
-    this->errorHandler = std::make_unique<ErrorHandler>();
-    this->interpreter_ = Interpreter(this->errorHandler.get());
+    errorHandler = std::make_unique<ErrorHandler>();
+    interpreter = Interpreter(this->errorHandler.get());
 }
 
 void TreewalkInterpreter::runFile(const char *path) {
@@ -24,15 +24,15 @@ void TreewalkInterpreter::runFile(const char *path) {
 }
 
 void TreewalkInterpreter::run(std::string source) {
-    auto scanner = Scanner(source, this->errorHandler.get());
-    auto parser = Parser(scanner.scanTokens(), this->errorHandler.get());
+    Scanner scanner{source, errorHandler.get()};
+    Parser parser{scanner.scanTokens(), errorHandler.get()};
     auto expr = parser.parse();
 
-    if (this->errorHandler->hadError) {
+    if (errorHandler->hadError) {
         return;
     }
 
-    interpreter_.interpret(std::move(expr));
+    interpreter.interpret(std::move(expr));
 }
 
 void TreewalkInterpreter::runPrompt() {

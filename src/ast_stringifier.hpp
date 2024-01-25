@@ -1,8 +1,9 @@
 #ifndef CLOXPP_AST_STRINGIFIER_H
 #define CLOXPP_AST_STRINGIFIER_H
 
-#include "expr.hpp"
 #include <string>
+
+#include "expr.hpp"
 
 class ASTStringifier : Expr::Visitor<std::string> {
 public:
