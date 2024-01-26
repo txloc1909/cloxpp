@@ -11,12 +11,33 @@ Parser::Parser(std::vector<Token> tokens, ErrorHandler &handler)
     this->tokens_ = tokens;
 }
 
-Expr::ExprPtr Parser::parse() {
-    try {
-        return expression();
-    } catch (ParserError error) {
-        return nullptr;
+std::vector<Stmt::StmtPtr> Parser::parse() {
+    auto statements = std::vector<Stmt::StmtPtr>();
+    while (!isAtEnd()) {
+        statements.push_back(statement());
     }
+
+    return statements;
+}
+
+Stmt::StmtPtr Parser::statement() {
+    if (match(TokenType::PRINT)) {
+        return printStmt();
+    }
+
+    return expressionStmt();
+}
+
+Stmt::StmtPtr Parser::expressionStmt() {
+    Expr::ExprPtr value = expression();
+    consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    return std::make_unique<Stmt::Expr>(std::move(value));
+}
+
+Stmt::StmtPtr Parser::printStmt() {
+    Expr::ExprPtr value = expression();
+    consume(TokenType::SEMICOLON, "Expect ';' after value.");
+    return std::make_unique<Stmt::Print>(std::move(value));
 }
 
 Expr::ExprPtr Parser::expression() {

@@ -40,12 +40,29 @@ static void checkNumberOperands(Token op, LoxValue left, LoxValue right) {
     throw RuntimeError(op, "Operands must be numbers.");
 }
 
-void Interpreter::interpret(Expr::ExprPtr expr) const {
+void Interpreter::interpret(
+    const std::vector<Stmt::StmtPtr> &statements) const {
     try {
-        std::cout << evaluate(*expr) << "\n";
+        for (const auto &stmt : statements) {
+            execute(*stmt);
+        }
     } catch (const RuntimeError &error) {
         handler_.runtimeError(error);
     }
+}
+
+void Interpreter::execute(const Stmt::BaseStmt &stmt) const {
+    return stmt.accept(*this);
+}
+
+void Interpreter::visitExpr(const Stmt::Expr &stmt) const {
+    evaluate(*stmt.expr_);
+    return;
+}
+
+void Interpreter::visitPrint(const Stmt::Print &stmt) const {
+    LoxValue value = evaluate(*stmt.expr_);
+    std::cout << value << "\n";
 }
 
 LoxValue Interpreter::evaluate(const Expr::BaseExpr &expr) const {

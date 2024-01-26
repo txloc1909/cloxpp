@@ -7,6 +7,7 @@
 
 #include "error_handler.hpp"
 #include "expr.hpp"
+#include "stmt.hpp"
 #include "token.hpp"
 
 class Parser {
@@ -24,6 +25,10 @@ private:
     Expr::ExprPtr unary();
     Expr::ExprPtr primary();
 
+    Stmt::StmtPtr statement();
+    Stmt::StmtPtr expressionStmt();
+    Stmt::StmtPtr printStmt();
+
     void synchronize();
     bool match(TokenType type);
     bool match(std::initializer_list<TokenType> types);
@@ -37,7 +42,7 @@ private:
 
 public:
     Parser(std::vector<Token> token, ErrorHandler &handler);
-    Expr::ExprPtr parse();
+    std::vector<Stmt::StmtPtr> parse();
 };
 
 #endif // !CLOXPP_PARSER_H

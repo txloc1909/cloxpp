@@ -25,13 +25,13 @@ void TreewalkInterpreter::runFile(const char *path) {
 void TreewalkInterpreter::run(std::string source) {
     auto scanner = Scanner(source, *errorHandler.get());
     auto parser = Parser(scanner.scanTokens(), *errorHandler.get());
-    auto expr = parser.parse();
+    auto statements = parser.parse();
 
     if (errorHandler->hadError) {
         return;
     }
 
-    interpreter.interpret(std::move(expr));
+    interpreter.interpret(statements);
 }
 
 void TreewalkInterpreter::runPrompt() {
