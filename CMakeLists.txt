@@ -27,11 +27,3 @@ add_executable(scanner
 )
 target_compile_options(scanner PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(scanner PRIVATE -fsanitize=undefined -fsanitize=address)
-
-add_executable(ast_stringifier 
-    src/main_ast_stringifier.cpp
-    src/ast_stringifier.cpp 
-    src/token.cpp
-)
-target_compile_options(ast_stringifier PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
-target_link_options(ast_stringifier PRIVATE -fsanitize=undefined -fsanitize=address)
