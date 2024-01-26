@@ -17,10 +17,10 @@ class Literal;
 
 template <typename R> class Visitor {
 public:
-    virtual R visitBinary(const Binary &expr) = 0;
-    virtual R visitGrouping(const Grouping &expr) = 0;
-    virtual R visitUnary(const Unary &expr) = 0;
-    virtual R visitLiteral(const Literal &expr) = 0;
+    virtual R visitBinary(const Binary &expr) const = 0;
+    virtual R visitGrouping(const Grouping &expr) const = 0;
+    virtual R visitUnary(const Unary &expr) const = 0;
+    virtual R visitLiteral(const Literal &expr) const = 0;
 
     virtual ~Visitor() = default;
 };
@@ -28,8 +28,8 @@ public:
 class BaseExpr {
 public:
     virtual ~BaseExpr() = default;
-    virtual Value accept(Visitor<Value> &visitor) const = 0;
-    virtual std::string accept(Visitor<std::string> &visitor) const = 0;
+    virtual Value accept(const Visitor<Value> &visitor) const = 0;
+    virtual std::string accept(const Visitor<std::string> &visitor) const = 0;
 };
 
 using ExprPtr = std::unique_ptr<BaseExpr>;
@@ -38,10 +38,10 @@ class Binary : public BaseExpr {
 public:
     Binary(ExprPtr left, ExprPtr right, Token op)
         : left_(std::move(left)), right_(std::move(right)), op_(op) {}
-    Value accept(Visitor<Value> &visitor) const override {
+    Value accept(const Visitor<Value> &visitor) const override {
         return visitor.visitBinary(*this);
     };
-    std::string accept(Visitor<std::string> &visitor) const override {
+    std::string accept(const Visitor<std::string> &visitor) const override {
         return visitor.visitBinary(*this);
     };
 
@@ -53,10 +53,10 @@ public:
 class Grouping : public BaseExpr {
 public:
     Grouping(ExprPtr expr) : inner_(std::move(expr)) {}
-    Value accept(Visitor<Value> &visitor) const override {
+    Value accept(const Visitor<Value> &visitor) const override {
         return visitor.visitGrouping(*this);
     };
-    std::string accept(Visitor<std::string> &visitor) const override {
+    std::string accept(const Visitor<std::string> &visitor) const override {
         return visitor.visitGrouping(*this);
     };
 
@@ -66,10 +66,10 @@ public:
 class Unary : public BaseExpr {
 public:
     Unary(Token op, ExprPtr right) : op_(op), right_(std::move(right)) {}
-    Value accept(Visitor<Value> &visitor) const override {
+    Value accept(const Visitor<Value> &visitor) const override {
         return visitor.visitUnary(*this);
     };
-    std::string accept(Visitor<std::string> &visitor) const override {
+    std::string accept(const Visitor<std::string> &visitor) const override {
         return visitor.visitUnary(*this);
     };
 
@@ -80,10 +80,10 @@ public:
 class Literal : public BaseExpr {
 public:
     Literal(Value value) : value_(value) {}
-    Value accept(Visitor<Value> &visitor) const override {
+    Value accept(const Visitor<Value> &visitor) const override {
         return visitor.visitLiteral(*this);
     };
-    std::string accept(Visitor<std::string> &visitor) const override {
+    std::string accept(const Visitor<std::string> &visitor) const override {
         return visitor.visitLiteral(*this);
     };
 

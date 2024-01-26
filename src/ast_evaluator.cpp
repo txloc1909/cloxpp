@@ -7,9 +7,11 @@ using LoxValue = Literal;
 
 class ASTEvaluator : Expr::Visitor<LoxValue> {
 public:
-    LoxValue evaluate(const Expr::BaseExpr &expr) { return expr.accept(*this); }
+    LoxValue evaluate(const Expr::BaseExpr &expr) const {
+        return expr.accept(*this);
+    }
 
-    LoxValue visitBinary(const Expr::Binary &expr) override {
+    LoxValue visitBinary(const Expr::Binary &expr) const override {
         auto left = std::get<double>(this->evaluate(*expr.left_));
         auto right = std::get<double>(this->evaluate(*expr.right_));
 
@@ -24,11 +26,11 @@ public:
         throw std::runtime_error("Unsupported op");
     }
 
-    LoxValue visitGrouping(const Expr::Grouping &expr) override {
+    LoxValue visitGrouping(const Expr::Grouping &expr) const override {
         return this->evaluate(*expr.inner_);
     }
 
-    LoxValue visitUnary(const Expr::Unary &expr) override {
+    LoxValue visitUnary(const Expr::Unary &expr) const override {
         auto right = std::get<double>(this->evaluate(*expr.right_));
         if (expr.op_.type == TokenType::MINUS) {
             return -right;
@@ -37,7 +39,7 @@ public:
         throw std::runtime_error("Unsupported op");
     }
 
-    LoxValue visitLiteral(const Expr::Literal &expr) override {
+    LoxValue visitLiteral(const Expr::Literal &expr) const override {
         return expr.value_;
     }
 

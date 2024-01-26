@@ -7,10 +7,9 @@
 #include "treewalk_interpreter.hpp"
 #include "utils.hpp"
 
-TreewalkInterpreter::TreewalkInterpreter() {
-    errorHandler = std::make_unique<ErrorHandler>();
-    interpreter = Interpreter(this->errorHandler.get());
-}
+TreewalkInterpreter::TreewalkInterpreter()
+    : errorHandler(std::make_unique<ErrorHandler>()),
+      interpreter(Interpreter(*errorHandler.get())) {}
 
 void TreewalkInterpreter::runFile(const char *path) {
     run(readFile(path));

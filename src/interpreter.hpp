@@ -9,20 +9,18 @@ using LoxValue = Literal;
 
 class Interpreter : Expr::Visitor<LoxValue> {
 public:
-    Interpreter() = default;
-    Interpreter(ErrorHandler *handler) : handler_(handler){};
+    Interpreter(ErrorHandler &handler) : handler_(handler){};
 
-    void interpret(Expr::ExprPtr expr);
-
-    LoxValue evaluate(const Expr::BaseExpr &expr);
-
-    LoxValue visitBinary(const Expr::Binary &expr);
-    LoxValue visitGrouping(const Expr::Grouping &expr);
-    LoxValue visitUnary(const Expr::Unary &expr);
-    LoxValue visitLiteral(const Expr::Literal &expr);
+    void interpret(Expr::ExprPtr expr) const;
 
 private:
-    ErrorHandler *handler_;
+    ErrorHandler &handler_;
+
+    LoxValue evaluate(const Expr::BaseExpr &expr) const;
+    LoxValue visitBinary(const Expr::Binary &expr) const;
+    LoxValue visitGrouping(const Expr::Grouping &expr) const;
+    LoxValue visitUnary(const Expr::Unary &expr) const;
+    LoxValue visitLiteral(const Expr::Literal &expr) const;
 };
 
 #endif // !CLOXPP_INTERPRETER_H
