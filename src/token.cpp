@@ -124,6 +124,7 @@ std::ostream &operator<<(std::ostream &os, const TokenType type) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Token &token) {
-    os << token.type << " " << token.lexeme << " " << token.literal;
+    os << token.type << " " << token.lexeme << " "
+       << (token.literal.has_value() ? token.literal.value() : "null");
     return os;
 }

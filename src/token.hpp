@@ -1,6 +1,7 @@
 #ifndef CLOXPP_TOKEN_H
 #define CLOXPP_TOKEN_H
 
+#include <optional>
 #include <ostream>
 
 #include "literal.hpp"
@@ -59,10 +60,11 @@ std::ostream &operator<<(std::ostream &os, const TokenType type);
 struct Token {
     const TokenType type;
     const std::string lexeme;
-    const Literal literal;
+    const std::optional<Literal> literal;
     const int line;
 
-    Token(TokenType type_, std::string lexeme_, Literal literal_, int line_)
+    Token(TokenType type_, std::string lexeme_, std::optional<Literal> literal_,
+          int line_)
         : type(type_), lexeme(std::move(lexeme_)), literal(literal_),
           line(line_){};
 };

@@ -110,7 +110,7 @@ Expr::ExprPtr Parser::primary() {
         return std::make_unique<Expr::Literal>(std::monostate{});
 
     if (match({TokenType::NUMBER, TokenType::STRING}))
-        return std::make_unique<Expr::Literal>(previous().literal);
+        return std::make_unique<Expr::Literal>(previous().literal.value());
 
     if (match(TokenType::LEFT_PAREN)) {
         auto expr = expression();
