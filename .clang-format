@@ -4,3 +4,4 @@ BasedOnStyle: LLVM
 Language: Cpp
 IndentWidth: 4
 AccessModifierOffset: -4
+AlwaysBreakTemplateDeclarations: Yes

@@ -12,7 +12,8 @@ using Expr::ExprPtr;
 struct Expr;
 struct Print;
 
-template <typename R> class Visitor {
+template <typename R>
+class Visitor {
 public:
     virtual R visitExpr(const Expr &expr) const = 0;
     virtual R visitPrint(const Print &expr) const = 0;

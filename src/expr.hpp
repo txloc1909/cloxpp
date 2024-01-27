@@ -15,7 +15,8 @@ struct Unary;
 struct Grouping;
 struct Literal;
 
-template <typename R> class Visitor {
+template <typename R>
+class Visitor {
 public:
     virtual R visitBinary(const Binary &expr) const = 0;
     virtual R visitGrouping(const Grouping &expr) const = 0;
