@@ -57,10 +57,10 @@ enum class TokenType {
 std::ostream &operator<<(std::ostream &os, const TokenType type);
 
 struct Token {
-    TokenType type;
-    std::string lexeme;
-    Literal literal;
-    int line;
+    const TokenType type;
+    const std::string lexeme;
+    const Literal literal;
+    const int line;
 
     Token(TokenType type_, std::string lexeme_, Literal literal_, int line_)
         : type(type_), lexeme(std::move(lexeme_)), literal(literal_),

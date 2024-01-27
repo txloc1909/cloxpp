@@ -6,10 +6,8 @@
 #include "parser.hpp"
 #include "token.hpp"
 
-Parser::Parser(std::vector<Token> tokens, ErrorHandler &handler)
-    : handler_(handler) {
-    this->tokens_ = tokens;
-}
+Parser::Parser(const std::vector<Token> &tokens, ErrorHandler &handler)
+    : handler_(handler), tokens_(tokens) {}
 
 std::vector<Stmt::StmtPtr> Parser::parse() {
     auto statements = std::vector<Stmt::StmtPtr>();
