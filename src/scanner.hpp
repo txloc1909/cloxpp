@@ -1,7 +1,6 @@
 #ifndef CLOXPP_SCANNER_H
 #define CLOXPP_SCANNER_H
 
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -12,7 +11,7 @@
 class Scanner {
 private:
     ErrorHandler &errorHandler;
-    std::unique_ptr<std::string> source;
+    const std::string &source;
     std::size_t start;
     std::size_t current;
     std::size_t line;
@@ -30,7 +29,7 @@ private:
     char peekNext();
 
 public:
-    Scanner(std::string source_, ErrorHandler &errorHandler_);
+    Scanner(const std::string &source_, ErrorHandler &errorHandler_);
     std::vector<Token> scanTokens();
 };
 

@@ -22,7 +22,7 @@ void TreewalkInterpreter::runFile(const char *path) {
     }
 }
 
-void TreewalkInterpreter::run(std::string source) {
+void TreewalkInterpreter::run(const std::string &source) {
     auto scanner = Scanner(source, *errorHandler.get());
     auto parser = Parser(scanner.scanTokens(), *errorHandler.get());
     auto statements = parser.parse();

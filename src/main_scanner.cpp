@@ -6,7 +6,7 @@
 #include "token.hpp"
 #include "utils.hpp"
 
-void scan(std::string source) {
+void scan(const std::string &source) {
     auto handler = ErrorHandler();
     auto scanner = Scanner(source, handler);
     for (const Token &t : scanner.scanTokens()) {

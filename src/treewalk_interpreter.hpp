@@ -11,7 +11,7 @@ class TreewalkInterpreter {
 public:
     TreewalkInterpreter();
 
-    void run(std::string source);
+    void run(const std::string &source);
     void runFile(const char *path);
     void runPrompt();
 

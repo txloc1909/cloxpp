@@ -1,4 +1,3 @@
-#include <memory>
 #include <optional>
 #include <unordered_map>
 #include <vector>
@@ -26,9 +25,8 @@ static bool isalpha(char c) {
 
 static bool isalphanumeric(char c) { return isdigit(c) || isalpha(c); }
 
-Scanner::Scanner(std::string source_, ErrorHandler &errorHandler_)
-    : errorHandler(errorHandler_) {
-    source = std::make_unique<std::string>(source_);
+Scanner::Scanner(const std::string &source_, ErrorHandler &errorHandler_)
+    : errorHandler(errorHandler_), source(source_) {
     start = 0;
     current = 0;
     line = 1;
@@ -124,7 +122,7 @@ std::optional<Token> Scanner::scanOneToken() {
 Token Scanner::createToken(TokenType type) { return createToken(type, {}); }
 
 Token Scanner::createToken(TokenType type, Literal literal) {
-    const auto lexeme = source->substr(start, current - start);
+    const auto lexeme = source.substr(start, current - start);
     return Token(type, lexeme, literal, line);
 }
 
@@ -142,7 +140,7 @@ std::optional<Token> Scanner::consumeString() {
 
     advance(); // The closing quote
 
-    auto string = source->substr(start + 1, current - start - 2);
+    auto string = source.substr(start + 1, current - start - 2);
     return createToken(TokenType::STRING, string);
 }
 
@@ -157,7 +155,7 @@ Token Scanner::consumeNumber() {
             advance();
     }
 
-    double value = std::stod(source->substr(start, current - start));
+    double value = std::stod(source.substr(start, current - start));
     return createToken(TokenType::NUMBER, value);
 }
 
@@ -165,7 +163,7 @@ Token Scanner::consumeIdentifier() {
     while (isalphanumeric(peek()))
         advance();
 
-    auto text = source->substr(start, current - start);
+    auto text = source.substr(start, current - start);
 
     TokenType type;
     if (KEYWORDS.find(text) == KEYWORDS.end()) {
@@ -177,15 +175,15 @@ Token Scanner::consumeIdentifier() {
     return createToken(type);
 }
 
-bool Scanner::isAtEnd() { return current >= source->size(); }
+bool Scanner::isAtEnd() { return current >= source.size(); }
 
-char Scanner::advance() { return source->at(current++); }
+char Scanner::advance() { return source.at(current++); }
 
 bool Scanner::match(char expected) {
     if (isAtEnd()) {
         return false;
     }
-    if (source->at(current) != expected) {
+    if (source.at(current) != expected) {
         return false;
     }
 
@@ -196,11 +194,11 @@ bool Scanner::match(char expected) {
 char Scanner::peek() {
     if (isAtEnd())
         return '\0';
-    return source->at(current);
+    return source.at(current);
 }
 
 char Scanner::peekNext() {
-    if (current + 1 >= source->size())
+    if (current + 1 >= source.size())
         return '\0';
-    return source->at(current + 1);
+    return source.at(current + 1);
 }
