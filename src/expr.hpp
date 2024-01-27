@@ -34,9 +34,9 @@ struct BaseExpr {
 using ExprPtr = std::unique_ptr<BaseExpr>;
 
 struct Binary : BaseExpr {
-    ExprPtr left_;
-    ExprPtr right_;
-    Token op_;
+    const ExprPtr left_;
+    const ExprPtr right_;
+    const Token op_;
 
     Binary(ExprPtr left, ExprPtr right, Token op)
         : left_(std::move(left)), right_(std::move(right)), op_(op) {}
@@ -46,7 +46,7 @@ struct Binary : BaseExpr {
 };
 
 struct Grouping : BaseExpr {
-    ExprPtr inner_;
+    const ExprPtr inner_;
 
     Grouping(ExprPtr expr) : inner_(std::move(expr)) {}
     Value accept(const Visitor<Value> &visitor) const override {
@@ -55,8 +55,8 @@ struct Grouping : BaseExpr {
 };
 
 struct Unary : BaseExpr {
-    Token op_;
-    ExprPtr right_;
+    const Token op_;
+    const ExprPtr right_;
 
     Unary(Token op, ExprPtr right) : op_(op), right_(std::move(right)) {}
     Value accept(const Visitor<Value> &visitor) const override {
@@ -65,7 +65,7 @@ struct Unary : BaseExpr {
 };
 
 struct Literal : BaseExpr {
-    Value value_;
+    const Value value_;
 
     Literal(Value value) : value_(value) {}
     Value accept(const Visitor<Value> &visitor) const override {

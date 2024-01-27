@@ -29,7 +29,7 @@ struct BaseStmt {
 using StmtPtr = std::unique_ptr<BaseStmt>;
 
 struct Expr : BaseStmt {
-    ExprPtr expr_;
+    const ExprPtr expr_;
 
     Expr(ExprPtr expr) : expr_(std::move(expr)) {}
     void accept(const Visitor<void> &visitor) const override {
@@ -38,7 +38,7 @@ struct Expr : BaseStmt {
 };
 
 struct Print : BaseStmt {
-    ExprPtr expr_;
+    const ExprPtr expr_;
 
     Print(ExprPtr expr) : expr_(std::move(expr)) {}
     void accept(const Visitor<void> &visitor) const override {
