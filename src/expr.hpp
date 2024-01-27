@@ -10,10 +10,10 @@ using Value = Literal; // A hack to avoid `Literal` in `literal.hpp`
 
 namespace Expr {
 
-class Binary;
-class Unary;
-class Grouping;
-class Literal;
+struct Binary;
+struct Unary;
+struct Grouping;
+struct Literal;
 
 template <typename R> class Visitor {
 public:
@@ -25,56 +25,51 @@ public:
     virtual ~Visitor() = default;
 };
 
-class BaseExpr {
-public:
+struct BaseExpr {
     virtual ~BaseExpr() = default;
     virtual Value accept(const Visitor<Value> &visitor) const = 0;
 };
 
 using ExprPtr = std::unique_ptr<BaseExpr>;
 
-class Binary : public BaseExpr {
-public:
+struct Binary : BaseExpr {
+    ExprPtr left_;
+    ExprPtr right_;
+    Token op_;
+
     Binary(ExprPtr left, ExprPtr right, Token op)
         : left_(std::move(left)), right_(std::move(right)), op_(op) {}
     Value accept(const Visitor<Value> &visitor) const override {
         return visitor.visitBinary(*this);
     };
-
-    ExprPtr left_;
-    ExprPtr right_;
-    Token op_;
 };
 
-class Grouping : public BaseExpr {
-public:
+struct Grouping : BaseExpr {
+    ExprPtr inner_;
+
     Grouping(ExprPtr expr) : inner_(std::move(expr)) {}
     Value accept(const Visitor<Value> &visitor) const override {
         return visitor.visitGrouping(*this);
     };
-
-    ExprPtr inner_;
 };
 
-class Unary : public BaseExpr {
-public:
+struct Unary : BaseExpr {
+    Token op_;
+    ExprPtr right_;
+
     Unary(Token op, ExprPtr right) : op_(op), right_(std::move(right)) {}
     Value accept(const Visitor<Value> &visitor) const override {
         return visitor.visitUnary(*this);
     };
-
-    Token op_;
-    ExprPtr right_;
 };
 
-class Literal : public BaseExpr {
-public:
+struct Literal : BaseExpr {
+    Value value_;
+
     Literal(Value value) : value_(value) {}
     Value accept(const Visitor<Value> &visitor) const override {
         return visitor.visitLiteral(*this);
     };
-
-    Value value_;
 };
 
 } // namespace Expr

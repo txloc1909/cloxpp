@@ -9,8 +9,8 @@ namespace Stmt {
 
 using Expr::ExprPtr;
 
-class Expr;
-class Print;
+struct Expr;
+struct Print;
 
 template <typename R> class Visitor {
 public:
@@ -20,32 +20,29 @@ public:
     virtual ~Visitor() = default;
 };
 
-class BaseStmt {
-public:
+struct BaseStmt {
     virtual ~BaseStmt() = default;
     virtual void accept(const Visitor<void> &visitor) const = 0;
 };
 
 using StmtPtr = std::unique_ptr<BaseStmt>;
 
-class Expr : public BaseStmt {
-public:
+struct Expr : BaseStmt {
+    ExprPtr expr_;
+
     Expr(ExprPtr expr) : expr_(std::move(expr)) {}
     void accept(const Visitor<void> &visitor) const override {
         return visitor.visitExpr(*this);
     };
-
-    ExprPtr expr_;
 };
 
-class Print : public BaseStmt {
-public:
+struct Print : BaseStmt {
+    ExprPtr expr_;
+
     Print(ExprPtr expr) : expr_(std::move(expr)) {}
     void accept(const Visitor<void> &visitor) const override {
         return visitor.visitPrint(*this);
     }
-
-    ExprPtr expr_;
 };
 
 } // namespace Stmt
