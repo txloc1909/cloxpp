@@ -5,6 +5,11 @@
 
 #include "expr.hpp"
 
+#define DEFINE_NODE_ACCEPT_METHOD(ReturnType)                                  \
+    ReturnType accept(const Visitor<ReturnType> &visitor) const override {     \
+        return visitor.visit(*this);                                           \
+    }
+
 namespace Stmt {
 
 using Expr::ExprPtr;
@@ -25,27 +30,23 @@ struct BaseStmt {
     virtual ~BaseStmt() = default;
     virtual void accept(const Visitor<void> &visitor) const = 0;
 };
-
 using StmtPtr = std::unique_ptr<BaseStmt>;
 
 struct Expr : BaseStmt {
     const ExprPtr expr_;
 
     Expr(ExprPtr expr) : expr_(std::move(expr)) {}
-    void accept(const Visitor<void> &visitor) const override {
-        return visitor.visit(*this);
-    };
+    DEFINE_NODE_ACCEPT_METHOD(void);
 };
 
 struct Print : BaseStmt {
     const ExprPtr expr_;
 
     Print(ExprPtr expr) : expr_(std::move(expr)) {}
-    void accept(const Visitor<void> &visitor) const override {
-        return visitor.visit(*this);
-    }
+    DEFINE_NODE_ACCEPT_METHOD(void);
 };
 
 } // namespace Stmt
 
+#undef DEFINE_NODE_ACCEPT_METHOD
 #endif // !CLOXPP_STMT_H
