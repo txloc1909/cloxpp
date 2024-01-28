@@ -15,8 +15,8 @@ struct Print;
 template <typename R>
 class Visitor {
 public:
-    virtual R visitExpr(const Expr &expr) const = 0;
-    virtual R visitPrint(const Print &expr) const = 0;
+    virtual R visit(const Expr &expr) const = 0;
+    virtual R visit(const Print &expr) const = 0;
 
     virtual ~Visitor() = default;
 };
@@ -33,7 +33,7 @@ struct Expr : BaseStmt {
 
     Expr(ExprPtr expr) : expr_(std::move(expr)) {}
     void accept(const Visitor<void> &visitor) const override {
-        return visitor.visitExpr(*this);
+        return visitor.visit(*this);
     };
 };
 
@@ -42,7 +42,7 @@ struct Print : BaseStmt {
 
     Print(ExprPtr expr) : expr_(std::move(expr)) {}
     void accept(const Visitor<void> &visitor) const override {
-        return visitor.visitPrint(*this);
+        return visitor.visit(*this);
     }
 };
 

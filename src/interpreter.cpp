@@ -55,12 +55,12 @@ void Interpreter::execute(const Stmt::BaseStmt &stmt) const {
     return stmt.accept(*this);
 }
 
-void Interpreter::visitExpr(const Stmt::Expr &stmt) const {
+void Interpreter::visit(const Stmt::Expr &stmt) const {
     evaluate(*stmt.expr_);
     return;
 }
 
-void Interpreter::visitPrint(const Stmt::Print &stmt) const {
+void Interpreter::visit(const Stmt::Print &stmt) const {
     LoxValue value = evaluate(*stmt.expr_);
     std::cout << value << "\n";
 }
@@ -69,7 +69,7 @@ LoxValue Interpreter::evaluate(const Expr::BaseExpr &expr) const {
     return expr.accept(*this);
 }
 
-LoxValue Interpreter::visitBinary(const Expr::Binary &expr) const {
+LoxValue Interpreter::visit(const Expr::Binary &expr) const {
     auto left = evaluate(*expr.left_);
     auto right = evaluate(*expr.right_);
 
@@ -113,11 +113,11 @@ LoxValue Interpreter::visitBinary(const Expr::Binary &expr) const {
     }
 }
 
-LoxValue Interpreter::visitGrouping(const Expr::Grouping &expr) const {
+LoxValue Interpreter::visit(const Expr::Grouping &expr) const {
     return evaluate(*expr.inner_);
 }
 
-LoxValue Interpreter::visitUnary(const Expr::Unary &expr) const {
+LoxValue Interpreter::visit(const Expr::Unary &expr) const {
     auto right = evaluate(*expr.right_);
 
     switch (expr.op_.type) {
@@ -131,6 +131,6 @@ LoxValue Interpreter::visitUnary(const Expr::Unary &expr) const {
     }
 }
 
-LoxValue Interpreter::visitLiteral(const Expr::Literal &expr) const {
+LoxValue Interpreter::visit(const Expr::Literal &expr) const {
     return expr.value_;
 }

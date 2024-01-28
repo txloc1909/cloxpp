@@ -18,10 +18,10 @@ struct Literal;
 template <typename R>
 class Visitor {
 public:
-    virtual R visitBinary(const Binary &expr) const = 0;
-    virtual R visitGrouping(const Grouping &expr) const = 0;
-    virtual R visitUnary(const Unary &expr) const = 0;
-    virtual R visitLiteral(const Literal &expr) const = 0;
+    virtual R visit(const Binary &expr) const = 0;
+    virtual R visit(const Grouping &expr) const = 0;
+    virtual R visit(const Unary &expr) const = 0;
+    virtual R visit(const Literal &expr) const = 0;
 
     virtual ~Visitor() = default;
 };
@@ -41,7 +41,7 @@ struct Binary : BaseExpr {
     Binary(ExprPtr left, ExprPtr right, Token op)
         : left_(std::move(left)), right_(std::move(right)), op_(op) {}
     Value accept(const Visitor<Value> &visitor) const override {
-        return visitor.visitBinary(*this);
+        return visitor.visit(*this);
     };
 };
 
@@ -50,7 +50,7 @@ struct Grouping : BaseExpr {
 
     Grouping(ExprPtr expr) : inner_(std::move(expr)) {}
     Value accept(const Visitor<Value> &visitor) const override {
-        return visitor.visitGrouping(*this);
+        return visitor.visit(*this);
     };
 };
 
@@ -60,7 +60,7 @@ struct Unary : BaseExpr {
 
     Unary(Token op, ExprPtr right) : op_(op), right_(std::move(right)) {}
     Value accept(const Visitor<Value> &visitor) const override {
-        return visitor.visitUnary(*this);
+        return visitor.visit(*this);
     };
 };
 
@@ -69,7 +69,7 @@ struct Literal : BaseExpr {
 
     Literal(Value value) : value_(value) {}
     Value accept(const Visitor<Value> &visitor) const override {
-        return visitor.visitLiteral(*this);
+        return visitor.visit(*this);
     };
 };
 
