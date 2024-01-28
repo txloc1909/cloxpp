@@ -9,6 +9,7 @@ add_executable(jlox
     src/main.cpp
     src/treewalk_interpreter.cpp
     src/error_handler.cpp
+    src/value.cpp
     src/scanner.cpp
     src/token.cpp
     src/utils.cpp
@@ -20,6 +21,7 @@ target_link_options(jlox PRIVATE -fsanitize=undefined -fsanitize=address)
 
 add_executable(scanner
     src/main_scanner.cpp
+    src/value.cpp
     src/scanner.cpp
     src/error_handler.cpp
     src/token.cpp

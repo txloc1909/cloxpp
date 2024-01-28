@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include "literal.hpp"
 #include "token.hpp"
+#include "value.hpp"
 
 #define DEFINE_NODE_ACCEPT_METHOD(ReturnType)                                  \
     ReturnType accept(const Visitor<ReturnType> &visitor) const override {     \

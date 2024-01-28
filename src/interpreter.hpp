@@ -5,8 +5,8 @@
 
 #include "error_handler.hpp"
 #include "expr.hpp"
-#include "literal.hpp"
 #include "stmt.hpp"
+#include "value.hpp"
 
 using LoxValue = Literal;
 

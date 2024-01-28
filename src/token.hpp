@@ -4,7 +4,7 @@
 #include <optional>
 #include <ostream>
 
-#include "literal.hpp"
+#include "value.hpp"
 
 enum class TokenType {
     // Single-character token
