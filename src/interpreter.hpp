@@ -8,9 +8,7 @@
 #include "stmt.hpp"
 #include "value.hpp"
 
-using LoxValue = Literal;
-
-class Interpreter : Expr::Visitor<LoxValue>, Stmt::Visitor<void> {
+class Interpreter : Expr::Visitor<Value>, Stmt::Visitor<void> {
 public:
     Interpreter(ErrorHandler &handler) : handler_(handler){};
 
@@ -19,11 +17,11 @@ public:
 private:
     ErrorHandler &handler_;
 
-    LoxValue evaluate(const Expr::BaseExpr &expr) const;
-    LoxValue visit(const Expr::Binary &expr) const;
-    LoxValue visit(const Expr::Grouping &expr) const;
-    LoxValue visit(const Expr::Unary &expr) const;
-    LoxValue visit(const Expr::Literal &expr) const;
+    Value evaluate(const Expr::BaseExpr &expr) const;
+    Value visit(const Expr::Binary &expr) const;
+    Value visit(const Expr::Grouping &expr) const;
+    Value visit(const Expr::Unary &expr) const;
+    Value visit(const Expr::Literal &expr) const;
 
     void execute(const Stmt::BaseStmt &stmt) const;
     void visit(const Stmt::Expr &stmt) const;

@@ -5,7 +5,7 @@
 #include "runtime_error.hpp"
 #include "token.hpp"
 
-static bool isTruthy(LoxValue value) {
+static bool isTruthy(Value value) {
     if (std::holds_alternative<std::monostate>(value))
         return false;
     if (std::holds_alternative<bool>(value))
@@ -14,7 +14,7 @@ static bool isTruthy(LoxValue value) {
     return true;
 }
 
-static bool isEqual(LoxValue val1, LoxValue val2) {
+static bool isEqual(Value val1, Value val2) {
     if (std::holds_alternative<std::monostate>(val1) &&
         std::holds_alternative<std::monostate>(val2))
         return true;
@@ -25,14 +25,14 @@ static bool isEqual(LoxValue val1, LoxValue val2) {
     return val1.index() == val2.index() ? val1 == val2 : false;
 }
 
-static void checkNumberOperand(Token op, LoxValue operand) {
+static void checkNumberOperand(Token op, Value operand) {
     if (std::holds_alternative<double>(operand))
         return;
 
     throw RuntimeError(op, "Operand must be a number.");
 }
 
-static void checkNumberOperands(Token op, LoxValue left, LoxValue right) {
+static void checkNumberOperands(Token op, Value left, Value right) {
     if (std::holds_alternative<double>(left) &&
         std::holds_alternative<double>(right))
         return;
@@ -61,15 +61,15 @@ void Interpreter::visit(const Stmt::Expr &stmt) const {
 }
 
 void Interpreter::visit(const Stmt::Print &stmt) const {
-    LoxValue value = evaluate(*stmt.expr_);
+    Value value = evaluate(*stmt.expr_);
     std::cout << value << "\n";
 }
 
-LoxValue Interpreter::evaluate(const Expr::BaseExpr &expr) const {
+Value Interpreter::evaluate(const Expr::BaseExpr &expr) const {
     return expr.accept(*this);
 }
 
-LoxValue Interpreter::visit(const Expr::Binary &expr) const {
+Value Interpreter::visit(const Expr::Binary &expr) const {
     auto left = evaluate(*expr.left_);
     auto right = evaluate(*expr.right_);
 
@@ -113,11 +113,11 @@ LoxValue Interpreter::visit(const Expr::Binary &expr) const {
     }
 }
 
-LoxValue Interpreter::visit(const Expr::Grouping &expr) const {
+Value Interpreter::visit(const Expr::Grouping &expr) const {
     return evaluate(*expr.inner_);
 }
 
-LoxValue Interpreter::visit(const Expr::Unary &expr) const {
+Value Interpreter::visit(const Expr::Unary &expr) const {
     auto right = evaluate(*expr.right_);
 
     switch (expr.op_.type) {
@@ -131,6 +131,6 @@ LoxValue Interpreter::visit(const Expr::Unary &expr) const {
     }
 }
 
-LoxValue Interpreter::visit(const Expr::Literal &expr) const {
+Value Interpreter::visit(const Expr::Literal &expr) const {
     return expr.value_;
 }

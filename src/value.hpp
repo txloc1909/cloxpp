@@ -7,6 +7,9 @@
 // monostate represents the nil value
 using Literal = std::variant<std::monostate, std::string, double, bool>;
 
+// Literal is a subset of Value
+using Value = std::variant<std::monostate, std::string, double, bool>;
+
 std::string stringify(const Literal &value);
 std::ostream &operator<<(std::ostream &os, const Literal &literal);
 

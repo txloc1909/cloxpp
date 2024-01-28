@@ -11,7 +11,7 @@
         return visitor.visit(*this);                                           \
     }
 
-using Value = Literal; // A hack to avoid `Literal` in `literal.hpp`
+using LiteralValue = Literal; // Alias
 
 namespace Expr {
 
@@ -63,9 +63,9 @@ struct Unary : BaseExpr {
 };
 
 struct Literal : BaseExpr {
-    const Value value_;
+    const LiteralValue value_;
 
-    Literal(Value value) : value_(value) {}
+    Literal(LiteralValue value) : value_(value) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
