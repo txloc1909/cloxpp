@@ -5,26 +5,6 @@
 #include "runtime_error.hpp"
 #include "token.hpp"
 
-static bool isTruthy(Value value) {
-    if (std::holds_alternative<std::monostate>(value))
-        return false;
-    if (std::holds_alternative<bool>(value))
-        return std::get<bool>(value);
-
-    return true;
-}
-
-static bool isEqual(Value val1, Value val2) {
-    if (std::holds_alternative<std::monostate>(val1) &&
-        std::holds_alternative<std::monostate>(val2))
-        return true;
-
-    if (std::holds_alternative<std::monostate>(val1))
-        return false;
-
-    return val1.index() == val2.index() ? val1 == val2 : false;
-}
-
 static void checkNumberOperand(Token op, Value operand) {
     if (std::holds_alternative<double>(operand))
         return;
@@ -87,9 +67,9 @@ Value Interpreter::visit(const Expr::Binary &expr) const {
         checkNumberOperands(expr.op_, left, right);
         return std::get<double>(left) <= std::get<double>(right);
     case TokenType::BANG_EQUAL:
-        return !isEqual(left, right);
+        return left != right;
     case TokenType::EQUAL_EQUAL:
-        return isEqual(left, right);
+        return left == right;
     case TokenType::MINUS:
         checkNumberOperands(expr.op_, left, right);
         return std::get<double>(left) - std::get<double>(right);
@@ -122,7 +102,7 @@ Value Interpreter::visit(const Expr::Unary &expr) const {
 
     switch (expr.op_.type) {
     case TokenType::BANG:
-        return !isTruthy(right);
+        return !right.isTruthy();
     case TokenType::MINUS:
         checkNumberOperand(expr.op_, right);
         return -std::get<double>(right);
@@ -132,5 +112,5 @@ Value Interpreter::visit(const Expr::Unary &expr) const {
 }
 
 Value Interpreter::visit(const Expr::Literal &expr) const {
-    return expr.value_;
+    return valueFromLiteral(expr.value_);
 }
