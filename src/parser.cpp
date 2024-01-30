@@ -1,9 +1,11 @@
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "expr.hpp"
 #include "parser.hpp"
+#include "stmt.hpp"
 #include "token.hpp"
 
 Parser::Parser(const std::vector<Token> &tokens, ErrorHandler &handler)
@@ -12,10 +14,36 @@ Parser::Parser(const std::vector<Token> &tokens, ErrorHandler &handler)
 std::vector<Stmt::StmtPtr> Parser::parse() {
     auto statements = std::vector<Stmt::StmtPtr>();
     while (!isAtEnd()) {
-        statements.push_back(statement());
+        auto stmt = declaration();
+        if (stmt) {
+            statements.push_back(std::move(stmt));
+        }
     }
 
     return statements;
+}
+
+Stmt::StmtPtr Parser::declaration() {
+    try {
+        if (match(TokenType::VAR)) {
+            return varDeclaration();
+        }
+
+        return statement();
+    } catch (const ParserError &error) {
+        synchronize();
+        return nullptr;
+    }
+}
+
+Stmt::StmtPtr Parser::varDeclaration() {
+    Token name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+    Expr::ExprPtr initializer =
+        match(TokenType::EQUAL) ? expression() : nullptr;
+
+    consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+    return std::make_unique<Stmt::Var>(
+        name, initializer ? std::move(initializer) : nullptr);
 }
 
 Stmt::StmtPtr Parser::statement() {
@@ -113,6 +141,10 @@ Expr::ExprPtr Parser::primary() {
         // tokens of these types are guaranteed to have a literal value
         return std::make_unique<Expr::Literal>(previous().literal.value());
 
+    if (match(TokenType::IDENTIFIER)) {
+        return std::make_unique<Expr::Variable>(previous());
+    }
+
     if (match(TokenType::LEFT_PAREN)) {
         auto expr = expression();
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression");
@@ -139,9 +171,9 @@ void Parser::synchronize() {
         case TokenType::PRINT:
         case TokenType::RETURN:
             return;
+        default:
+            advance();
         }
-
-        advance();
     }
 }
 

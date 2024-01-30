@@ -17,7 +17,7 @@ public:
 
 private:
     std::unique_ptr<ErrorHandler> errorHandler;
-    const Interpreter interpreter;
+    Interpreter interpreter;
 };
 
 #endif // !CLOXPP_TREEWALK_INTERPRETER_H

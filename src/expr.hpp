@@ -19,6 +19,7 @@ struct Binary;
 struct Unary;
 struct Grouping;
 struct Literal;
+struct Variable;
 
 template <typename R>
 class Visitor {
@@ -27,6 +28,7 @@ public:
     virtual R visit(const Grouping &expr) const = 0;
     virtual R visit(const Unary &expr) const = 0;
     virtual R visit(const Literal &expr) const = 0;
+    virtual R visit(const Variable &expr) const = 0;
 
     virtual ~Visitor() = default;
 };
@@ -66,6 +68,13 @@ struct Literal : BaseExpr {
     const LiteralValue value;
 
     Literal(LiteralValue value) : value(value) {}
+    DEFINE_NODE_ACCEPT_METHOD(Value)
+};
+
+struct Variable : BaseExpr {
+    const Token name;
+
+    Variable(Token name) : name(name) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 

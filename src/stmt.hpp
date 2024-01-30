@@ -6,7 +6,7 @@
 #include "expr.hpp"
 
 #define DEFINE_NODE_ACCEPT_METHOD(ReturnType)                                  \
-    ReturnType accept(const Visitor<ReturnType> &visitor) const override {     \
+    ReturnType accept(Visitor<ReturnType> &visitor) const override {           \
         return visitor.visit(*this);                                           \
     }
 
@@ -16,19 +16,21 @@ using Expr::ExprPtr;
 
 struct Expr;
 struct Print;
+struct Var;
 
 template <typename R>
 class Visitor {
 public:
-    virtual R visit(const Expr &expr) const = 0;
-    virtual R visit(const Print &expr) const = 0;
+    virtual R visit(const Expr &expr) = 0;
+    virtual R visit(const Print &expr) = 0;
+    virtual R visit(const Var &expr) = 0;
 
     virtual ~Visitor() = default;
 };
 
 struct BaseStmt {
     virtual ~BaseStmt() = default;
-    virtual void accept(const Visitor<void> &visitor) const = 0;
+    virtual void accept(Visitor<void> &visitor) const = 0;
 };
 using StmtPtr = std::unique_ptr<BaseStmt>;
 
@@ -43,6 +45,15 @@ struct Print : BaseStmt {
     const ExprPtr expr;
 
     Print(ExprPtr expr) : expr(std::move(expr)) {}
+    DEFINE_NODE_ACCEPT_METHOD(void)
+};
+
+struct Var : BaseStmt {
+    const Token name;
+    const ExprPtr initializer;
+
+    Var(Token name, ExprPtr initializer)
+        : name(name), initializer(std::move(initializer)) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 

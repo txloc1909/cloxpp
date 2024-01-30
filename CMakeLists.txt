@@ -15,6 +15,7 @@ add_executable(jlox
     src/utils.cpp
     src/parser.cpp
     src/interpreter.cpp
+    src/environment.cpp
 )
 target_compile_options(jlox PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(jlox PRIVATE -fsanitize=undefined -fsanitize=address)

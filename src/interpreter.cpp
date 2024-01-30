@@ -40,8 +40,9 @@ static void checkNumberOperands(Token op, Value left, Value right) {
     throw RuntimeError(op, "Operands must be numbers.");
 }
 
-void Interpreter::interpret(
-    const std::vector<Stmt::StmtPtr> &statements) const {
+Interpreter::Interpreter(ErrorHandler &handler) : handler(handler) {}
+
+void Interpreter::interpret(const std::vector<Stmt::StmtPtr> &statements) {
     try {
         for (const auto &stmt : statements) {
             execute(*stmt);
@@ -51,18 +52,27 @@ void Interpreter::interpret(
     }
 }
 
-void Interpreter::execute(const Stmt::BaseStmt &stmt) const {
+void Interpreter::execute(const Stmt::BaseStmt &stmt) {
     return stmt.accept(*this);
 }
 
-void Interpreter::visit(const Stmt::Expr &stmt) const {
+void Interpreter::visit(const Stmt::Expr &stmt) {
     evaluate(*stmt.expr);
     return;
 }
 
-void Interpreter::visit(const Stmt::Print &stmt) const {
+void Interpreter::visit(const Stmt::Print &stmt) {
     Value value = evaluate(*stmt.expr);
     std::cout << value << "\n";
+}
+
+void Interpreter::visit(const Stmt::Var &stmt) {
+    Value value{};
+    if (stmt.initializer) {
+        value = evaluate(*stmt.initializer);
+    }
+
+    environment.define(stmt.name.lexeme, value);
 }
 
 Value Interpreter::evaluate(const Expr::BaseExpr &expr) const {
@@ -132,3 +142,7 @@ Value Interpreter::visit(const Expr::Unary &expr) const {
 }
 
 Value Interpreter::visit(const Expr::Literal &expr) const { return expr.value; }
+
+Value Interpreter::visit(const Expr::Variable &expr) const {
+    return environment.get(expr.name);
+}

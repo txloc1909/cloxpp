@@ -25,6 +25,8 @@ private:
     Expr::ExprPtr unary();
     Expr::ExprPtr primary();
 
+    Stmt::StmtPtr declaration();
+    Stmt::StmtPtr varDeclaration();
     Stmt::StmtPtr statement();
     Stmt::StmtPtr expressionStmt();
     Stmt::StmtPtr printStmt();
