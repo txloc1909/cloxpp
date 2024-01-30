@@ -7,7 +7,7 @@
 #include "token.hpp"
 
 Parser::Parser(const std::vector<Token> &tokens, ErrorHandler &handler)
-    : handler_(handler), tokens_(tokens) {}
+    : handler(handler), tokens(tokens) {}
 
 std::vector<Stmt::StmtPtr> Parser::parse() {
     auto statements = std::vector<Stmt::StmtPtr>();
@@ -146,7 +146,7 @@ void Parser::synchronize() {
 }
 
 auto Parser::error(Token token, const char *message) -> Parser::ParserError {
-    handler_.error(token, message);
+    handler.error(token, message);
     return ParserError();
 }
 
@@ -194,6 +194,6 @@ Token Parser::advance() {
     return previous();
 }
 
-Token Parser::peek() { return tokens_.at(current); }
+Token Parser::peek() { return tokens.at(current); }
 
-Token Parser::previous() { return tokens_.at(current - 1); }
+Token Parser::previous() { return tokens.at(current - 1); }

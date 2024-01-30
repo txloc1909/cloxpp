@@ -10,7 +10,7 @@
 
 class Scanner {
 private:
-    ErrorHandler &errorHandler;
+    ErrorHandler &handler;
     const std::string &source;
     std::size_t start;
     std::size_t current;
@@ -29,7 +29,7 @@ private:
     char peekNext();
 
 public:
-    Scanner(const std::string &source_, ErrorHandler &errorHandler_);
+    Scanner(const std::string &source, ErrorHandler &handler);
     std::vector<Token> scanTokens();
 };
 

@@ -10,12 +10,12 @@
 
 class Interpreter : Expr::Visitor<Value>, Stmt::Visitor<void> {
 public:
-    Interpreter(ErrorHandler &handler) : handler_(handler){};
+    Interpreter(ErrorHandler &handler) : handler(handler){};
 
     void interpret(const std::vector<Stmt::StmtPtr> &statements) const;
 
 private:
-    ErrorHandler &handler_;
+    ErrorHandler &handler;
 
     Value evaluate(const Expr::BaseExpr &expr) const;
     Value visit(const Expr::Binary &expr) const;

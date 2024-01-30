@@ -12,8 +12,8 @@
 
 class Parser {
 private:
-    ErrorHandler &handler_;
-    std::vector<Token> tokens_;
+    ErrorHandler &handler;
+    std::vector<Token> tokens;
     std::size_t current = 0;
 
     class ParserError : std::exception {};

@@ -47,7 +47,7 @@ void Interpreter::interpret(
             execute(*stmt);
         }
     } catch (const RuntimeError &error) {
-        handler_.runtimeError(error);
+        handler.runtimeError(error);
     }
 }
 
@@ -56,12 +56,12 @@ void Interpreter::execute(const Stmt::BaseStmt &stmt) const {
 }
 
 void Interpreter::visit(const Stmt::Expr &stmt) const {
-    evaluate(*stmt.expr_);
+    evaluate(*stmt.expr);
     return;
 }
 
 void Interpreter::visit(const Stmt::Print &stmt) const {
-    Value value = evaluate(*stmt.expr_);
+    Value value = evaluate(*stmt.expr);
     std::cout << value << "\n";
 }
 
@@ -70,28 +70,28 @@ Value Interpreter::evaluate(const Expr::BaseExpr &expr) const {
 }
 
 Value Interpreter::visit(const Expr::Binary &expr) const {
-    auto left = evaluate(*expr.left_);
-    auto right = evaluate(*expr.right_);
+    auto left = evaluate(*expr.left);
+    auto right = evaluate(*expr.right);
 
-    switch (expr.op_.type) {
+    switch (expr.op.type) {
     case TokenType::GREATER:
-        checkNumberOperands(expr.op_, left, right);
+        checkNumberOperands(expr.op, left, right);
         return std::get<double>(left) > std::get<double>(right);
     case TokenType::GREATER_EQUAL:
-        checkNumberOperands(expr.op_, left, right);
+        checkNumberOperands(expr.op, left, right);
         return std::get<double>(left) >= std::get<double>(right);
     case TokenType::LESS:
-        checkNumberOperands(expr.op_, left, right);
+        checkNumberOperands(expr.op, left, right);
         return std::get<double>(left) < std::get<double>(right);
     case TokenType::LESS_EQUAL:
-        checkNumberOperands(expr.op_, left, right);
+        checkNumberOperands(expr.op, left, right);
         return std::get<double>(left) <= std::get<double>(right);
     case TokenType::BANG_EQUAL:
         return !isEqual(left, right);
     case TokenType::EQUAL_EQUAL:
         return isEqual(left, right);
     case TokenType::MINUS:
-        checkNumberOperands(expr.op_, left, right);
+        checkNumberOperands(expr.op, left, right);
         return std::get<double>(left) - std::get<double>(right);
     case TokenType::PLUS:
         if (std::holds_alternative<double>(left) &&
@@ -102,7 +102,7 @@ Value Interpreter::visit(const Expr::Binary &expr) const {
             std::holds_alternative<std::string>(right)) {
             return std::get<std::string>(left) + std::get<std::string>(right);
         }
-        throw RuntimeError(expr.op_,
+        throw RuntimeError(expr.op,
                            "Operands must be two numbers or two strings.");
     case TokenType::SLASH:
         return std::get<double>(left) / std::get<double>(right);
@@ -114,23 +114,21 @@ Value Interpreter::visit(const Expr::Binary &expr) const {
 }
 
 Value Interpreter::visit(const Expr::Grouping &expr) const {
-    return evaluate(*expr.inner_);
+    return evaluate(*expr.inner);
 }
 
 Value Interpreter::visit(const Expr::Unary &expr) const {
-    auto right = evaluate(*expr.right_);
+    auto right = evaluate(*expr.right);
 
-    switch (expr.op_.type) {
+    switch (expr.op.type) {
     case TokenType::BANG:
         return !isTruthy(right);
     case TokenType::MINUS:
-        checkNumberOperand(expr.op_, right);
+        checkNumberOperand(expr.op, right);
         return -std::get<double>(right);
     default:
         return {}; // unreachable
     }
 }
 
-Value Interpreter::visit(const Expr::Literal &expr) const {
-    return expr.value_;
-}
+Value Interpreter::visit(const Expr::Literal &expr) const { return expr.value; }

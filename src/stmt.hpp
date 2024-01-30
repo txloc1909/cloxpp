@@ -33,17 +33,17 @@ struct BaseStmt {
 using StmtPtr = std::unique_ptr<BaseStmt>;
 
 struct Expr : BaseStmt {
-    const ExprPtr expr_;
+    const ExprPtr expr;
 
-    Expr(ExprPtr expr) : expr_(std::move(expr)) {}
-    DEFINE_NODE_ACCEPT_METHOD(void);
+    Expr(ExprPtr expr) : expr(std::move(expr)) {}
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Print : BaseStmt {
-    const ExprPtr expr_;
+    const ExprPtr expr;
 
-    Print(ExprPtr expr) : expr_(std::move(expr)) {}
-    DEFINE_NODE_ACCEPT_METHOD(void);
+    Print(ExprPtr expr) : expr(std::move(expr)) {}
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 } // namespace Stmt

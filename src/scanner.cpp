@@ -25,8 +25,8 @@ static bool isalpha(char c) {
 
 static bool isalphanumeric(char c) { return isdigit(c) || isalpha(c); }
 
-Scanner::Scanner(const std::string &source_, ErrorHandler &errorHandler_)
-    : errorHandler(errorHandler_), source(source_) {
+Scanner::Scanner(const std::string &source, ErrorHandler &handler)
+    : handler(handler), source(source) {
     start = 0;
     current = 0;
     line = 1;
@@ -110,7 +110,7 @@ std::optional<Token> Scanner::scanOneToken() {
         } else if (isalpha(c)) {
             return consumeIdentifier();
         } else {
-            errorHandler.error(line, "Unexpected character.");
+            handler.error(line, "Unexpected character.");
             return std::nullopt;
         }
     }
@@ -137,7 +137,7 @@ std::optional<Token> Scanner::consumeString() {
     }
 
     if (isAtEnd()) {
-        errorHandler.error(line, "Unterminated string.");
+        handler.error(line, "Unterminated string.");
         return std::nullopt;
     }
 

@@ -38,34 +38,34 @@ struct BaseExpr {
 using ExprPtr = std::unique_ptr<BaseExpr>;
 
 struct Binary : BaseExpr {
-    const ExprPtr left_;
-    const ExprPtr right_;
-    const Token op_;
+    const ExprPtr left;
+    const ExprPtr right;
+    const Token op;
 
     Binary(ExprPtr left, ExprPtr right, Token op)
-        : left_(std::move(left)), right_(std::move(right)), op_(op) {}
-    DEFINE_NODE_ACCEPT_METHOD(Value);
+        : left(std::move(left)), right(std::move(right)), op(op) {}
+    DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
 struct Grouping : BaseExpr {
-    const ExprPtr inner_;
+    const ExprPtr inner;
 
-    Grouping(ExprPtr expr) : inner_(std::move(expr)) {}
+    Grouping(ExprPtr expr) : inner(std::move(expr)) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
 struct Unary : BaseExpr {
-    const Token op_;
-    const ExprPtr right_;
+    const Token op;
+    const ExprPtr right;
 
-    Unary(Token op, ExprPtr right) : op_(op), right_(std::move(right)) {}
-    DEFINE_NODE_ACCEPT_METHOD(Value);
+    Unary(Token op, ExprPtr right) : op(op), right(std::move(right)) {}
+    DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
 struct Literal : BaseExpr {
-    const LiteralValue value_;
+    const LiteralValue value;
 
-    Literal(LiteralValue value) : value_(value) {}
+    Literal(LiteralValue value) : value(value) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
