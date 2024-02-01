@@ -170,6 +170,21 @@ Value Interpreter::visit(const Expr::Assign &expr) {
     return value;
 };
 
+Value Interpreter::visit(const Expr::Logical &expr) {
+    Value left = evaluate(*expr.left);
+
+    // short-circuit
+    if (expr.op.type == TokenType::OR) {
+        if (isTruthy(left))
+            return left;
+    } else {
+        if (!isTruthy(left))
+            return left;
+    }
+
+    return evaluate(*expr.right);
+}
+
 ScopeManager::ScopeManager(Interpreter &interpreter, Environment *new_env)
     : interpreter(interpreter), new_env(new_env) {
     saved_env = interpreter.environment;

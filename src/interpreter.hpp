@@ -40,6 +40,7 @@ private:
     Value visit(const Expr::Literal &expr);
     Value visit(const Expr::Variable &expr);
     Value visit(const Expr::Assign &expr);
+    Value visit(const Expr::Logical &expr);
 
     void execute(const Stmt::BaseStmt &stmt);
     void visit(const Stmt::Expr &stmt);

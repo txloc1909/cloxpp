@@ -82,7 +82,7 @@ std::vector<Stmt::StmtPtr> Parser::block() {
 }
 
 Expr::ExprPtr Parser::assignment() {
-    auto expr = equality();
+    auto expr = logical_or();
 
     if (match(TokenType::EQUAL)) {
         Token equals = previous();
@@ -94,6 +94,31 @@ Expr::ExprPtr Parser::assignment() {
         }
 
         error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
+}
+
+Expr::ExprPtr Parser::logical_or() {
+    auto expr = logical_and();
+
+    while (match(TokenType::OR)) {
+        Token op = previous();
+        auto right = logical_and();
+        expr = std::make_unique<Expr::Logical>(std::move(expr),
+                                               std::move(right), op);
+    }
+
+    return expr;
+}
+Expr::ExprPtr Parser::logical_and() {
+    auto expr = equality();
+
+    while (match(TokenType::AND)) {
+        Token op = previous();
+        auto right = equality();
+        expr = std::make_unique<Expr::Logical>(std::move(expr),
+                                               std::move(right), op);
     }
 
     return expr;

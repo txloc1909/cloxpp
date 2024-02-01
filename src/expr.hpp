@@ -21,6 +21,7 @@ struct Grouping;
 struct Literal;
 struct Variable;
 struct Assign;
+struct Logical;
 
 template <typename R>
 class Visitor {
@@ -31,6 +32,7 @@ public:
     virtual R visit(const Literal &expr) = 0;
     virtual R visit(const Variable &expr) = 0;
     virtual R visit(const Assign &expr) = 0;
+    virtual R visit(const Logical &expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -85,7 +87,17 @@ struct Assign : BaseExpr {
     const ExprPtr value;
 
     Assign(Token name, ExprPtr value) : name(name), value(std::move(value)) {}
-    DEFINE_NODE_ACCEPT_METHOD(Value);
+    DEFINE_NODE_ACCEPT_METHOD(Value)
+};
+
+struct Logical : BaseExpr {
+    const ExprPtr left;
+    const ExprPtr right;
+    const Token op;
+
+    Logical(ExprPtr left, ExprPtr right, Token op)
+        : left(std::move(left)), right(std::move(right)), op(op) {}
+    DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
 } // namespace Expr

@@ -20,6 +20,8 @@ private:
 
     Expr::ExprPtr expression();
     Expr::ExprPtr assignment();
+    Expr::ExprPtr logical_or();
+    Expr::ExprPtr logical_and();
     Expr::ExprPtr equality();
     Expr::ExprPtr comparison();
     Expr::ExprPtr term();
