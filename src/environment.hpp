@@ -13,7 +13,8 @@ private:
 
 public:
     void define(std::string name, Value value);
-    Value get(Token name) const;
+    void assign(const Token &name, Value value);
+    Value get(const Token &name) const;
 };
 
 #endif // !CLOXPP_ENVIRONMENT_H

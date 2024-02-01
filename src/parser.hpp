@@ -19,6 +19,8 @@ private:
     class ParserError : std::exception {};
 
     Expr::ExprPtr expression();
+    Expr::ExprPtr assignment();
+    Expr::ExprPtr equality();
     Expr::ExprPtr comparison();
     Expr::ExprPtr term();
     Expr::ExprPtr factor();

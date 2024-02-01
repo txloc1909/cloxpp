@@ -66,7 +66,25 @@ Stmt::StmtPtr Parser::printStmt() {
     return std::make_unique<Stmt::Print>(std::move(value));
 }
 
-Expr::ExprPtr Parser::expression() {
+Expr::ExprPtr Parser::assignment() {
+    auto expr = equality();
+
+    if (match(TokenType::EQUAL)) {
+        Token equals = previous();
+        auto value = assignment();
+
+        if (auto lvalue = dynamic_cast<Expr::Variable *>(expr.get())) {
+            Token name = lvalue->name;
+            return std::make_unique<Expr::Assign>(name, std::move(value));
+        }
+
+        error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
+}
+
+Expr::ExprPtr Parser::equality() {
     auto expr = comparison();
 
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
@@ -78,6 +96,8 @@ Expr::ExprPtr Parser::expression() {
 
     return expr;
 }
+
+Expr::ExprPtr Parser::expression() { return assignment(); }
 
 Expr::ExprPtr Parser::comparison() {
     auto expr = term();

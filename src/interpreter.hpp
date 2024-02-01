@@ -19,12 +19,13 @@ private:
     ErrorHandler &handler;
     Environment environment;
 
-    Value evaluate(const Expr::BaseExpr &expr) const;
-    Value visit(const Expr::Binary &expr) const;
-    Value visit(const Expr::Grouping &expr) const;
-    Value visit(const Expr::Unary &expr) const;
-    Value visit(const Expr::Literal &expr) const;
-    Value visit(const Expr::Variable &expr) const;
+    Value evaluate(const Expr::BaseExpr &expr);
+    Value visit(const Expr::Binary &expr);
+    Value visit(const Expr::Grouping &expr);
+    Value visit(const Expr::Unary &expr);
+    Value visit(const Expr::Literal &expr);
+    Value visit(const Expr::Variable &expr);
+    Value visit(const Expr::Assign &expr);
 
     void execute(const Stmt::BaseStmt &stmt);
     void visit(const Stmt::Expr &stmt);

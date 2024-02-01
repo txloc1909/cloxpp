@@ -75,11 +75,11 @@ void Interpreter::visit(const Stmt::Var &stmt) {
     environment.define(stmt.name.lexeme, value);
 }
 
-Value Interpreter::evaluate(const Expr::BaseExpr &expr) const {
+Value Interpreter::evaluate(const Expr::BaseExpr &expr) {
     return expr.accept(*this);
 }
 
-Value Interpreter::visit(const Expr::Binary &expr) const {
+Value Interpreter::visit(const Expr::Binary &expr) {
     auto left = evaluate(*expr.left);
     auto right = evaluate(*expr.right);
 
@@ -123,11 +123,11 @@ Value Interpreter::visit(const Expr::Binary &expr) const {
     }
 }
 
-Value Interpreter::visit(const Expr::Grouping &expr) const {
+Value Interpreter::visit(const Expr::Grouping &expr) {
     return evaluate(*expr.inner);
 }
 
-Value Interpreter::visit(const Expr::Unary &expr) const {
+Value Interpreter::visit(const Expr::Unary &expr) {
     auto right = evaluate(*expr.right);
 
     switch (expr.op.type) {
@@ -141,8 +141,14 @@ Value Interpreter::visit(const Expr::Unary &expr) const {
     }
 }
 
-Value Interpreter::visit(const Expr::Literal &expr) const { return expr.value; }
+Value Interpreter::visit(const Expr::Literal &expr) { return expr.value; }
 
-Value Interpreter::visit(const Expr::Variable &expr) const {
+Value Interpreter::visit(const Expr::Variable &expr) {
     return environment.get(expr.name);
 }
+
+Value Interpreter::visit(const Expr::Assign &expr) {
+    auto value = evaluate(*expr.value);
+    environment.assign(expr.name, value);
+    return value;
+};

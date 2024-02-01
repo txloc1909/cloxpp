@@ -7,7 +7,7 @@
 #include "value.hpp"
 
 #define DEFINE_NODE_ACCEPT_METHOD(ReturnType)                                  \
-    ReturnType accept(const Visitor<ReturnType> &visitor) const override {     \
+    ReturnType accept(Visitor<ReturnType> &visitor) const override {           \
         return visitor.visit(*this);                                           \
     }
 
@@ -20,22 +20,24 @@ struct Unary;
 struct Grouping;
 struct Literal;
 struct Variable;
+struct Assign;
 
 template <typename R>
 class Visitor {
 public:
-    virtual R visit(const Binary &expr) const = 0;
-    virtual R visit(const Grouping &expr) const = 0;
-    virtual R visit(const Unary &expr) const = 0;
-    virtual R visit(const Literal &expr) const = 0;
-    virtual R visit(const Variable &expr) const = 0;
+    virtual R visit(const Binary &expr) = 0;
+    virtual R visit(const Grouping &expr) = 0;
+    virtual R visit(const Unary &expr) = 0;
+    virtual R visit(const Literal &expr) = 0;
+    virtual R visit(const Variable &expr) = 0;
+    virtual R visit(const Assign &expr) = 0;
 
     virtual ~Visitor() = default;
 };
 
 struct BaseExpr {
     virtual ~BaseExpr() = default;
-    virtual Value accept(const Visitor<Value> &visitor) const = 0;
+    virtual Value accept(Visitor<Value> &visitor) const = 0;
 };
 using ExprPtr = std::unique_ptr<BaseExpr>;
 
@@ -76,6 +78,14 @@ struct Variable : BaseExpr {
 
     Variable(Token name) : name(name) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+};
+
+struct Assign : BaseExpr {
+    const Token name;
+    const ExprPtr value;
+
+    Assign(Token name, ExprPtr value) : name(name), value(std::move(value)) {}
+    DEFINE_NODE_ACCEPT_METHOD(Value);
 };
 
 } // namespace Expr
