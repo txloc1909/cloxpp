@@ -40,7 +40,11 @@ static void checkNumberOperands(Token op, Value left, Value right) {
     throw RuntimeError(op, "Operands must be numbers.");
 }
 
-Interpreter::Interpreter(ErrorHandler &handler) : handler(handler) {}
+Interpreter::Interpreter(ErrorHandler &handler) : handler(handler) {
+    environment = new Environment();
+}
+
+Interpreter::~Interpreter() { delete environment; }
 
 void Interpreter::interpret(const std::vector<Stmt::StmtPtr> &statements) {
     try {
@@ -72,7 +76,7 @@ void Interpreter::visit(const Stmt::Var &stmt) {
         value = evaluate(*stmt.initializer);
     }
 
-    environment.define(stmt.name.lexeme, value);
+    environment->define(stmt.name.lexeme, value);
 }
 
 void Interpreter::visit(const Stmt::Block &stmt) {
@@ -82,15 +86,10 @@ void Interpreter::visit(const Stmt::Block &stmt) {
 
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
                                Environment *environment) {
-    // WIP: managing scope properly here
-    Environment curr_env = this->environment;
-    this->environment = *environment;
-
+    auto new_scope = ScopeManager(*this, environment);
     for (const auto &stmt : statements) {
         execute(*stmt);
     }
-
-    this->environment = curr_env;
 }
 
 Value Interpreter::evaluate(const Expr::BaseExpr &expr) {
@@ -162,11 +161,18 @@ Value Interpreter::visit(const Expr::Unary &expr) {
 Value Interpreter::visit(const Expr::Literal &expr) { return expr.value; }
 
 Value Interpreter::visit(const Expr::Variable &expr) {
-    return environment.get(expr.name);
+    return environment->get(expr.name);
 }
 
 Value Interpreter::visit(const Expr::Assign &expr) {
     auto value = evaluate(*expr.value);
-    environment.assign(expr.name, value);
+    environment->assign(expr.name, value);
     return value;
 };
+
+ScopeManager::ScopeManager(Interpreter &interpreter, Environment *new_env)
+    : interpreter(interpreter), new_env(new_env) {
+    saved_env = interpreter.environment;
+}
+
+ScopeManager::~ScopeManager() { interpreter.environment = saved_env; }

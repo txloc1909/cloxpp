@@ -9,15 +9,29 @@
 #include "stmt.hpp"
 #include "value.hpp"
 
+class Interpreter;
+
+class ScopeManager {
+private:
+    Interpreter &interpreter;
+    Environment *new_env;
+    Environment *saved_env;
+
+public:
+    ScopeManager(Interpreter &interpreter, Environment *new_env);
+    ~ScopeManager();
+};
+
 class Interpreter : Expr::Visitor<Value>, Stmt::Visitor<void> {
 public:
     Interpreter(ErrorHandler &handler);
+    ~Interpreter();
 
     void interpret(const std::vector<Stmt::StmtPtr> &statements);
 
 private:
     ErrorHandler &handler;
-    Environment environment;
+    Environment *environment;
 
     Value evaluate(const Expr::BaseExpr &expr);
     Value visit(const Expr::Binary &expr);
@@ -35,6 +49,10 @@ private:
 
     void executeBlock(const std::vector<Stmt::StmtPtr> &statements,
                       Environment *environment);
+
+    friend ScopeManager::ScopeManager(Interpreter &interpreter,
+                                      Environment *new_env);
+    friend ScopeManager::~ScopeManager();
 };
 
 #endif // !CLOXPP_INTERPRETER_H
