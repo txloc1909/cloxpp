@@ -11,12 +11,21 @@ void Environment::assign(const Token &name, Value value) {
         return;
     }
 
+    if (enclosing) {
+        enclosing->assign(name, value);
+        return;
+    }
+
     throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
 }
 
 Value Environment::get(const Token &name) const {
     if (values.find(name.lexeme) != values.end()) {
         return values.at(name.lexeme);
+    }
+
+    if (enclosing) {
+        return enclosing->get(name);
     }
 
     throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");

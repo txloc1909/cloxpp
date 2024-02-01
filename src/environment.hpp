@@ -10,8 +10,12 @@
 class Environment {
 private:
     std::unordered_map<std::string, Value> values;
+    Environment *enclosing = nullptr;
 
 public:
+    Environment() = default;
+    Environment(Environment *enclosing) : enclosing(enclosing) {}
+
     void define(std::string name, Value value);
     void assign(const Token &name, Value value);
     Value get(const Token &name) const;
