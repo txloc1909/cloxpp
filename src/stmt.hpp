@@ -19,6 +19,7 @@ struct Expr;
 struct Print;
 struct Var;
 struct Block;
+struct If;
 
 template <typename R>
 class Visitor {
@@ -27,6 +28,7 @@ public:
     virtual R visit(const Print &expr) = 0;
     virtual R visit(const Var &expr) = 0;
     virtual R visit(const Block &expr) = 0;
+    virtual R visit(const If &expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -65,6 +67,17 @@ struct Block : BaseStmt {
 
     Block(std::vector<StmtPtr> statements)
         : statements(std::move(statements)) {}
+    DEFINE_NODE_ACCEPT_METHOD(void)
+};
+
+struct If : BaseStmt {
+    ExprPtr condition;
+    StmtPtr thenBranch;
+    StmtPtr elseBranch;
+
+    If(ExprPtr condition, StmtPtr thenBranch, StmtPtr elseBranch)
+        : condition(std::move(condition)), thenBranch(std::move(thenBranch)),
+          elseBranch(std::move(elseBranch)) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 

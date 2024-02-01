@@ -46,6 +46,7 @@ private:
     void visit(const Stmt::Print &stmt);
     void visit(const Stmt::Var &stmt);
     void visit(const Stmt::Block &stmt);
+    void visit(const Stmt::If &stmt);
 
     void executeBlock(const std::vector<Stmt::StmtPtr> &statements,
                       Environment *environment);

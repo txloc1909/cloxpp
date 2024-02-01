@@ -47,6 +47,10 @@ Stmt::StmtPtr Parser::varDeclaration() {
 }
 
 Stmt::StmtPtr Parser::statement() {
+    if (match(TokenType::IF)) {
+        return ifStmt();
+    }
+
     if (match(TokenType::PRINT)) {
         return printStmt();
     }
@@ -68,6 +72,18 @@ Stmt::StmtPtr Parser::printStmt() {
     Expr::ExprPtr value = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
     return std::make_unique<Stmt::Print>(std::move(value));
+}
+
+Stmt::StmtPtr Parser::ifStmt() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'.");
+    auto condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.");
+
+    auto thenBranch = statement();
+    auto elseBranch = match(TokenType::ELSE) ? statement() : nullptr;
+
+    return std::make_unique<Stmt::If>(
+        std::move(condition), std::move(thenBranch), std::move(elseBranch));
 }
 
 std::vector<Stmt::StmtPtr> Parser::block() {
