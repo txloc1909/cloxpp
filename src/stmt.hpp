@@ -2,6 +2,7 @@
 #define CLOXPP_STMT_H
 
 #include <memory>
+#include <vector>
 
 #include "expr.hpp"
 
@@ -17,6 +18,7 @@ using Expr::ExprPtr;
 struct Expr;
 struct Print;
 struct Var;
+struct Block;
 
 template <typename R>
 class Visitor {
@@ -24,6 +26,7 @@ public:
     virtual R visit(const Expr &expr) = 0;
     virtual R visit(const Print &expr) = 0;
     virtual R visit(const Var &expr) = 0;
+    virtual R visit(const Block &expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -54,6 +57,14 @@ struct Var : BaseStmt {
 
     Var(Token name, ExprPtr initializer)
         : name(name), initializer(std::move(initializer)) {}
+    DEFINE_NODE_ACCEPT_METHOD(void)
+};
+
+struct Block : BaseStmt {
+    const std::vector<StmtPtr> statements;
+
+    Block(std::vector<StmtPtr> statements)
+        : statements(std::move(statements)) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 

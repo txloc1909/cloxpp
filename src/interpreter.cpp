@@ -75,6 +75,24 @@ void Interpreter::visit(const Stmt::Var &stmt) {
     environment.define(stmt.name.lexeme, value);
 }
 
+void Interpreter::visit(const Stmt::Block &stmt) {
+    auto new_env = std::make_unique<Environment>(this->environment);
+    executeBlock(stmt.statements, new_env.get());
+}
+
+void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
+                               Environment *environment) {
+    // WIP: managing scope properly here
+    Environment curr_env = this->environment;
+    this->environment = *environment;
+
+    for (const auto &stmt : statements) {
+        execute(*stmt);
+    }
+
+    this->environment = curr_env;
+}
+
 Value Interpreter::evaluate(const Expr::BaseExpr &expr) {
     return expr.accept(*this);
 }
