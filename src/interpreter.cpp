@@ -84,6 +84,20 @@ void Interpreter::visit(const Stmt::Block &stmt) {
     executeBlock(stmt.statements, new_env.get());
 }
 
+void Interpreter::visit(const Stmt::If &stmt) {
+    if (isTruthy(evaluate(*stmt.condition))) {
+        execute(*stmt.thenBranch);
+    } else if (stmt.elseBranch) {
+        execute(*stmt.elseBranch);
+    }
+}
+
+void Interpreter::visit(const Stmt::While &stmt) {
+    while (isTruthy(evaluate(*stmt.condition))) {
+        execute(*stmt.body);
+    }
+}
+
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
                                Environment *environment) {
     auto new_scope = ScopeManager(*this, environment);

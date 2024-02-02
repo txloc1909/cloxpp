@@ -47,8 +47,20 @@ Stmt::StmtPtr Parser::varDeclaration() {
 }
 
 Stmt::StmtPtr Parser::statement() {
+    if (match(TokenType::FOR)) {
+        return forStmt();
+    }
+
+    if (match(TokenType::IF)) {
+        return ifStmt();
+    }
+
     if (match(TokenType::PRINT)) {
         return printStmt();
+    }
+
+    if (match(TokenType::WHILE)) {
+        return whileStmt();
     }
 
     if (match(TokenType::LEFT_BRACE)) {
@@ -68,6 +80,76 @@ Stmt::StmtPtr Parser::printStmt() {
     Expr::ExprPtr value = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
     return std::make_unique<Stmt::Print>(std::move(value));
+}
+
+Stmt::StmtPtr Parser::ifStmt() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'.");
+    auto condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.");
+
+    auto thenBranch = statement();
+    auto elseBranch = match(TokenType::ELSE) ? statement() : nullptr;
+
+    return std::make_unique<Stmt::If>(
+        std::move(condition), std::move(thenBranch), std::move(elseBranch));
+}
+
+Stmt::StmtPtr Parser::whileStmt() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'.");
+    auto condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after condition.");
+    auto body = statement();
+
+    return std::make_unique<Stmt::While>(std::move(condition), std::move(body));
+}
+
+Stmt::StmtPtr Parser::forStmt() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'for'.");
+
+    Stmt::StmtPtr initializer;
+    if (match(TokenType::SEMICOLON)) {
+        initializer = nullptr;
+    } else if (match(TokenType::VAR)) {
+        initializer = varDeclaration();
+    } else {
+        initializer = expressionStmt();
+    }
+
+    Expr::ExprPtr condition = nullptr;
+    if (!check(TokenType::SEMICOLON)) {
+        condition = expression();
+    }
+
+    consume(TokenType::SEMICOLON, "Expect ';' after loop condition.");
+
+    Expr::ExprPtr increment = nullptr;
+    if (!check(TokenType::RIGHT_PAREN)) {
+        increment = expression();
+    }
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after for clauses.");
+
+    Stmt::StmtPtr body = statement();
+
+    if (increment) {
+        auto block = std::vector<Stmt::StmtPtr>();
+        block.push_back(std::move(body));
+        block.push_back(std::make_unique<Stmt::Expr>(std::move(increment)));
+        body = std::make_unique<Stmt::Block>(std::move(block));
+    }
+
+    if (!condition) {
+        condition = std::make_unique<Expr::Literal>(true);
+    }
+    body = std::make_unique<Stmt::While>(std::move(condition), std::move(body));
+
+    if (initializer) {
+        auto block = std::vector<Stmt::StmtPtr>();
+        block.push_back(std::move(initializer));
+        block.push_back(std::move(body));
+        body = std::make_unique<Stmt::Block>(std::move(block));
+    }
+
+    return body;
 }
 
 std::vector<Stmt::StmtPtr> Parser::block() {
