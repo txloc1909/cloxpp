@@ -33,6 +33,7 @@ private:
     Stmt::StmtPtr expressionStmt();
     Stmt::StmtPtr printStmt();
     Stmt::StmtPtr ifStmt();
+    Stmt::StmtPtr whileStmt();
     std::vector<Stmt::StmtPtr> block();
 
     void synchronize();

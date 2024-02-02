@@ -55,6 +55,10 @@ Stmt::StmtPtr Parser::statement() {
         return printStmt();
     }
 
+    if (match(TokenType::WHILE)) {
+        return whileStmt();
+    }
+
     if (match(TokenType::LEFT_BRACE)) {
         return std::make_unique<Stmt::Block>(block());
     }
@@ -84,6 +88,15 @@ Stmt::StmtPtr Parser::ifStmt() {
 
     return std::make_unique<Stmt::If>(
         std::move(condition), std::move(thenBranch), std::move(elseBranch));
+}
+
+Stmt::StmtPtr Parser::whileStmt() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'.");
+    auto condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after condition.");
+    auto body = statement();
+
+    return std::make_unique<Stmt::While>(std::move(condition), std::move(body));
 }
 
 std::vector<Stmt::StmtPtr> Parser::block() {
