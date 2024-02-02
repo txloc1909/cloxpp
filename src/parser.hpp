@@ -34,6 +34,7 @@ private:
     Stmt::StmtPtr printStmt();
     Stmt::StmtPtr ifStmt();
     Stmt::StmtPtr whileStmt();
+    Stmt::StmtPtr forStmt();
     std::vector<Stmt::StmtPtr> block();
 
     void synchronize();
