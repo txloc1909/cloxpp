@@ -172,7 +172,14 @@ Value Interpreter::visit(const Expr::Unary &expr) {
     }
 }
 
-Value Interpreter::visit(const Expr::Literal &expr) { return expr.value; }
+Value Interpreter::visit(const Expr::Literal &expr) {
+    auto value = Value{};
+
+    // since Literal is a subset of Value, this std::visit call is trivial
+    std::visit([&](auto &&arg) { value = arg; }, expr.value);
+
+    return value;
+}
 
 Value Interpreter::visit(const Expr::Variable &expr) {
     return environment->get(expr.name);
