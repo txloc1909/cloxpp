@@ -34,21 +34,21 @@ private:
     Environment *environment;
 
     Value evaluate(const Expr::BaseExpr &expr);
-    Value visit(const Expr::Binary &expr);
-    Value visit(const Expr::Grouping &expr);
-    Value visit(const Expr::Unary &expr);
-    Value visit(const Expr::Literal &expr);
-    Value visit(const Expr::Variable &expr);
-    Value visit(const Expr::Assign &expr);
-    Value visit(const Expr::Logical &expr);
+    Value visit(const Expr::Binary &expr) override;
+    Value visit(const Expr::Grouping &expr) override;
+    Value visit(const Expr::Unary &expr) override;
+    Value visit(const Expr::Literal &expr) override;
+    Value visit(const Expr::Variable &expr) override;
+    Value visit(const Expr::Assign &expr) override;
+    Value visit(const Expr::Logical &expr) override;
 
     void execute(const Stmt::BaseStmt &stmt);
-    void visit(const Stmt::Expr &stmt);
-    void visit(const Stmt::Print &stmt);
-    void visit(const Stmt::Var &stmt);
-    void visit(const Stmt::Block &stmt);
-    void visit(const Stmt::If &stmt);
-    void visit(const Stmt::While &stmt);
+    void visit(const Stmt::Expr &stmt) override;
+    void visit(const Stmt::Print &stmt) override;
+    void visit(const Stmt::Var &stmt) override;
+    void visit(const Stmt::Block &stmt) override;
+    void visit(const Stmt::If &stmt) override;
+    void visit(const Stmt::While &stmt) override;
 
     void executeBlock(const std::vector<Stmt::StmtPtr> &statements,
                       Environment *environment);
