@@ -2,6 +2,7 @@
 #define CLOXPP_EXPR_H
 
 #include <memory>
+#include <vector>
 
 #include "token.hpp"
 #include "value.hpp"
@@ -22,6 +23,7 @@ struct Literal;
 struct Variable;
 struct Assign;
 struct Logical;
+struct Call;
 
 template <typename R>
 class Visitor {
@@ -33,6 +35,7 @@ public:
     virtual R visit(const Variable &expr) = 0;
     virtual R visit(const Assign &expr) = 0;
     virtual R visit(const Logical &expr) = 0;
+    virtual R visit(const Call &expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -100,6 +103,16 @@ struct Logical : BaseExpr {
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
+struct Call : BaseExpr {
+    const ExprPtr callee;
+    const Token paren;
+    const std::vector<ExprPtr> arguments;
+
+    Call(ExprPtr callee, Token paren, std::vector<ExprPtr> arguments)
+        : callee(std::move(callee)), paren(paren),
+          arguments(std::move(arguments)) {}
+    DEFINE_NODE_ACCEPT_METHOD(Value)
+};
 } // namespace Expr
 
 #undef DEFINE_NODE_ACCEPT_METHOD

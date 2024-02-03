@@ -199,6 +199,13 @@ Value Interpreter::visit(const Expr::Logical &expr) {
     return evaluate(*expr.right);
 }
 
+Value Interpreter::visit(const Expr::Call &expr) {
+    // TODO: implement this after expand Value type to contain more than just
+    // Literal values
+
+    return {};
+}
+
 ScopeManager::ScopeManager(Interpreter &interpreter, Environment *new_env)
     : interpreter(interpreter), new_env(new_env) {
     saved_env = interpreter.environment;

@@ -268,7 +268,40 @@ Expr::ExprPtr Parser::unary() {
         return std::make_unique<Expr::Unary>(op, std::move(right));
     }
 
-    return primary();
+    return call();
+}
+
+Expr::ExprPtr Parser::call() {
+    auto expr = primary();
+
+    while (true) {
+        if (match(TokenType::LEFT_PAREN)) {
+            expr = finishCall(std::move(expr));
+        } else {
+            break;
+        }
+    }
+
+    return expr;
+}
+
+Expr::ExprPtr Parser::finishCall(Expr::ExprPtr callee) {
+    auto arguments = std::vector<Expr::ExprPtr>();
+
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (arguments.size() >= 255) {
+                error(peek(), "Can't have more than 255 arguments.");
+            }
+            arguments.push_back(expression());
+        } while (match(TokenType::COMMA));
+    }
+
+    Token paren =
+        consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
+
+    return std::make_unique<Expr::Call>(std::move(callee), paren,
+                                        std::move(arguments));
 }
 
 Expr::ExprPtr Parser::primary() {

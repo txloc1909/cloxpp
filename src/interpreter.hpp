@@ -41,6 +41,7 @@ private:
     Value visit(const Expr::Variable &expr) override;
     Value visit(const Expr::Assign &expr) override;
     Value visit(const Expr::Logical &expr) override;
+    Value visit(const Expr::Call &expr) override;
 
     void execute(const Stmt::BaseStmt &stmt);
     void visit(const Stmt::Expr &stmt) override;

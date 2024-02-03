@@ -27,6 +27,8 @@ private:
     Expr::ExprPtr term();
     Expr::ExprPtr factor();
     Expr::ExprPtr unary();
+    Expr::ExprPtr call();
+    Expr::ExprPtr finishCall(Expr::ExprPtr callee);
     Expr::ExprPtr primary();
 
     Stmt::StmtPtr declaration();
