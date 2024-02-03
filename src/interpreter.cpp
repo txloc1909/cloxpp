@@ -2,6 +2,7 @@
 #include <variant>
 
 #include "interpreter.hpp"
+#include "lox_function.hpp"
 #include "runtime_error.hpp"
 #include "token.hpp"
 
@@ -207,10 +208,29 @@ Value Interpreter::visit(const Expr::Logical &expr) {
 }
 
 Value Interpreter::visit(const Expr::Call &expr) {
-    // TODO: implement this after expand Value type to contain more than just
-    // Literal values
+    auto callee = evaluate(*expr.callee);
 
-    return {};
+    // Order of evaluating arguments is kept
+    auto arguments = std::vector<Value>();
+    for (const auto &arg : expr.arguments) {
+        arguments.push_back(evaluate(*arg));
+    }
+
+    // TODO: this should only check for LoxCallable,
+    // shouldn't hard-code to LoxFunction
+    if (!std::holds_alternative<LoxFunction *>(callee)) {
+        throw RuntimeError(expr.paren, "Can only call functions and classes.");
+    }
+
+    auto *callable = std::get<LoxFunction *>(callee);
+    if (arguments.size() != callable->arity()) {
+        throw RuntimeError(expr.paren,
+                           "Expected " + std::to_string(callable->arity()) +
+                               " arguments but got " +
+                               std::to_string(arguments.size()) + ".");
+    }
+
+    return callable->call(*this, arguments);
 }
 
 ScopeManager::ScopeManager(Interpreter &interpreter, Environment *new_env)
