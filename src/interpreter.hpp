@@ -31,6 +31,7 @@ public:
 
 private:
     ErrorHandler &handler;
+    Environment globals_;
     Environment *environment;
 
     Value evaluate(const Expr::BaseExpr &expr);

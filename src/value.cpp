@@ -1,12 +1,14 @@
 #include "value.hpp"
-#include "lox_function.hpp"
+#include "lox_callable.hpp"
 
 struct ToStringVisitor {
     std::string operator()(std::monostate) { return "nil"; }
     std::string operator()(const std::string &str) { return str; };
     std::string operator()(double d) { return std::to_string(d); }
     std::string operator()(bool b) { return b ? "true" : "false"; }
-    std::string operator()(LoxFunction *func) { return func->toString(); }
+    std::string operator()(const std::shared_ptr<LoxCallable> &callable) {
+        return callable->toString();
+    }
 };
 
 std::string stringify(const Literal &value) {

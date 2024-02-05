@@ -1,6 +1,7 @@
 #ifndef CLOXPP_VALUE_H
 #define CLOXPP_VALUE_H
 
+#include <memory>
 #include <string>
 #include <variant>
 
@@ -16,9 +17,9 @@ struct concatenator<std::variant<Args0...>, Args1...> {
 using Literal = std::variant<std::monostate, std::string, double, bool>;
 
 // forward declare some types here, to be included in Value
-class LoxFunction;
+class LoxCallable;
 
-using Value = concatenator<Literal, LoxFunction *>::type;
+using Value = concatenator<Literal, std::shared_ptr<LoxCallable>>::type;
 
 std::string stringify(const Literal &value);
 std::string stringify(const Value &value);

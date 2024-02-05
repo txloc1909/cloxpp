@@ -42,10 +42,12 @@ static void checkNumberOperands(Token op, Value left, Value right) {
 }
 
 Interpreter::Interpreter(ErrorHandler &handler) : handler(handler) {
-    environment = new Environment();
+    globals_ = Environment();
+    globals_.define("clock", std::make_shared<NativeClock>());
+    environment = &globals_;
 }
 
-Interpreter::~Interpreter() { delete environment; }
+Interpreter::~Interpreter() = default;
 
 void Interpreter::interpret(const std::vector<Stmt::StmtPtr> &statements) {
     try {
@@ -216,13 +218,11 @@ Value Interpreter::visit(const Expr::Call &expr) {
         arguments.push_back(evaluate(*arg));
     }
 
-    // TODO: this should only check for LoxCallable,
-    // shouldn't hard-code to LoxFunction
-    if (!std::holds_alternative<LoxFunction *>(callee)) {
+    if (!std::holds_alternative<std::shared_ptr<LoxCallable>>(callee)) {
         throw RuntimeError(expr.paren, "Can only call functions and classes.");
     }
 
-    auto *callable = std::get<LoxFunction *>(callee);
+    auto callable = std::get<std::shared_ptr<LoxCallable>>(callee);
     if (arguments.size() != callable->arity()) {
         throw RuntimeError(expr.paren,
                            "Expected " + std::to_string(callable->arity()) +

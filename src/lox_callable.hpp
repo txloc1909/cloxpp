@@ -9,6 +9,8 @@ public:
                        const std::vector<Value> &arguments) = 0;
     virtual std::size_t arity() const = 0;
     virtual std::string toString() const = 0;
+
+    virtual ~LoxCallable() = default;
 };
 
 #endif // !CLOXPP_LOX_CALLABLE_H

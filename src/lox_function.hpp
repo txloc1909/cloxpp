@@ -3,7 +3,7 @@
 
 #include "lox_callable.hpp"
 
-class LoxFunction : LoxCallable {
+class LoxFunction : public LoxCallable {
 private:
     // TODO: change this to an AST node for function declaration later
     const Stmt::BaseStmt &declaration;
@@ -11,6 +11,14 @@ private:
 public:
     LoxFunction(Stmt::BaseStmt &declaration) : declaration(declaration) {}
 
+    Value call(Interpreter &interpreter,
+               const std::vector<Value> &arguments) override;
+    std::size_t arity() const override;
+    std::string toString() const override;
+};
+
+class NativeClock : public LoxCallable {
+public:
     Value call(Interpreter &interpreter,
                const std::vector<Value> &arguments) override;
     std::size_t arity() const override;
