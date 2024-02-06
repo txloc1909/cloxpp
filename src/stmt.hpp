@@ -43,19 +43,19 @@ struct BaseStmt {
     virtual ~BaseStmt() = default;
     virtual void accept(Visitor<void> &visitor) const = 0;
 };
-using StmtPtr = std::unique_ptr<BaseStmt>;
+using StmtPtr = std::shared_ptr<BaseStmt>;
 
 struct Expr : BaseStmt {
     const ExprPtr expr;
 
-    Expr(ExprPtr expr) : expr(std::move(expr)) {}
+    Expr(ExprPtr expr) : expr(expr) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Print : BaseStmt {
     const ExprPtr expr;
 
-    Print(ExprPtr expr) : expr(std::move(expr)) {}
+    Print(ExprPtr expr) : expr(expr) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
@@ -64,7 +64,7 @@ struct Var : BaseStmt {
     const ExprPtr initializer;
 
     Var(Token name, ExprPtr initializer)
-        : name(name), initializer(std::move(initializer)) {}
+        : name(name), initializer(initializer) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
@@ -82,8 +82,8 @@ struct If : BaseStmt {
     const StmtPtr elseBranch;
 
     If(ExprPtr condition, StmtPtr thenBranch, StmtPtr elseBranch)
-        : condition(std::move(condition)), thenBranch(std::move(thenBranch)),
-          elseBranch(std::move(elseBranch)) {}
+        : condition(condition), thenBranch(thenBranch), elseBranch(elseBranch) {
+    }
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
@@ -91,8 +91,7 @@ struct While : BaseStmt {
     const ExprPtr condition;
     const StmtPtr body;
 
-    While(ExprPtr condition, StmtPtr body)
-        : condition(std::move(condition)), body(std::move(body)) {}
+    While(ExprPtr condition, StmtPtr body) : condition(condition), body(body) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
@@ -110,8 +109,7 @@ struct Return : BaseStmt {
     const Token keyword;
     const ExprPtr value;
 
-    Return(Token keyword, ExprPtr value)
-        : keyword(keyword), value(std::move(value)) {}
+    Return(Token keyword, ExprPtr value) : keyword(keyword), value(value) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 

@@ -107,7 +107,8 @@ void Interpreter::visit(const Stmt::While &stmt) {
 }
 
 void Interpreter::visit(const Stmt::Function &stmt) {
-    Value function = std::make_shared<LoxFunction>(stmt, currentEnvironment);
+    Value function = std::make_shared<LoxFunction>(
+        std::make_shared<Stmt::Function>(stmt), currentEnvironment);
     currentEnvironment->define(stmt.name.lexeme, function);
 }
 

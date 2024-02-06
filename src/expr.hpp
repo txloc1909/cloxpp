@@ -44,7 +44,7 @@ struct BaseExpr {
     virtual ~BaseExpr() = default;
     virtual Value accept(Visitor<Value> &visitor) const = 0;
 };
-using ExprPtr = std::unique_ptr<BaseExpr>;
+using ExprPtr = std::shared_ptr<BaseExpr>;
 
 struct Binary : BaseExpr {
     const ExprPtr left;
@@ -52,14 +52,14 @@ struct Binary : BaseExpr {
     const Token op;
 
     Binary(ExprPtr left, ExprPtr right, Token op)
-        : left(std::move(left)), right(std::move(right)), op(op) {}
+        : left(left), right(right), op(op) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
 struct Grouping : BaseExpr {
     const ExprPtr inner;
 
-    Grouping(ExprPtr expr) : inner(std::move(expr)) {}
+    Grouping(ExprPtr expr) : inner(expr) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
@@ -67,7 +67,7 @@ struct Unary : BaseExpr {
     const Token op;
     const ExprPtr right;
 
-    Unary(Token op, ExprPtr right) : op(op), right(std::move(right)) {}
+    Unary(Token op, ExprPtr right) : op(op), right(right) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
@@ -89,7 +89,7 @@ struct Assign : BaseExpr {
     const Token name;
     const ExprPtr value;
 
-    Assign(Token name, ExprPtr value) : name(name), value(std::move(value)) {}
+    Assign(Token name, ExprPtr value) : name(name), value(value) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
@@ -99,7 +99,7 @@ struct Logical : BaseExpr {
     const Token op;
 
     Logical(ExprPtr left, ExprPtr right, Token op)
-        : left(std::move(left)), right(std::move(right)), op(op) {}
+        : left(left), right(right), op(op) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
@@ -109,8 +109,7 @@ struct Call : BaseExpr {
     const std::vector<ExprPtr> arguments;
 
     Call(ExprPtr callee, Token paren, std::vector<ExprPtr> arguments)
-        : callee(std::move(callee)), paren(paren),
-          arguments(std::move(arguments)) {}
+        : callee(callee), paren(paren), arguments(std::move(arguments)) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 } // namespace Expr

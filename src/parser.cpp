@@ -16,7 +16,7 @@ std::vector<Stmt::StmtPtr> Parser::parse() {
     while (!isAtEnd()) {
         auto stmt = declaration();
         if (stmt) {
-            statements.push_back(std::move(stmt));
+            statements.push_back(stmt);
         }
     }
 
@@ -46,8 +46,8 @@ Stmt::StmtPtr Parser::varDeclaration() {
         match(TokenType::EQUAL) ? expression() : nullptr;
 
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
-    return std::make_unique<Stmt::Var>(
-        name, initializer ? std::move(initializer) : nullptr);
+    return std::make_shared<Stmt::Var>(name,
+                                       initializer ? initializer : nullptr);
 }
 
 Stmt::StmtPtr Parser::function() {
@@ -69,8 +69,7 @@ Stmt::StmtPtr Parser::function() {
 
     consume(TokenType::LEFT_BRACE, "Expect '{' before function body.");
     auto body = block();
-    return std::make_unique<Stmt::Function>(name, std::move(params),
-                                            std::move(body));
+    return std::make_shared<Stmt::Function>(name, std::move(params), body);
 }
 
 Stmt::StmtPtr Parser::statement() {
@@ -91,7 +90,7 @@ Stmt::StmtPtr Parser::statement() {
     }
 
     if (match(TokenType::LEFT_BRACE)) {
-        return std::make_unique<Stmt::Block>(block());
+        return std::make_shared<Stmt::Block>(block());
     }
 
     return expressionStmt();
@@ -100,13 +99,13 @@ Stmt::StmtPtr Parser::statement() {
 Stmt::StmtPtr Parser::expressionStmt() {
     Expr::ExprPtr value = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");
-    return std::make_unique<Stmt::Expr>(std::move(value));
+    return std::make_shared<Stmt::Expr>(value);
 }
 
 Stmt::StmtPtr Parser::printStmt() {
     Expr::ExprPtr value = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
-    return std::make_unique<Stmt::Print>(std::move(value));
+    return std::make_shared<Stmt::Print>(value);
 }
 
 Stmt::StmtPtr Parser::ifStmt() {
@@ -117,8 +116,7 @@ Stmt::StmtPtr Parser::ifStmt() {
     auto thenBranch = statement();
     auto elseBranch = match(TokenType::ELSE) ? statement() : nullptr;
 
-    return std::make_unique<Stmt::If>(
-        std::move(condition), std::move(thenBranch), std::move(elseBranch));
+    return std::make_shared<Stmt::If>(condition, thenBranch, elseBranch);
 }
 
 Stmt::StmtPtr Parser::whileStmt() {
@@ -127,7 +125,7 @@ Stmt::StmtPtr Parser::whileStmt() {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after condition.");
     auto body = statement();
 
-    return std::make_unique<Stmt::While>(std::move(condition), std::move(body));
+    return std::make_shared<Stmt::While>(condition, body);
 }
 
 Stmt::StmtPtr Parser::forStmt() {
@@ -159,21 +157,21 @@ Stmt::StmtPtr Parser::forStmt() {
 
     if (increment) {
         auto block = std::vector<Stmt::StmtPtr>();
-        block.push_back(std::move(body));
-        block.push_back(std::make_unique<Stmt::Expr>(std::move(increment)));
-        body = std::make_unique<Stmt::Block>(std::move(block));
+        block.push_back(body);
+        block.push_back(std::make_shared<Stmt::Expr>(increment));
+        body = std::make_shared<Stmt::Block>(block);
     }
 
     if (!condition) {
-        condition = std::make_unique<Expr::Literal>(true);
+        condition = std::make_shared<Expr::Literal>(true);
     }
-    body = std::make_unique<Stmt::While>(std::move(condition), std::move(body));
+    body = std::make_shared<Stmt::While>(condition, body);
 
     if (initializer) {
         auto block = std::vector<Stmt::StmtPtr>();
-        block.push_back(std::move(initializer));
-        block.push_back(std::move(body));
-        body = std::make_unique<Stmt::Block>(std::move(block));
+        block.push_back(initializer);
+        block.push_back(body);
+        body = std::make_shared<Stmt::Block>(block);
     }
 
     return body;
@@ -188,7 +186,7 @@ Stmt::StmtPtr Parser::returnStmt() {
     }
 
     consume(TokenType::SEMICOLON, "Expect ';' after return value.");
-    return std::make_unique<Stmt::Return>(keyword, std::move(value));
+    return std::make_shared<Stmt::Return>(keyword, value);
 }
 
 std::vector<Stmt::StmtPtr> Parser::block() {
@@ -211,7 +209,7 @@ Expr::ExprPtr Parser::assignment() {
 
         if (auto lvalue = dynamic_cast<Expr::Variable *>(expr.get())) {
             Token name = lvalue->name;
-            return std::make_unique<Expr::Assign>(name, std::move(value));
+            return std::make_shared<Expr::Assign>(name, value);
         }
 
         error(equals, "Invalid assignment target.");
@@ -226,8 +224,7 @@ Expr::ExprPtr Parser::logical_or() {
     while (match(TokenType::OR)) {
         Token op = previous();
         auto right = logical_and();
-        expr = std::make_unique<Expr::Logical>(std::move(expr),
-                                               std::move(right), op);
+        expr = std::make_shared<Expr::Logical>(expr, right, op);
     }
 
     return expr;
@@ -238,8 +235,7 @@ Expr::ExprPtr Parser::logical_and() {
     while (match(TokenType::AND)) {
         Token op = previous();
         auto right = equality();
-        expr = std::make_unique<Expr::Logical>(std::move(expr),
-                                               std::move(right), op);
+        expr = std::make_shared<Expr::Logical>(expr, right, op);
     }
 
     return expr;
@@ -251,8 +247,7 @@ Expr::ExprPtr Parser::equality() {
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
         auto op = previous();
         auto right = comparison();
-        expr = std::make_unique<Expr::Binary>(std::move(expr), std::move(right),
-                                              op);
+        expr = std::make_shared<Expr::Binary>(expr, right, op);
     }
 
     return expr;
@@ -267,8 +262,7 @@ Expr::ExprPtr Parser::comparison() {
                   TokenType::LESS_EQUAL})) {
         auto op = previous();
         auto right = term();
-        expr = std::make_unique<Expr::Binary>(std::move(expr), std::move(right),
-                                              op);
+        expr = std::make_shared<Expr::Binary>(expr, right, op);
     }
 
     return expr;
@@ -280,8 +274,7 @@ Expr::ExprPtr Parser::term() {
     while (match({TokenType::MINUS, TokenType::PLUS})) {
         auto op = previous();
         auto right = factor();
-        expr = std::make_unique<Expr::Binary>(std::move(expr), std::move(right),
-                                              op);
+        expr = std::make_shared<Expr::Binary>(expr, right, op);
     }
 
     return expr;
@@ -293,8 +286,7 @@ Expr::ExprPtr Parser::factor() {
     while (match({TokenType::SLASH, TokenType::STAR})) {
         auto op = previous();
         auto right = factor();
-        expr = std::make_unique<Expr::Binary>(std::move(expr), std::move(right),
-                                              op);
+        expr = std::make_shared<Expr::Binary>(expr, right, op);
     }
 
     return expr;
@@ -304,7 +296,7 @@ Expr::ExprPtr Parser::unary() {
     if (match({TokenType::BANG, TokenType::MINUS})) {
         auto op = previous();
         auto right = unary();
-        return std::make_unique<Expr::Unary>(op, std::move(right));
+        return std::make_shared<Expr::Unary>(op, right);
     }
 
     return call();
@@ -315,7 +307,7 @@ Expr::ExprPtr Parser::call() {
 
     while (true) {
         if (match(TokenType::LEFT_PAREN)) {
-            expr = finishCall(std::move(expr));
+            expr = finishCall(expr);
         } else {
             break;
         }
@@ -339,30 +331,29 @@ Expr::ExprPtr Parser::finishCall(Expr::ExprPtr callee) {
     Token paren =
         consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
 
-    return std::make_unique<Expr::Call>(std::move(callee), paren,
-                                        std::move(arguments));
+    return std::make_shared<Expr::Call>(callee, paren, std::move(arguments));
 }
 
 Expr::ExprPtr Parser::primary() {
     if (match(TokenType::FALSE))
-        return std::make_unique<Expr::Literal>(false);
+        return std::make_shared<Expr::Literal>(false);
     if (match(TokenType::TRUE))
-        return std::make_unique<Expr::Literal>(true);
+        return std::make_shared<Expr::Literal>(true);
     if (match(TokenType::NIL))
-        return std::make_unique<Expr::Literal>(std::monostate{});
+        return std::make_shared<Expr::Literal>(std::monostate{});
 
     if (match({TokenType::NUMBER, TokenType::STRING}))
         // tokens of these types are guaranteed to have a literal value
-        return std::make_unique<Expr::Literal>(previous().literal.value());
+        return std::make_shared<Expr::Literal>(previous().literal.value());
 
     if (match(TokenType::IDENTIFIER)) {
-        return std::make_unique<Expr::Variable>(previous());
+        return std::make_shared<Expr::Variable>(previous());
     }
 
     if (match(TokenType::LEFT_PAREN)) {
         auto expr = expression();
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression");
-        return std::make_unique<Expr::Grouping>(std::move(expr));
+        return std::make_shared<Expr::Grouping>(expr);
     }
 
     throw error(peek(), "Expect expression.");

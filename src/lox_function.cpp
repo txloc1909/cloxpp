@@ -9,13 +9,13 @@ Value LoxFunction::call(Interpreter &interpreter,
                         const std::vector<Value> &arguments) {
     auto environment = std::make_unique<Environment>(closure);
 
-    assert(declaration.params.size() == arguments.size());
-    for (size_t i = 0; i < declaration.params.size(); i++) {
-        environment->define(declaration.params.at(i).lexeme, arguments.at(i));
+    assert(declaration->params.size() == arguments.size());
+    for (size_t i = 0; i < declaration->params.size(); i++) {
+        environment->define(declaration->params.at(i).lexeme, arguments.at(i));
     }
 
     try {
-        interpreter.executeBlock(declaration.body, environment.get());
+        interpreter.executeBlock(declaration->body, environment.get());
     } catch (const RuntimeReturn &returnValue) {
         return returnValue.value;
     }
@@ -23,10 +23,10 @@ Value LoxFunction::call(Interpreter &interpreter,
     return {};
 }
 
-std::size_t LoxFunction::arity() const { return declaration.params.size(); }
+std::size_t LoxFunction::arity() const { return declaration->params.size(); }
 
 std::string LoxFunction::toString() const {
-    return "<fn " + declaration.name.lexeme + ">";
+    return "<fn " + declaration->name.lexeme + ">";
 }
 
 Value NativeClock::call(Interpreter &interpreter,
