@@ -21,6 +21,8 @@ struct Var;
 struct Block;
 struct If;
 struct While;
+struct Function;
+struct Return;
 
 template <typename R>
 class Visitor {
@@ -31,6 +33,8 @@ public:
     virtual R visit(const Block &expr) = 0;
     virtual R visit(const If &expr) = 0;
     virtual R visit(const While &expr) = 0;
+    virtual R visit(const Function &expr) = 0;
+    virtual R visit(const Return &expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -73,9 +77,9 @@ struct Block : BaseStmt {
 };
 
 struct If : BaseStmt {
-    ExprPtr condition;
-    StmtPtr thenBranch;
-    StmtPtr elseBranch;
+    const ExprPtr condition;
+    const StmtPtr thenBranch;
+    const StmtPtr elseBranch;
 
     If(ExprPtr condition, StmtPtr thenBranch, StmtPtr elseBranch)
         : condition(std::move(condition)), thenBranch(std::move(thenBranch)),
@@ -84,11 +88,30 @@ struct If : BaseStmt {
 };
 
 struct While : BaseStmt {
-    ExprPtr condition;
-    StmtPtr body;
+    const ExprPtr condition;
+    const StmtPtr body;
 
     While(ExprPtr condition, StmtPtr body)
         : condition(std::move(condition)), body(std::move(body)) {}
+    DEFINE_NODE_ACCEPT_METHOD(void)
+};
+
+struct Function : BaseStmt {
+    const Token name;
+    const std::vector<Token> params;
+    const std::vector<StmtPtr> body;
+
+    Function(Token name, std::vector<Token> params, std::vector<StmtPtr> body)
+        : name(name), params(std::move(params)), body(std::move(body)){};
+    DEFINE_NODE_ACCEPT_METHOD(void)
+};
+
+struct Return : BaseStmt {
+    const Token keyword;
+    const ExprPtr value;
+
+    Return(Token keyword, ExprPtr value)
+        : keyword(keyword), value(std::move(value)) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 

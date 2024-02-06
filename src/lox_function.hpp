@@ -5,11 +5,12 @@
 
 class LoxFunction : public LoxCallable {
 private:
-    // TODO: change this to an AST node for function declaration later
-    const Stmt::BaseStmt &declaration;
+    const Stmt::Function &declaration;
+    Environment *closure;
 
 public:
-    LoxFunction(Stmt::BaseStmt &declaration) : declaration(declaration) {}
+    LoxFunction(const Stmt::Function &declaration, Environment *closure)
+        : declaration(declaration), closure(closure) {}
 
     Value call(Interpreter &interpreter,
                const std::vector<Value> &arguments) override;

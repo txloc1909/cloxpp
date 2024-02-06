@@ -27,12 +27,15 @@ public:
     Interpreter(ErrorHandler &handler);
     ~Interpreter();
 
+    Environment *globalEnvironment() const;
     void interpret(const std::vector<Stmt::StmtPtr> &statements);
+    void executeBlock(const std::vector<Stmt::StmtPtr> &statements,
+                      Environment *environment);
 
 private:
     ErrorHandler &handler;
-    Environment globals_;
-    Environment *environment;
+    std::unique_ptr<Environment> globals_;
+    Environment *currentEnvironment;
 
     Value evaluate(const Expr::BaseExpr &expr);
     Value visit(const Expr::Binary &expr) override;
@@ -51,9 +54,8 @@ private:
     void visit(const Stmt::Block &stmt) override;
     void visit(const Stmt::If &stmt) override;
     void visit(const Stmt::While &stmt) override;
-
-    void executeBlock(const std::vector<Stmt::StmtPtr> &statements,
-                      Environment *environment);
+    void visit(const Stmt::Function &stmt) override;
+    void visit(const Stmt::Return &stmt) override;
 
     friend ScopeManager::ScopeManager(Interpreter &interpreter,
                                       Environment *new_env);

@@ -1,21 +1,32 @@
+#include <cassert>
 #include <chrono>
+#include <cstddef>
 
 #include "lox_function.hpp"
+#include "return.hpp"
 
 Value LoxFunction::call(Interpreter &interpreter,
                         const std::vector<Value> &arguments) {
-    // TODO: implement this method properly
+    auto environment = std::make_unique<Environment>(closure);
+
+    assert(declaration.params.size() == arguments.size());
+    for (size_t i = 0; i < declaration.params.size(); i++) {
+        environment->define(declaration.params.at(i).lexeme, arguments.at(i));
+    }
+
+    try {
+        interpreter.executeBlock(declaration.body, environment.get());
+    } catch (const RuntimeReturn &returnValue) {
+        return returnValue.value;
+    }
+
     return {};
 }
 
-std::size_t LoxFunction::arity() const {
-    // TODO: implement this method properly
-    return 0;
-}
+std::size_t LoxFunction::arity() const { return declaration.params.size(); }
 
 std::string LoxFunction::toString() const {
-    // TODO: implement this method properly
-    return "<fn>";
+    return "<fn " + declaration.name.lexeme + ">";
 }
 
 Value NativeClock::call(Interpreter &interpreter,

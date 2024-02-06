@@ -3,6 +3,7 @@
 
 #include "interpreter.hpp"
 #include "lox_function.hpp"
+#include "return.hpp"
 #include "runtime_error.hpp"
 #include "token.hpp"
 
@@ -41,13 +42,17 @@ static void checkNumberOperands(Token op, Value left, Value right) {
     throw RuntimeError(op, "Operands must be numbers.");
 }
 
-Interpreter::Interpreter(ErrorHandler &handler) : handler(handler) {
-    globals_ = Environment();
-    globals_.define("clock", std::make_shared<NativeClock>());
-    environment = &globals_;
+Interpreter::Interpreter(ErrorHandler &handler)
+    : handler(handler), globals_(std::make_unique<Environment>()) {
+    globals_->define("clock", std::make_shared<NativeClock>());
+    currentEnvironment = globals_.get();
 }
 
 Interpreter::~Interpreter() = default;
+
+Environment *Interpreter::globalEnvironment() const {
+    return currentEnvironment;
+};
 
 void Interpreter::interpret(const std::vector<Stmt::StmtPtr> &statements) {
     try {
@@ -79,11 +84,11 @@ void Interpreter::visit(const Stmt::Var &stmt) {
         value = evaluate(*stmt.initializer);
     }
 
-    environment->define(stmt.name.lexeme, value);
+    currentEnvironment->define(stmt.name.lexeme, value);
 }
 
 void Interpreter::visit(const Stmt::Block &stmt) {
-    auto new_env = std::make_unique<Environment>(this->environment);
+    auto new_env = std::make_unique<Environment>(currentEnvironment);
     executeBlock(stmt.statements, new_env.get());
 }
 
@@ -99,6 +104,20 @@ void Interpreter::visit(const Stmt::While &stmt) {
     while (isTruthy(evaluate(*stmt.condition))) {
         execute(*stmt.body);
     }
+}
+
+void Interpreter::visit(const Stmt::Function &stmt) {
+    auto function = std::make_shared<LoxFunction>(stmt, currentEnvironment);
+    currentEnvironment->define(stmt.name.lexeme, function);
+}
+
+void Interpreter::visit(const Stmt::Return &stmt) {
+    Value value{};
+    if (stmt.value) {
+        value = evaluate(*stmt.value);
+    }
+
+    throw RuntimeReturn(value);
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
@@ -185,12 +204,12 @@ Value Interpreter::visit(const Expr::Literal &expr) {
 }
 
 Value Interpreter::visit(const Expr::Variable &expr) {
-    return environment->get(expr.name);
+    return currentEnvironment->get(expr.name);
 }
 
 Value Interpreter::visit(const Expr::Assign &expr) {
     auto value = evaluate(*expr.value);
-    environment->assign(expr.name, value);
+    currentEnvironment->assign(expr.name, value);
     return value;
 };
 
@@ -235,7 +254,7 @@ Value Interpreter::visit(const Expr::Call &expr) {
 
 ScopeManager::ScopeManager(Interpreter &interpreter, Environment *new_env)
     : interpreter(interpreter), new_env(new_env) {
-    saved_env = interpreter.environment;
+    saved_env = interpreter.currentEnvironment;
 }
 
-ScopeManager::~ScopeManager() { interpreter.environment = saved_env; }
+ScopeManager::~ScopeManager() { interpreter.currentEnvironment = saved_env; }

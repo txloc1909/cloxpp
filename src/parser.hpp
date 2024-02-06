@@ -33,12 +33,14 @@ private:
 
     Stmt::StmtPtr declaration();
     Stmt::StmtPtr varDeclaration();
+    Stmt::StmtPtr function();
     Stmt::StmtPtr statement();
     Stmt::StmtPtr expressionStmt();
     Stmt::StmtPtr printStmt();
     Stmt::StmtPtr ifStmt();
     Stmt::StmtPtr whileStmt();
     Stmt::StmtPtr forStmt();
+    Stmt::StmtPtr returnStmt();
     std::vector<Stmt::StmtPtr> block();
 
     void synchronize();
