@@ -255,6 +255,7 @@ Value Interpreter::visit(const Expr::Call &expr) {
 ScopeManager::ScopeManager(Interpreter &interpreter, Environment *new_env)
     : interpreter(interpreter), new_env(new_env) {
     saved_env = interpreter.currentEnvironment;
+    interpreter.currentEnvironment = new_env;
 }
 
 ScopeManager::~ScopeManager() { interpreter.currentEnvironment = saved_env; }
