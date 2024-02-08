@@ -85,6 +85,10 @@ Stmt::StmtPtr Parser::statement() {
         return printStmt();
     }
 
+    if (match(TokenType::RETURN)) {
+        return returnStmt();
+    }
+
     if (match(TokenType::WHILE)) {
         return whileStmt();
     }
