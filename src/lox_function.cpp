@@ -7,7 +7,7 @@
 
 Value LoxFunction::call(Interpreter &interpreter,
                         const std::vector<Value> &arguments) {
-    auto environment = std::make_unique<Environment>(closure);
+    auto environment = std::make_shared<Environment>(closure);
 
     assert(declaration->params.size() == arguments.size());
     for (size_t i = 0; i < declaration->params.size(); i++) {
@@ -15,7 +15,7 @@ Value LoxFunction::call(Interpreter &interpreter,
     }
 
     try {
-        interpreter.executeBlock(declaration->body, environment.get());
+        interpreter.executeBlock(declaration->body, environment);
     } catch (const RuntimeReturn &returnValue) {
         return returnValue.value;
     }

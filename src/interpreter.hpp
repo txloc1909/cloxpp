@@ -14,11 +14,11 @@ class Interpreter;
 class ScopeManager {
 private:
     Interpreter &interpreter;
-    Environment *new_env;
-    Environment *saved_env;
+    EnvironmentPtr new_env;
+    EnvironmentPtr saved_env;
 
 public:
-    ScopeManager(Interpreter &interpreter, Environment *new_env);
+    ScopeManager(Interpreter &interpreter, EnvironmentPtr new_env);
     ~ScopeManager();
 };
 
@@ -27,15 +27,15 @@ public:
     Interpreter(ErrorHandler &handler);
     ~Interpreter();
 
-    Environment *globalEnvironment() const;
+    EnvironmentPtr globalEnvironment() const;
     void interpret(const std::vector<Stmt::StmtPtr> &statements);
     void executeBlock(const std::vector<Stmt::StmtPtr> &statements,
-                      Environment *environment);
+                      EnvironmentPtr environment);
 
 private:
     ErrorHandler &handler;
-    std::unique_ptr<Environment> globals_;
-    Environment *currentEnvironment;
+    EnvironmentPtr globals_;
+    EnvironmentPtr currentEnvironment;
 
     Value evaluate(const Expr::BaseExpr &expr);
     Value visit(const Expr::Binary &expr) override;
@@ -58,7 +58,7 @@ private:
     void visit(const Stmt::Return &stmt) override;
 
     friend ScopeManager::ScopeManager(Interpreter &interpreter,
-                                      Environment *new_env);
+                                      EnvironmentPtr new_env);
     friend ScopeManager::~ScopeManager();
 };
 

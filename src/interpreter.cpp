@@ -43,14 +43,14 @@ static void checkNumberOperands(Token op, Value left, Value right) {
 }
 
 Interpreter::Interpreter(ErrorHandler &handler)
-    : handler(handler), globals_(std::make_unique<Environment>()) {
+    : handler(handler), globals_(std::make_shared<Environment>()),
+      currentEnvironment(globals_) {
     globals_->define("clock", std::make_shared<NativeClock>());
-    currentEnvironment = globals_.get();
 }
 
 Interpreter::~Interpreter() = default;
 
-Environment *Interpreter::globalEnvironment() const {
+EnvironmentPtr Interpreter::globalEnvironment() const {
     return currentEnvironment;
 };
 
@@ -88,8 +88,8 @@ void Interpreter::visit(const Stmt::Var &stmt) {
 }
 
 void Interpreter::visit(const Stmt::Block &stmt) {
-    auto new_env = std::make_unique<Environment>(currentEnvironment);
-    executeBlock(stmt.statements, new_env.get());
+    EnvironmentPtr new_env = std::make_shared<Environment>(currentEnvironment);
+    executeBlock(stmt.statements, new_env);
 }
 
 void Interpreter::visit(const Stmt::If &stmt) {
@@ -122,7 +122,7 @@ void Interpreter::visit(const Stmt::Return &stmt) {
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
-                               Environment *environment) {
+                               EnvironmentPtr environment) {
     auto new_scope = ScopeManager(*this, environment);
     for (const auto &stmt : statements) {
         execute(*stmt);
@@ -253,7 +253,7 @@ Value Interpreter::visit(const Expr::Call &expr) {
     return callable->call(*this, arguments);
 }
 
-ScopeManager::ScopeManager(Interpreter &interpreter, Environment *new_env)
+ScopeManager::ScopeManager(Interpreter &interpreter, EnvironmentPtr new_env)
     : interpreter(interpreter), new_env(new_env) {
     saved_env = interpreter.currentEnvironment;
     interpreter.currentEnvironment = new_env;

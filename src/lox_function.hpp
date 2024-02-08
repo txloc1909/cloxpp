@@ -6,11 +6,11 @@
 class LoxFunction : public LoxCallable {
 private:
     const std::shared_ptr<Stmt::Function> declaration;
-    Environment *closure;
+    EnvironmentPtr closure;
 
 public:
     LoxFunction(std::shared_ptr<Stmt::Function> declaration,
-                Environment *closure)
+                EnvironmentPtr closure)
         : declaration(declaration), closure(closure) {}
 
     Value call(Interpreter &interpreter,
