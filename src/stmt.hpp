@@ -8,12 +8,12 @@
 
 #define DEFINE_NODE_ACCEPT_METHOD(ReturnType)                                  \
     ReturnType accept(Visitor<ReturnType> &visitor) const override {           \
-        return visitor.visit(*this);                                           \
+        return visitor.visit(shared_from_this());                              \
     }
 
 namespace Stmt {
 
-using Expr::ExprPtr;
+using ExprNodePtr = Expr::ExprPtr;
 
 struct Expr;
 struct Print;
@@ -24,17 +24,26 @@ struct While;
 struct Function;
 struct Return;
 
+using ExprPtr = std::shared_ptr<Expr const>;
+using PrintPtr = std::shared_ptr<Print const>;
+using VarPtr = std::shared_ptr<Var const>;
+using BlockPtr = std::shared_ptr<Block const>;
+using IfPtr = std::shared_ptr<If const>;
+using WhilePtr = std::shared_ptr<While const>;
+using FunctionPtr = std::shared_ptr<Function const>;
+using ReturnPtr = std::shared_ptr<Return const>;
+
 template <typename R>
 class Visitor {
 public:
-    virtual R visit(const Expr &expr) = 0;
-    virtual R visit(const Print &expr) = 0;
-    virtual R visit(const Var &expr) = 0;
-    virtual R visit(const Block &expr) = 0;
-    virtual R visit(const If &expr) = 0;
-    virtual R visit(const While &expr) = 0;
-    virtual R visit(const Function &expr) = 0;
-    virtual R visit(const Return &expr) = 0;
+    virtual R visit(ExprPtr expr) = 0;
+    virtual R visit(PrintPtr expr) = 0;
+    virtual R visit(VarPtr expr) = 0;
+    virtual R visit(BlockPtr expr) = 0;
+    virtual R visit(IfPtr expr) = 0;
+    virtual R visit(WhilePtr expr) = 0;
+    virtual R visit(FunctionPtr expr) = 0;
+    virtual R visit(ReturnPtr expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -43,32 +52,32 @@ struct BaseStmt {
     virtual ~BaseStmt() = default;
     virtual void accept(Visitor<void> &visitor) const = 0;
 };
-using StmtPtr = std::shared_ptr<BaseStmt>;
+using StmtPtr = std::shared_ptr<BaseStmt const>;
 
-struct Expr : BaseStmt {
-    const ExprPtr expr;
+struct Expr : public BaseStmt, public std::enable_shared_from_this<Expr> {
+    const ExprNodePtr expr;
 
-    Expr(ExprPtr expr) : expr(expr) {}
+    Expr(ExprNodePtr expr) : expr(expr) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
-struct Print : BaseStmt {
-    const ExprPtr expr;
+struct Print : public BaseStmt, public std::enable_shared_from_this<Print> {
+    const ExprNodePtr expr;
 
-    Print(ExprPtr expr) : expr(expr) {}
+    Print(ExprNodePtr expr) : expr(expr) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
-struct Var : BaseStmt {
+struct Var : public BaseStmt, public std::enable_shared_from_this<Var> {
     const Token name;
-    const ExprPtr initializer;
+    const ExprNodePtr initializer;
 
-    Var(Token name, ExprPtr initializer)
+    Var(Token name, ExprNodePtr initializer)
         : name(name), initializer(initializer) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
-struct Block : BaseStmt {
+struct Block : public BaseStmt, public std::enable_shared_from_this<Block> {
     const std::vector<StmtPtr> statements;
 
     Block(std::vector<StmtPtr> statements)
@@ -76,26 +85,28 @@ struct Block : BaseStmt {
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
-struct If : BaseStmt {
-    const ExprPtr condition;
+struct If : public BaseStmt, public std::enable_shared_from_this<If> {
+    const ExprNodePtr condition;
     const StmtPtr thenBranch;
     const StmtPtr elseBranch;
 
-    If(ExprPtr condition, StmtPtr thenBranch, StmtPtr elseBranch)
+    If(ExprNodePtr condition, StmtPtr thenBranch, StmtPtr elseBranch)
         : condition(condition), thenBranch(thenBranch), elseBranch(elseBranch) {
     }
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
-struct While : BaseStmt {
-    const ExprPtr condition;
+struct While : public BaseStmt, public std::enable_shared_from_this<While> {
+    const ExprNodePtr condition;
     const StmtPtr body;
 
-    While(ExprPtr condition, StmtPtr body) : condition(condition), body(body) {}
+    While(ExprNodePtr condition, StmtPtr body)
+        : condition(condition), body(body) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
-struct Function : BaseStmt {
+struct Function : public BaseStmt,
+                  public std::enable_shared_from_this<Function> {
     const Token name;
     const std::vector<Token> params;
     const std::vector<StmtPtr> body;
@@ -105,11 +116,11 @@ struct Function : BaseStmt {
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
-struct Return : BaseStmt {
+struct Return : public BaseStmt, public std::enable_shared_from_this<Return> {
     const Token keyword;
-    const ExprPtr value;
+    const ExprNodePtr value;
 
-    Return(Token keyword, ExprPtr value) : keyword(keyword), value(value) {}
+    Return(Token keyword, ExprNodePtr value) : keyword(keyword), value(value) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 

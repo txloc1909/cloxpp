@@ -37,25 +37,25 @@ private:
     EnvironmentPtr globals_;
     EnvironmentPtr currentEnvironment;
 
-    Value evaluate(const Expr::BaseExpr &expr);
-    Value visit(const Expr::Binary &expr) override;
-    Value visit(const Expr::Grouping &expr) override;
-    Value visit(const Expr::Unary &expr) override;
-    Value visit(const Expr::Literal &expr) override;
-    Value visit(const Expr::Variable &expr) override;
-    Value visit(const Expr::Assign &expr) override;
-    Value visit(const Expr::Logical &expr) override;
-    Value visit(const Expr::Call &expr) override;
+    Value evaluate(const Expr::ExprPtr expr);
+    Value visit(Expr::BinaryPtr expr) override;
+    Value visit(Expr::GroupingPtr expr) override;
+    Value visit(Expr::UnaryPtr expr) override;
+    Value visit(Expr::LiteralPtr expr) override;
+    Value visit(Expr::VariablePtr expr) override;
+    Value visit(Expr::AssignPtr expr) override;
+    Value visit(Expr::LogicalPtr expr) override;
+    Value visit(Expr::CallPtr expr) override;
 
-    void execute(const Stmt::BaseStmt &stmt);
-    void visit(const Stmt::Expr &stmt) override;
-    void visit(const Stmt::Print &stmt) override;
-    void visit(const Stmt::Var &stmt) override;
-    void visit(const Stmt::Block &stmt) override;
-    void visit(const Stmt::If &stmt) override;
-    void visit(const Stmt::While &stmt) override;
-    void visit(const Stmt::Function &stmt) override;
-    void visit(const Stmt::Return &stmt) override;
+    void execute(const Stmt::StmtPtr stmt);
+    void visit(Stmt::ExprPtr stmt) override;
+    void visit(Stmt::PrintPtr stmt) override;
+    void visit(Stmt::VarPtr stmt) override;
+    void visit(Stmt::BlockPtr stmt) override;
+    void visit(Stmt::IfPtr stmt) override;
+    void visit(Stmt::WhilePtr stmt) override;
+    void visit(Stmt::FunctionPtr stmt) override;
+    void visit(Stmt::ReturnPtr stmt) override;
 
     friend ScopeManager::ScopeManager(Interpreter &interpreter,
                                       EnvironmentPtr new_env);

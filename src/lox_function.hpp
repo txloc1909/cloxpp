@@ -2,15 +2,15 @@
 #define CLOXPP_LOX_FUNCTION_H
 
 #include "lox_callable.hpp"
+#include "stmt.hpp"
 
 class LoxFunction : public LoxCallable {
 private:
-    const std::shared_ptr<Stmt::Function> declaration;
-    EnvironmentPtr closure;
+    const Stmt::FunctionPtr declaration;
+    const EnvironmentPtr closure;
 
 public:
-    LoxFunction(std::shared_ptr<Stmt::Function> declaration,
-                EnvironmentPtr closure)
+    LoxFunction(Stmt::FunctionPtr declaration, EnvironmentPtr closure)
         : declaration(declaration), closure(closure) {}
 
     Value call(Interpreter &interpreter,

@@ -9,7 +9,7 @@
 
 #define DEFINE_NODE_ACCEPT_METHOD(ReturnType)                                  \
     ReturnType accept(Visitor<ReturnType> &visitor) const override {           \
-        return visitor.visit(*this);                                           \
+        return visitor.visit(shared_from_this());                              \
     }
 
 using LiteralValue = Literal; // Alias
@@ -25,17 +25,26 @@ struct Assign;
 struct Logical;
 struct Call;
 
+using BinaryPtr = std::shared_ptr<Binary const>;
+using UnaryPtr = std::shared_ptr<Unary const>;
+using GroupingPtr = std::shared_ptr<Grouping const>;
+using LiteralPtr = std::shared_ptr<Literal const>;
+using VariablePtr = std::shared_ptr<Variable const>;
+using AssignPtr = std::shared_ptr<Assign const>;
+using LogicalPtr = std::shared_ptr<Logical const>;
+using CallPtr = std::shared_ptr<Call const>;
+
 template <typename R>
 class Visitor {
 public:
-    virtual R visit(const Binary &expr) = 0;
-    virtual R visit(const Grouping &expr) = 0;
-    virtual R visit(const Unary &expr) = 0;
-    virtual R visit(const Literal &expr) = 0;
-    virtual R visit(const Variable &expr) = 0;
-    virtual R visit(const Assign &expr) = 0;
-    virtual R visit(const Logical &expr) = 0;
-    virtual R visit(const Call &expr) = 0;
+    virtual R visit(BinaryPtr expr) = 0;
+    virtual R visit(GroupingPtr expr) = 0;
+    virtual R visit(UnaryPtr expr) = 0;
+    virtual R visit(LiteralPtr expr) = 0;
+    virtual R visit(VariablePtr expr) = 0;
+    virtual R visit(AssignPtr expr) = 0;
+    virtual R visit(LogicalPtr expr) = 0;
+    virtual R visit(CallPtr expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -44,9 +53,9 @@ struct BaseExpr {
     virtual ~BaseExpr() = default;
     virtual Value accept(Visitor<Value> &visitor) const = 0;
 };
-using ExprPtr = std::shared_ptr<BaseExpr>;
+using ExprPtr = std::shared_ptr<BaseExpr const>;
 
-struct Binary : BaseExpr {
+struct Binary : public BaseExpr, public std::enable_shared_from_this<Binary> {
     const ExprPtr left;
     const ExprPtr right;
     const Token op;
@@ -56,14 +65,15 @@ struct Binary : BaseExpr {
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
-struct Grouping : BaseExpr {
+struct Grouping : public BaseExpr,
+                  public std::enable_shared_from_this<Grouping> {
     const ExprPtr inner;
 
     Grouping(ExprPtr expr) : inner(expr) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
-struct Unary : BaseExpr {
+struct Unary : public BaseExpr, public std::enable_shared_from_this<Unary> {
     const Token op;
     const ExprPtr right;
 
@@ -71,21 +81,22 @@ struct Unary : BaseExpr {
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
-struct Literal : BaseExpr {
+struct Literal : public BaseExpr, public std::enable_shared_from_this<Literal> {
     const LiteralValue value;
 
     Literal(LiteralValue value) : value(value) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
-struct Variable : BaseExpr {
+struct Variable : public BaseExpr,
+                  public std::enable_shared_from_this<Variable> {
     const Token name;
 
     Variable(Token name) : name(name) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
-struct Assign : BaseExpr {
+struct Assign : public BaseExpr, public std::enable_shared_from_this<Assign> {
     const Token name;
     const ExprPtr value;
 
@@ -93,7 +104,7 @@ struct Assign : BaseExpr {
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
-struct Logical : BaseExpr {
+struct Logical : public BaseExpr, public std::enable_shared_from_this<Logical> {
     const ExprPtr left;
     const ExprPtr right;
     const Token op;
@@ -103,7 +114,7 @@ struct Logical : BaseExpr {
     DEFINE_NODE_ACCEPT_METHOD(Value)
 };
 
-struct Call : BaseExpr {
+struct Call : public BaseExpr, public std::enable_shared_from_this<Call> {
     const ExprPtr callee;
     const Token paren;
     const std::vector<ExprPtr> arguments;

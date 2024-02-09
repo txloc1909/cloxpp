@@ -211,7 +211,8 @@ Expr::ExprPtr Parser::assignment() {
         Token equals = previous();
         auto value = assignment();
 
-        if (auto lvalue = dynamic_cast<Expr::Variable *>(expr.get())) {
+        if (auto lvalue =
+                std::dynamic_pointer_cast<Expr::Variable const>(expr)) {
             Token name = lvalue->name;
             return std::make_shared<Expr::Assign>(name, value);
         }

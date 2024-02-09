@@ -57,65 +57,65 @@ EnvironmentPtr Interpreter::globalEnvironment() const {
 void Interpreter::interpret(const std::vector<Stmt::StmtPtr> &statements) {
     try {
         for (const auto &stmt : statements) {
-            execute(*stmt);
+            execute(stmt);
         }
     } catch (const RuntimeError &error) {
         handler.runtimeError(error);
     }
 }
 
-void Interpreter::execute(const Stmt::BaseStmt &stmt) {
-    return stmt.accept(*this);
+void Interpreter::execute(const Stmt::StmtPtr stmt) {
+    return stmt->accept(*this);
 }
 
-void Interpreter::visit(const Stmt::Expr &stmt) {
-    evaluate(*stmt.expr);
+void Interpreter::visit(Stmt::ExprPtr stmt) {
+    evaluate(stmt->expr);
     return;
 }
 
-void Interpreter::visit(const Stmt::Print &stmt) {
-    Value value = evaluate(*stmt.expr);
+void Interpreter::visit(Stmt::PrintPtr stmt) {
+    Value value = evaluate(stmt->expr);
     std::cout << value << "\n";
 }
 
-void Interpreter::visit(const Stmt::Var &stmt) {
+void Interpreter::visit(Stmt::VarPtr stmt) {
     Value value{};
-    if (stmt.initializer) {
-        value = evaluate(*stmt.initializer);
+    if (stmt->initializer) {
+        value = evaluate(stmt->initializer);
     }
 
-    currentEnvironment->define(stmt.name.lexeme, value);
+    currentEnvironment->define(stmt->name.lexeme, value);
 }
 
-void Interpreter::visit(const Stmt::Block &stmt) {
+void Interpreter::visit(Stmt::BlockPtr stmt) {
     EnvironmentPtr new_env = std::make_shared<Environment>(currentEnvironment);
-    executeBlock(stmt.statements, new_env);
+    executeBlock(stmt->statements, new_env);
 }
 
-void Interpreter::visit(const Stmt::If &stmt) {
-    if (isTruthy(evaluate(*stmt.condition))) {
-        execute(*stmt.thenBranch);
-    } else if (stmt.elseBranch) {
-        execute(*stmt.elseBranch);
+void Interpreter::visit(Stmt::IfPtr stmt) {
+    if (isTruthy(evaluate(stmt->condition))) {
+        execute(stmt->thenBranch);
+    } else if (stmt->elseBranch) {
+        execute(stmt->elseBranch);
     }
 }
 
-void Interpreter::visit(const Stmt::While &stmt) {
-    while (isTruthy(evaluate(*stmt.condition))) {
-        execute(*stmt.body);
+void Interpreter::visit(Stmt::WhilePtr stmt) {
+    while (isTruthy(evaluate(stmt->condition))) {
+        execute(stmt->body);
     }
 }
 
-void Interpreter::visit(const Stmt::Function &stmt) {
-    Value function = std::make_shared<LoxFunction>(
-        std::make_shared<Stmt::Function>(stmt), currentEnvironment);
-    currentEnvironment->define(stmt.name.lexeme, function);
+void Interpreter::visit(Stmt::FunctionPtr stmt) {
+    Value function = std::make_shared<LoxFunction>(stmt->shared_from_this(),
+                                                   currentEnvironment);
+    currentEnvironment->define(stmt->name.lexeme, function);
 }
 
-void Interpreter::visit(const Stmt::Return &stmt) {
+void Interpreter::visit(Stmt::ReturnPtr stmt) {
     Value value{};
-    if (stmt.value) {
-        value = evaluate(*stmt.value);
+    if (stmt->value) {
+        value = evaluate(stmt->value);
     }
 
     throw RuntimeReturn(value);
@@ -125,37 +125,37 @@ void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
                                EnvironmentPtr environment) {
     auto new_scope = ScopeManager(*this, environment);
     for (const auto &stmt : statements) {
-        execute(*stmt);
+        execute(stmt);
     }
 }
 
-Value Interpreter::evaluate(const Expr::BaseExpr &expr) {
-    return expr.accept(*this);
+Value Interpreter::evaluate(const Expr::ExprPtr expr) {
+    return expr->accept(*this);
 }
 
-Value Interpreter::visit(const Expr::Binary &expr) {
-    auto left = evaluate(*expr.left);
-    auto right = evaluate(*expr.right);
+Value Interpreter::visit(Expr::BinaryPtr expr) {
+    auto left = evaluate(expr->left);
+    auto right = evaluate(expr->right);
 
-    switch (expr.op.type) {
+    switch (expr->op.type) {
     case TokenType::GREATER:
-        checkNumberOperands(expr.op, left, right);
+        checkNumberOperands(expr->op, left, right);
         return std::get<double>(left) > std::get<double>(right);
     case TokenType::GREATER_EQUAL:
-        checkNumberOperands(expr.op, left, right);
+        checkNumberOperands(expr->op, left, right);
         return std::get<double>(left) >= std::get<double>(right);
     case TokenType::LESS:
-        checkNumberOperands(expr.op, left, right);
+        checkNumberOperands(expr->op, left, right);
         return std::get<double>(left) < std::get<double>(right);
     case TokenType::LESS_EQUAL:
-        checkNumberOperands(expr.op, left, right);
+        checkNumberOperands(expr->op, left, right);
         return std::get<double>(left) <= std::get<double>(right);
     case TokenType::BANG_EQUAL:
         return !isEqual(left, right);
     case TokenType::EQUAL_EQUAL:
         return isEqual(left, right);
     case TokenType::MINUS:
-        checkNumberOperands(expr.op, left, right);
+        checkNumberOperands(expr->op, left, right);
         return std::get<double>(left) - std::get<double>(right);
     case TokenType::PLUS:
         if (std::holds_alternative<double>(left) &&
@@ -166,7 +166,7 @@ Value Interpreter::visit(const Expr::Binary &expr) {
             std::holds_alternative<std::string>(right)) {
             return std::get<std::string>(left) + std::get<std::string>(right);
         }
-        throw RuntimeError(expr.op,
+        throw RuntimeError(expr->op,
                            "Operands must be two numbers or two strings.");
     case TokenType::SLASH:
         return std::get<double>(left) / std::get<double>(right);
@@ -177,74 +177,74 @@ Value Interpreter::visit(const Expr::Binary &expr) {
     }
 }
 
-Value Interpreter::visit(const Expr::Grouping &expr) {
-    return evaluate(*expr.inner);
+Value Interpreter::visit(Expr::GroupingPtr expr) {
+    return evaluate(expr->inner);
 }
 
-Value Interpreter::visit(const Expr::Unary &expr) {
-    auto right = evaluate(*expr.right);
+Value Interpreter::visit(Expr::UnaryPtr expr) {
+    auto right = evaluate(expr->right);
 
-    switch (expr.op.type) {
+    switch (expr->op.type) {
     case TokenType::BANG:
         return !isTruthy(right);
     case TokenType::MINUS:
-        checkNumberOperand(expr.op, right);
+        checkNumberOperand(expr->op, right);
         return -std::get<double>(right);
     default:
         return {}; // unreachable
     }
 }
 
-Value Interpreter::visit(const Expr::Literal &expr) {
+Value Interpreter::visit(Expr::LiteralPtr expr) {
     auto value = Value{};
 
     // since Literal is a subset of Value, this std::visit call is trivial
-    std::visit([&](auto &&arg) { value = arg; }, expr.value);
+    std::visit([&](auto &&arg) { value = arg; }, expr->value);
 
     return value;
 }
 
-Value Interpreter::visit(const Expr::Variable &expr) {
-    return currentEnvironment->get(expr.name);
+Value Interpreter::visit(Expr::VariablePtr expr) {
+    return currentEnvironment->get(expr->name);
 }
 
-Value Interpreter::visit(const Expr::Assign &expr) {
-    auto value = evaluate(*expr.value);
-    currentEnvironment->assign(expr.name, value);
+Value Interpreter::visit(Expr::AssignPtr expr) {
+    auto value = evaluate(expr->value);
+    currentEnvironment->assign(expr->name, value);
     return value;
 };
 
-Value Interpreter::visit(const Expr::Logical &expr) {
-    Value left = evaluate(*expr.left);
+Value Interpreter::visit(Expr::LogicalPtr expr) {
+    Value left = evaluate(expr->left);
 
     // short-circuit
-    if (expr.op.type == TokenType::OR) {
+    if (expr->op.type == TokenType::OR) {
         if (isTruthy(left))
             return left;
-    } else {
+    } else { // expr->op.type == TokenType::AND
         if (!isTruthy(left))
             return left;
     }
 
-    return evaluate(*expr.right);
+    return evaluate(expr->right);
 }
 
-Value Interpreter::visit(const Expr::Call &expr) {
-    auto callee = evaluate(*expr.callee);
+Value Interpreter::visit(Expr::CallPtr expr) {
+    auto callee = evaluate(expr->callee);
 
     // Order of evaluating arguments is kept
     auto arguments = std::vector<Value>();
-    for (const auto &arg : expr.arguments) {
-        arguments.push_back(evaluate(*arg));
+    for (const auto &arg : expr->arguments) {
+        arguments.push_back(evaluate(arg));
     }
 
     if (!std::holds_alternative<std::shared_ptr<LoxCallable>>(callee)) {
-        throw RuntimeError(expr.paren, "Can only call functions and classes.");
+        throw RuntimeError(expr->paren, "Can only call functions and classes.");
     }
 
     auto callable = std::get<std::shared_ptr<LoxCallable>>(callee);
     if (arguments.size() != callable->arity()) {
-        throw RuntimeError(expr.paren,
+        throw RuntimeError(expr->paren,
                            "Expected " + std::to_string(callable->arity()) +
                                " arguments but got " +
                                std::to_string(arguments.size()) + ".");
