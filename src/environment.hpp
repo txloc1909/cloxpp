@@ -1,8 +1,8 @@
 #ifndef CLOXPP_ENVIRONMENT_H
 #define CLOXPP_ENVIRONMENT_H
 
+#include <map>
 #include <string>
-#include <unordered_map>
 
 #include "token.hpp"
 #include "value.hpp"
@@ -12,7 +12,7 @@ using EnvironmentPtr = std::shared_ptr<Environment>;
 
 class Environment {
 private:
-    std::unordered_map<std::string, Value> values;
+    std::map<std::string, Value> values;
     EnvironmentPtr enclosing = nullptr;
 
 public:
