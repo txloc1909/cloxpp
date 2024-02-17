@@ -4,6 +4,12 @@
 #include "lox_callable.hpp"
 #include "stmt.hpp"
 
+enum FunctionType {
+    NONE,
+    FUNCTION,
+};
+const char *functionTypeToString(FunctionType type);
+
 class LoxFunction : public LoxCallable {
 private:
     const Stmt::FunctionPtr declaration;

@@ -5,6 +5,15 @@
 #include "lox_function.hpp"
 #include "return.hpp"
 
+const char *functionTypeToString(FunctionType type) {
+    switch (type) {
+    case FunctionType::NONE:
+        return "";
+    case FunctionType::FUNCTION:
+        return "function";
+    }
+}
+
 Value LoxFunction::call(Interpreter &interpreter,
                         const std::vector<Value> &arguments) {
     auto environment = std::make_shared<Environment>(closure);

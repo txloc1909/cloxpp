@@ -1,6 +1,5 @@
 #include "resolver.hpp"
 #include <cassert>
-#include <iostream>
 
 void Resolver::resolve(const std::vector<Stmt::StmtPtr> &statements) {
     for (auto &stmt : statements) {

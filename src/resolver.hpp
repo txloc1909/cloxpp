@@ -5,24 +5,20 @@
 
 #include "expr.hpp"
 #include "interpreter.hpp"
+#include "lox_function.hpp"
 #include "stmt.hpp"
-
-enum FunctionType {
-    NONE,
-    FUNCTION,
-};
 
 class Resolver : Expr::Visitor<void>, Stmt::Visitor<void> {
 public:
     Resolver(Interpreter &interpreter, ErrorHandler &handler)
-        : handler(handler), interpreter(interpreter),
+        : handler(handler), interpreter(interpreter), scopes({}),
           currentFunction(FunctionType::NONE){};
     void resolve(const std::vector<Stmt::StmtPtr> &statements);
 
 private:
     ErrorHandler &handler;
     Interpreter &interpreter;
-    std::vector<std::unordered_map<std::string, bool>> scopes{};
+    std::vector<std::unordered_map<std::string, bool>> scopes;
     FunctionType currentFunction;
 
     void resolve(const Expr::ExprPtr expr);

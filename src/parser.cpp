@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "expr.hpp"
+#include "lox_function.hpp"
 #include "parser.hpp"
 #include "stmt.hpp"
 #include "token.hpp"
@@ -26,7 +27,7 @@ std::vector<Stmt::StmtPtr> Parser::parse() {
 Stmt::StmtPtr Parser::declaration() {
     try {
         if (match(TokenType::FUN)) {
-            return function();
+            return function(functionTypeToString(FunctionType::FUNCTION));
         }
 
         if (match(TokenType::VAR)) {
@@ -50,9 +51,12 @@ Stmt::StmtPtr Parser::varDeclaration() {
                                        initializer ? initializer : nullptr);
 }
 
-Stmt::StmtPtr Parser::function() {
-    Token name = consume(TokenType::IDENTIFIER, "Expect function name.");
-    consume(TokenType::LEFT_PAREN, "Expect '(' after function name.");
+Stmt::StmtPtr Parser::function(const char *type) {
+    const auto functionType = std::string(type);
+    Token name =
+        consume(TokenType::IDENTIFIER, "Expect " + functionType + " name.");
+    consume(TokenType::LEFT_PAREN,
+            "Expect '(' after " + functionType + " name.");
 
     auto params = std::vector<Token>();
     if (!check(TokenType::RIGHT_PAREN)) {
@@ -67,7 +71,8 @@ Stmt::StmtPtr Parser::function() {
     }
     consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
 
-    consume(TokenType::LEFT_BRACE, "Expect '{' before function body.");
+    consume(TokenType::LEFT_BRACE,
+            "Expect '{' before " + functionType + " body.");
     auto body = block();
     return std::make_shared<Stmt::Function>(name, std::move(params), body);
 }
@@ -392,11 +397,11 @@ auto Parser::error(Token token, const char *message) -> Parser::ParserError {
     return ParserError();
 }
 
-Token Parser::consume(TokenType type, const char *message) {
+Token Parser::consume(TokenType type, std::string message) {
     if (check(type))
         return advance();
 
-    throw error(peek(), message);
+    throw error(peek(), message.c_str());
 }
 
 bool Parser::match(TokenType type) {

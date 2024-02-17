@@ -7,6 +7,7 @@
 
 #include "error_handler.hpp"
 #include "expr.hpp"
+#include "lox_function.hpp"
 #include "stmt.hpp"
 #include "token.hpp"
 
@@ -33,7 +34,7 @@ private:
 
     Stmt::StmtPtr declaration();
     Stmt::StmtPtr varDeclaration();
-    Stmt::StmtPtr function();
+    Stmt::StmtPtr function(const char *type);
     Stmt::StmtPtr statement();
     Stmt::StmtPtr expressionStmt();
     Stmt::StmtPtr printStmt();
@@ -51,7 +52,7 @@ private:
     Token advance();
     Token peek();
     Token previous();
-    Token consume(TokenType type, const char *message);
+    Token consume(TokenType type, std::string message);
     ParserError error(Token token, const char *message);
 
 public:
