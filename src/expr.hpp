@@ -52,6 +52,7 @@ public:
 struct BaseExpr {
     virtual ~BaseExpr() = default;
     virtual Value accept(Visitor<Value> &visitor) const = 0;
+    virtual void accept(Visitor<void> &visitor) const = 0;
 };
 using ExprPtr = std::shared_ptr<BaseExpr const>;
 
@@ -63,6 +64,7 @@ struct Binary : public BaseExpr, public std::enable_shared_from_this<Binary> {
     Binary(ExprPtr left, ExprPtr right, Token op)
         : left(left), right(right), op(op) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Grouping : public BaseExpr,
@@ -71,6 +73,7 @@ struct Grouping : public BaseExpr,
 
     Grouping(ExprPtr expr) : inner(expr) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Unary : public BaseExpr, public std::enable_shared_from_this<Unary> {
@@ -79,6 +82,7 @@ struct Unary : public BaseExpr, public std::enable_shared_from_this<Unary> {
 
     Unary(Token op, ExprPtr right) : op(op), right(right) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Literal : public BaseExpr, public std::enable_shared_from_this<Literal> {
@@ -86,6 +90,7 @@ struct Literal : public BaseExpr, public std::enable_shared_from_this<Literal> {
 
     Literal(LiteralValue value) : value(value) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Variable : public BaseExpr,
@@ -94,6 +99,7 @@ struct Variable : public BaseExpr,
 
     Variable(Token name) : name(name) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Assign : public BaseExpr, public std::enable_shared_from_this<Assign> {
@@ -102,6 +108,7 @@ struct Assign : public BaseExpr, public std::enable_shared_from_this<Assign> {
 
     Assign(Token name, ExprPtr value) : name(name), value(value) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Logical : public BaseExpr, public std::enable_shared_from_this<Logical> {
@@ -112,6 +119,7 @@ struct Logical : public BaseExpr, public std::enable_shared_from_this<Logical> {
     Logical(ExprPtr left, ExprPtr right, Token op)
         : left(left), right(right), op(op) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 
 struct Call : public BaseExpr, public std::enable_shared_from_this<Call> {
@@ -122,6 +130,7 @@ struct Call : public BaseExpr, public std::enable_shared_from_this<Call> {
     Call(ExprPtr callee, Token paren, std::vector<ExprPtr> arguments)
         : callee(callee), paren(paren), arguments(std::move(arguments)) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
 };
 } // namespace Expr
 

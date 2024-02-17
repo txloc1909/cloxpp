@@ -17,6 +17,7 @@ add_executable(jlox
     src/interpreter.cpp
     src/environment.cpp
     src/lox_function.cpp
+    src/resolver.cpp
 )
 target_compile_options(jlox PRIVATE -Wall -Wextra)
 target_link_options(jlox PRIVATE)

@@ -3,6 +3,7 @@
 
 #include "error_handler.hpp"
 #include "parser.hpp"
+#include "resolver.hpp"
 #include "scanner.hpp"
 #include "treewalk_interpreter.hpp"
 #include "utils.hpp"
@@ -27,6 +28,12 @@ void TreewalkInterpreter::run(const std::string &source) {
     auto parser = Parser(scanner.scanTokens(), *errorHandler.get());
     auto statements = parser.parse();
 
+    if (errorHandler->hadError) {
+        return;
+    }
+
+    auto resolver = Resolver(interpreter, *errorHandler.get());
+    resolver.resolve(statements);
     if (errorHandler->hadError) {
         return;
     }

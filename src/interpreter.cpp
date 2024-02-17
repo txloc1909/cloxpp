@@ -44,7 +44,7 @@ static void checkNumberOperands(Token op, Value left, Value right) {
 
 Interpreter::Interpreter(ErrorHandler &handler)
     : handler(handler), globals_(std::make_shared<Environment>()),
-      currentEnvironment(globals_) {
+      currentEnvironment(globals_), locals({}) {
     globals_->define("clock", std::make_shared<NativeClock>());
 }
 
@@ -129,6 +129,20 @@ void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
     }
 }
 
+void Interpreter::resolve(Expr::ExprPtr expr, int depth) {
+    locals[expr] = depth;
+}
+
+Value Interpreter::lookUpVariable(const Token &name,
+                                  const Expr::ExprPtr &expr) {
+    if (locals.find(expr) != locals.end()) {
+        int depth = locals.at(expr);
+        return currentEnvironment->getAt(depth, name.lexeme);
+    } else {
+        return globals_->get(name);
+    }
+}
+
 Value Interpreter::evaluate(const Expr::ExprPtr expr) {
     return expr->accept(*this);
 }
@@ -205,12 +219,18 @@ Value Interpreter::visit(Expr::LiteralPtr expr) {
 }
 
 Value Interpreter::visit(Expr::VariablePtr expr) {
-    return currentEnvironment->get(expr->name);
+    return lookUpVariable(expr->name, expr);
 }
 
 Value Interpreter::visit(Expr::AssignPtr expr) {
-    auto value = evaluate(expr->value);
-    currentEnvironment->assign(expr->name, value);
+    Value value = evaluate(expr->value);
+
+    if (locals.find(expr) != locals.end()) {
+        int distance = locals.at(expr);
+        currentEnvironment->assignAt(distance, expr->name, value);
+    } else {
+        globals_->assign(expr->name, value);
+    }
     return value;
 };
 
