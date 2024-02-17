@@ -102,6 +102,11 @@ void Resolver::visit(Stmt::ReturnPtr stmt) {
     }
 }
 
+void Resolver::visit(Stmt::ClassPtr stmt) {
+    declare(stmt->name);
+    define(stmt->name);
+}
+
 void Resolver::resolveLocal(Expr::ExprPtr expr, const Token &name) {
     const int numScopes = scopes.size();
     for (int i = numScopes - 1; i >= 0; i--) {

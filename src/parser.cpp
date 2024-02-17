@@ -26,6 +26,9 @@ std::vector<Stmt::StmtPtr> Parser::parse() {
 
 Stmt::StmtPtr Parser::declaration() {
     try {
+        if (match(TokenType::CLASS)) {
+            return classDeclaration();
+        }
         if (match(TokenType::FUN)) {
             return function(functionTypeToString(FunctionType::FUNCTION));
         }
@@ -39,6 +42,20 @@ Stmt::StmtPtr Parser::declaration() {
         synchronize();
         return nullptr;
     }
+}
+
+Stmt::StmtPtr Parser::classDeclaration() {
+    Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
+
+    auto methods = std::vector<Stmt::FunctionPtr>();
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        methods.push_back(std::dynamic_pointer_cast<Stmt::Function const>(
+            function(functionTypeToString(FunctionType::METHOD))));
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
+    return std::make_shared<Stmt::Class>(name, std::move(methods));
 }
 
 Stmt::StmtPtr Parser::varDeclaration() {

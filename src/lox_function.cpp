@@ -1,6 +1,5 @@
 #include <cassert>
 #include <chrono>
-#include <cstddef>
 
 #include "lox_function.hpp"
 #include "return.hpp"
@@ -11,6 +10,10 @@ const char *functionTypeToString(FunctionType type) {
         return "";
     case FunctionType::FUNCTION:
         return "function";
+    case FunctionType::METHOD:
+        return "method";
+    default:
+        throw std::runtime_error("Unreachable!");
     }
 }
 

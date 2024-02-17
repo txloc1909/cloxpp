@@ -121,6 +121,11 @@ void Interpreter::visit(Stmt::ReturnPtr stmt) {
     throw RuntimeReturn(value);
 }
 
+void Interpreter::visit(Stmt::ClassPtr stmt) {
+    // For now, a class is just a string of its name
+    currentEnvironment->define(stmt->name.lexeme, stmt->name.lexeme);
+}
+
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
                                EnvironmentPtr environment) {
     auto new_scope = ScopeManager(*this, environment);

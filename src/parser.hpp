@@ -33,6 +33,7 @@ private:
     Expr::ExprPtr primary();
 
     Stmt::StmtPtr declaration();
+    Stmt::StmtPtr classDeclaration();
     Stmt::StmtPtr varDeclaration();
     Stmt::StmtPtr function(const char *type);
     Stmt::StmtPtr statement();

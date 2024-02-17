@@ -23,6 +23,7 @@ struct If;
 struct While;
 struct Function;
 struct Return;
+struct Class;
 
 using ExprPtr = std::shared_ptr<Expr const>;
 using PrintPtr = std::shared_ptr<Print const>;
@@ -32,6 +33,7 @@ using IfPtr = std::shared_ptr<If const>;
 using WhilePtr = std::shared_ptr<While const>;
 using FunctionPtr = std::shared_ptr<Function const>;
 using ReturnPtr = std::shared_ptr<Return const>;
+using ClassPtr = std::shared_ptr<Class const>;
 
 template <typename R>
 class Visitor {
@@ -44,6 +46,7 @@ public:
     virtual R visit(WhilePtr expr) = 0;
     virtual R visit(FunctionPtr expr) = 0;
     virtual R visit(ReturnPtr expr) = 0;
+    virtual R visit(ClassPtr expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -121,6 +124,15 @@ struct Return : public BaseStmt, public std::enable_shared_from_this<Return> {
     const ExprNodePtr value;
 
     Return(Token keyword, ExprNodePtr value) : keyword(keyword), value(value) {}
+    DEFINE_NODE_ACCEPT_METHOD(void)
+};
+
+struct Class : public BaseStmt, public std::enable_shared_from_this<Class> {
+    const Token name;
+    const std::vector<FunctionPtr> methods;
+
+    Class(Token name, std::vector<FunctionPtr> methods)
+        : name(name), methods(std::move(methods)) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 

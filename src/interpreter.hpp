@@ -59,6 +59,7 @@ private:
     void visit(Stmt::WhilePtr stmt) override;
     void visit(Stmt::FunctionPtr stmt) override;
     void visit(Stmt::ReturnPtr stmt) override;
+    void visit(Stmt::ClassPtr stmt) override;
 
     Value lookUpVariable(const Token &name, const Expr::ExprPtr &expr);
 

@@ -40,6 +40,7 @@ private:
     void visit(Stmt::WhilePtr stmt) override;
     void visit(Stmt::FunctionPtr stmt) override;
     void visit(Stmt::ReturnPtr stmt) override;
+    void visit(Stmt::ClassPtr stmt) override;
 
     void resolveLocal(Expr::ExprPtr expr, const Token &name);
     void resolveFunction(Stmt::FunctionPtr function, FunctionType type);

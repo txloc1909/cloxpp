@@ -7,6 +7,7 @@
 enum FunctionType {
     NONE,
     FUNCTION,
+    METHOD,
 };
 const char *functionTypeToString(FunctionType type);
 
