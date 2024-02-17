@@ -1,5 +1,6 @@
 #include "value.hpp"
 #include "lox_callable.hpp"
+#include "lox_class.hpp"
 
 struct ToStringVisitor {
     std::string operator()(std::monostate) { return "nil"; }
@@ -8,6 +9,9 @@ struct ToStringVisitor {
     std::string operator()(bool b) { return b ? "true" : "false"; }
     std::string operator()(const std::shared_ptr<LoxCallable> &callable) {
         return callable->toString();
+    }
+    std::string operator()(const std::shared_ptr<LoxInstance> &instance) {
+        return instance->toString();
     }
 };
 

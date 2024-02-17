@@ -18,8 +18,10 @@ using Literal = std::variant<std::monostate, std::string, double, bool>;
 
 // forward declare some types here, to be included in Value
 class LoxCallable;
+class LoxInstance;
 
-using Value = concatenator<Literal, std::shared_ptr<LoxCallable>>::type;
+using Value = concatenator<Literal, std::shared_ptr<LoxCallable>,
+                           std::shared_ptr<LoxInstance>>::type;
 
 std::string stringify(const Literal &value);
 std::string stringify(const Value &value);

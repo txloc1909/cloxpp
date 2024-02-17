@@ -18,6 +18,7 @@ add_executable(jlox
     src/environment.cpp
     src/lox_function.cpp
     src/resolver.cpp
+    src/lox_class.cpp
 )
 target_compile_options(jlox PRIVATE -Wall -Wextra)
 target_link_options(jlox PRIVATE)
@@ -29,6 +30,7 @@ add_executable(scanner
     src/error_handler.cpp
     src/token.cpp
     src/utils.cpp
+    src/lox_class.cpp
 )
 target_compile_options(scanner PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(scanner PRIVATE -fsanitize=undefined -fsanitize=address)

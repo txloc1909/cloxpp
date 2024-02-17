@@ -2,6 +2,7 @@
 #include <variant>
 
 #include "interpreter.hpp"
+#include "lox_class.hpp"
 #include "lox_function.hpp"
 #include "return.hpp"
 #include "runtime_error.hpp"
@@ -122,8 +123,9 @@ void Interpreter::visit(Stmt::ReturnPtr stmt) {
 }
 
 void Interpreter::visit(Stmt::ClassPtr stmt) {
-    // For now, a class is just a string of its name
-    currentEnvironment->define(stmt->name.lexeme, stmt->name.lexeme);
+    currentEnvironment->define(
+        stmt->name.lexeme, std::dynamic_pointer_cast<LoxCallable>(
+                               std::make_shared<LoxClass>(stmt->name.lexeme)));
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
