@@ -38,8 +38,8 @@ std::string LoxFunction::toString() const {
     return "<fn " + declaration->name.lexeme + ">";
 }
 
-Value NativeClock::call(Interpreter &interpreter,
-                        const std::vector<Value> &arguments) {
+Value NativeClock::call(Interpreter & /*interpreter*/,
+                        const std::vector<Value> & /*arguments*/) {
     return static_cast<double>(
                std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::high_resolution_clock::now().time_since_epoch())

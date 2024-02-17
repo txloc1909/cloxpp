@@ -18,7 +18,7 @@ void Resolver::visit(Expr::GroupingPtr expr) { resolve(expr->inner); }
 
 void Resolver::visit(Expr::UnaryPtr expr) { resolve(expr->right); }
 
-void Resolver::visit(Expr::LiteralPtr expr) {} // do nothing
+void Resolver::visit(Expr::LiteralPtr /*expr*/) {} // do nothing
 
 void Resolver::visit(Expr::VariablePtr expr) {
     auto &name = expr->name.lexeme;
