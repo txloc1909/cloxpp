@@ -31,6 +31,9 @@ add_executable(scanner
     src/token.cpp
     src/utils.cpp
     src/lox_class.cpp
+    src/lox_function.cpp
+    src/environment.cpp
+    src/interpreter.cpp
 )
 target_compile_options(scanner PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(scanner PRIVATE -fsanitize=undefined -fsanitize=address)

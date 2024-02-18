@@ -24,7 +24,7 @@ public:
     std::string toString() const override;
 };
 
-class LoxInstance {
+class LoxInstance : public std::enable_shared_from_this<LoxInstance> {
 private:
     LoxClass *klass;
     std::unordered_map<std::string, Value> fields;
@@ -35,5 +35,6 @@ public:
     void set(const Token &name, Value value);
     std::string toString() const;
 };
+using LoxInstancePtr = std::shared_ptr<LoxInstance>;
 
 #endif // !CLOXPP_LOX_CLASS_H

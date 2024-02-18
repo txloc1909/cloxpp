@@ -64,6 +64,8 @@ void Resolver::visit(Expr::SetPtr expr) {
     resolve(expr->value);
 }
 
+void Resolver::visit(Expr::ThisPtr expr) { resolveLocal(expr, expr->keyword); }
+
 void Resolver::resolve(const Stmt::StmtPtr stmt) { return stmt->accept(*this); }
 
 void Resolver::visit(Stmt::ExprPtr stmt) { resolve(stmt->expr); }
@@ -117,9 +119,14 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     declare(stmt->name);
     define(stmt->name);
 
+    beginScope();
+    scopes.back()["this"] = true;
+
     for (auto &method : stmt->methods) {
         resolveFunction(method, FunctionType::METHOD);
     }
+
+    endScope();
 }
 
 void Resolver::resolveLocal(Expr::ExprPtr expr, const Token &name) {

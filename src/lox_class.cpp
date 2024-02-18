@@ -27,7 +27,8 @@ Value LoxInstance::get(const Token &name) const {
 
     LoxFunctionPtr method = klass->findMethod(name.lexeme);
     if (method) {
-        return method;
+        return method->bind(
+            const_cast<LoxInstance *>(this)->shared_from_this());
     }
 
     throw RuntimeError(name, "Undefined property '" + name.lexeme + "'.");

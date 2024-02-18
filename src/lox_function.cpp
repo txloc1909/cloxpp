@@ -1,6 +1,8 @@
 #include <cassert>
 #include <chrono>
+#include <memory>
 
+#include "lox_class.hpp"
 #include "lox_function.hpp"
 #include "return.hpp"
 
@@ -39,6 +41,12 @@ std::size_t LoxFunction::arity() const { return declaration->params.size(); }
 
 std::string LoxFunction::toString() const {
     return "<fn " + declaration->name.lexeme + ">";
+}
+
+LoxFunctionPtr LoxFunction::bind(LoxInstancePtr instance) {
+    auto environment = std::make_shared<Environment>(closure);
+    environment->define("this", instance);
+    return std::make_shared<LoxFunction>(declaration, environment);
 }
 
 Value NativeClock::call(Interpreter & /*interpreter*/,

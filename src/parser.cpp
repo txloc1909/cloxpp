@@ -370,16 +370,24 @@ Expr::ExprPtr Parser::finishCall(Expr::ExprPtr callee) {
 }
 
 Expr::ExprPtr Parser::primary() {
-    if (match(TokenType::FALSE))
+    if (match(TokenType::FALSE)) {
         return std::make_shared<Expr::Literal>(false);
-    if (match(TokenType::TRUE))
+    }
+    if (match(TokenType::TRUE)) {
         return std::make_shared<Expr::Literal>(true);
-    if (match(TokenType::NIL))
+    }
+    if (match(TokenType::NIL)) {
         return std::make_shared<Expr::Literal>(std::monostate{});
+    }
 
-    if (match({TokenType::NUMBER, TokenType::STRING}))
+    if (match({TokenType::NUMBER, TokenType::STRING})) {
         // tokens of these types are guaranteed to have a literal value
         return std::make_shared<Expr::Literal>(previous().literal.value());
+    }
+
+    if (match(TokenType::THIS)) {
+        return std::make_shared<Expr::This>(previous());
+    }
 
     if (match(TokenType::IDENTIFIER)) {
         return std::make_shared<Expr::Variable>(previous());

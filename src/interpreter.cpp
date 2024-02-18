@@ -311,6 +311,10 @@ Value Interpreter::visit(Expr::SetPtr expr) {
     return value;
 }
 
+Value Interpreter::visit(Expr::ThisPtr expr) {
+    return lookUpVariable(expr->keyword, expr);
+}
+
 ScopeManager::ScopeManager(Interpreter &interpreter, EnvironmentPtr new_env)
     : interpreter(interpreter), new_env(new_env) {
     saved_env = interpreter.currentEnvironment;

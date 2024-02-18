@@ -11,6 +11,9 @@ enum FunctionType {
 };
 const char *functionTypeToString(FunctionType type);
 
+class LoxFunction;
+using LoxFunctionPtr = std::shared_ptr<LoxFunction>;
+
 class LoxFunction : public LoxCallable {
 private:
     const Stmt::FunctionPtr declaration;
@@ -24,9 +27,8 @@ public:
                const std::vector<Value> &arguments) override;
     std::size_t arity() const override;
     std::string toString() const override;
+    LoxFunctionPtr bind(LoxInstancePtr instance);
 };
-
-using LoxFunctionPtr = std::shared_ptr<LoxFunction>;
 
 class NativeClock : public LoxCallable {
 public:
