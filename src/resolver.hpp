@@ -30,6 +30,7 @@ private:
     void visit(Expr::AssignPtr expr) override;
     void visit(Expr::LogicalPtr expr) override;
     void visit(Expr::CallPtr expr) override;
+    void visit(Expr::GetPtr expr) override;
 
     void resolve(const Stmt::StmtPtr expr);
     void visit(Stmt::ExprPtr stmt) override;

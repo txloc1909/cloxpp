@@ -22,9 +22,11 @@ public:
 class LoxInstance {
 private:
     LoxClass *klass;
+    std::unordered_map<std::string, Value> fields;
 
 public:
-    LoxInstance(LoxClass *klass) : klass(klass) {}
+    LoxInstance(LoxClass *klass) : klass(klass), fields({}) {}
+    Value get(const Token &name) const;
     std::string toString() const;
 };
 

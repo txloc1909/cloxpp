@@ -53,6 +53,12 @@ void Resolver::visit(Expr::CallPtr expr) {
     }
 }
 
+void Resolver::visit(Expr::GetPtr expr) {
+    // Since properties are looked up dynamically, only resolve the object,
+    // not the property
+    resolve(expr->object);
+}
+
 void Resolver::resolve(const Stmt::StmtPtr stmt) { return stmt->accept(*this); }
 
 void Resolver::visit(Stmt::ExprPtr stmt) { resolve(stmt->expr); }

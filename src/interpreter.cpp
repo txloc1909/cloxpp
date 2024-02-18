@@ -280,6 +280,15 @@ Value Interpreter::visit(Expr::CallPtr expr) {
     return callable->call(*this, arguments);
 }
 
+Value Interpreter::visit(Expr::GetPtr expr) {
+    Value object = evaluate(expr->object);
+    if (std::holds_alternative<std::shared_ptr<LoxInstance>>(object)) {
+        return std::get<std::shared_ptr<LoxInstance>>(object)->get(expr->name);
+    }
+
+    throw RuntimeError(expr->name, "Only instances have properties.");
+}
+
 ScopeManager::ScopeManager(Interpreter &interpreter, EnvironmentPtr new_env)
     : interpreter(interpreter), new_env(new_env) {
     saved_env = interpreter.currentEnvironment;

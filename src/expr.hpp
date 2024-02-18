@@ -24,6 +24,7 @@ struct Variable;
 struct Assign;
 struct Logical;
 struct Call;
+struct Get;
 
 using BinaryPtr = std::shared_ptr<Binary const>;
 using UnaryPtr = std::shared_ptr<Unary const>;
@@ -33,6 +34,7 @@ using VariablePtr = std::shared_ptr<Variable const>;
 using AssignPtr = std::shared_ptr<Assign const>;
 using LogicalPtr = std::shared_ptr<Logical const>;
 using CallPtr = std::shared_ptr<Call const>;
+using GetPtr = std::shared_ptr<Get const>;
 
 template <typename R>
 class Visitor {
@@ -45,6 +47,7 @@ public:
     virtual R visit(AssignPtr expr) = 0;
     virtual R visit(LogicalPtr expr) = 0;
     virtual R visit(CallPtr expr) = 0;
+    virtual R visit(GetPtr expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -132,6 +135,16 @@ struct Call : public BaseExpr, public std::enable_shared_from_this<Call> {
     DEFINE_NODE_ACCEPT_METHOD(Value)
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
+
+struct Get : public BaseExpr, public std::enable_shared_from_this<Get> {
+    const ExprPtr object;
+    const Token name;
+
+    Get(ExprPtr object, Token name) : object(object), name(name) {}
+    DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
+};
+
 } // namespace Expr
 
 #undef DEFINE_NODE_ACCEPT_METHOD
