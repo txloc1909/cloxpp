@@ -1,6 +1,7 @@
 #include <iostream>
 #include <variant>
 
+#include "expr.hpp"
 #include "interpreter.hpp"
 #include "lox_class.hpp"
 #include "lox_function.hpp"
@@ -287,6 +288,18 @@ Value Interpreter::visit(Expr::GetPtr expr) {
     }
 
     throw RuntimeError(expr->name, "Only instances have properties.");
+}
+
+Value Interpreter::visit(Expr::SetPtr expr) {
+    Value object = evaluate(expr->object);
+
+    if (!std::holds_alternative<std::shared_ptr<LoxInstance>>(object)) {
+        throw RuntimeError(expr->name, "Only instances have fields.");
+    }
+
+    Value value = evaluate(expr->value);
+    std::get<std::shared_ptr<LoxInstance>>(object)->set(expr->name, value);
+    return value;
 }
 
 ScopeManager::ScopeManager(Interpreter &interpreter, EnvironmentPtr new_env)

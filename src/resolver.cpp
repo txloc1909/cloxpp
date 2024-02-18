@@ -59,6 +59,11 @@ void Resolver::visit(Expr::GetPtr expr) {
     resolve(expr->object);
 }
 
+void Resolver::visit(Expr::SetPtr expr) {
+    resolve(expr->object);
+    resolve(expr->value);
+}
+
 void Resolver::resolve(const Stmt::StmtPtr stmt) { return stmt->accept(*this); }
 
 void Resolver::visit(Stmt::ExprPtr stmt) { resolve(stmt->expr); }

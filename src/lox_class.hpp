@@ -27,6 +27,7 @@ private:
 public:
     LoxInstance(LoxClass *klass) : klass(klass), fields({}) {}
     Value get(const Token &name) const;
+    void set(const Token &name, Value value);
     std::string toString() const;
 };
 

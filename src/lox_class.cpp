@@ -20,6 +20,10 @@ Value LoxInstance::get(const Token &name) const {
     throw RuntimeError(name, "Undefined property '" + name.lexeme + "'.");
 }
 
+void LoxInstance::set(const Token &name, Value value) {
+    fields[name.lexeme] = value;
+}
+
 std::string LoxInstance::toString() const {
     return klass->getName() + " instance";
 }

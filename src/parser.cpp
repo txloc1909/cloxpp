@@ -237,6 +237,10 @@ Expr::ExprPtr Parser::assignment() {
                 std::dynamic_pointer_cast<Expr::Variable const>(expr)) {
             Token name = lvalue->name;
             return std::make_shared<Expr::Assign>(name, value);
+        } else if (auto lvalue =
+                       std::dynamic_pointer_cast<Expr::Get const>(expr)) {
+            return std::make_shared<Expr::Set>(lvalue->object, lvalue->name,
+                                               value);
         }
 
         error(equals, "Invalid assignment target.");
