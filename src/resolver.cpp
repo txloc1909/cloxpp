@@ -116,6 +116,10 @@ void Resolver::visit(Stmt::ReturnPtr stmt) {
 void Resolver::visit(Stmt::ClassPtr stmt) {
     declare(stmt->name);
     define(stmt->name);
+
+    for (auto &method : stmt->methods) {
+        resolveFunction(method, FunctionType::METHOD);
+    }
 }
 
 void Resolver::resolveLocal(Expr::ExprPtr expr, const Token &name) {

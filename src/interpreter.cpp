@@ -124,9 +124,18 @@ void Interpreter::visit(Stmt::ReturnPtr stmt) {
 }
 
 void Interpreter::visit(Stmt::ClassPtr stmt) {
-    currentEnvironment->define(
-        stmt->name.lexeme, std::dynamic_pointer_cast<LoxCallable>(
-                               std::make_shared<LoxClass>(stmt->name.lexeme)));
+    currentEnvironment->define(stmt->name.lexeme, {});
+
+    auto methods = std::unordered_map<std::string, LoxFunctionPtr>();
+    for (Stmt::FunctionPtr method : stmt->methods) {
+        methods[method->name.lexeme] =
+            std::make_shared<LoxFunction>(method, currentEnvironment);
+    }
+
+    currentEnvironment->assign(
+        stmt->name,
+        std::dynamic_pointer_cast<LoxCallable>(
+            std::make_shared<LoxClass>(stmt->name.lexeme, methods)));
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,

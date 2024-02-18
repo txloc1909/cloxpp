@@ -4,15 +4,20 @@
 #include <string>
 
 #include "lox_callable.hpp"
+#include "lox_function.hpp"
 
 class LoxClass : public LoxCallable {
 private:
     const std::string name;
+    std::unordered_map<std::string, LoxFunctionPtr> methods;
 
 public:
-    LoxClass(std::string name) : name(name) {}
+    LoxClass(std::string name,
+             std::unordered_map<std::string, LoxFunctionPtr> methods)
+        : name(name), methods(std::move(methods)) {}
 
     const std::string &getName() const;
+    LoxFunctionPtr findMethod(const std::string &name) const;
     Value call(Interpreter &interpreter,
                const std::vector<Value> &arguments) override;
     std::size_t arity() const override;

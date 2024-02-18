@@ -26,6 +26,8 @@ public:
     std::string toString() const override;
 };
 
+using LoxFunctionPtr = std::shared_ptr<LoxFunction>;
+
 class NativeClock : public LoxCallable {
 public:
     Value call(Interpreter &interpreter,
