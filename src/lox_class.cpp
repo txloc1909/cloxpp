@@ -24,6 +24,10 @@ LoxFunctionPtr LoxClass::findMethod(const std::string &name) const {
         return methods.at(name);
     }
 
+    if (superclass) {
+        return superclass->findMethod(name);
+    }
+
     return nullptr;
 }
 

@@ -124,6 +124,21 @@ void Interpreter::visit(Stmt::ReturnPtr stmt) {
 }
 
 void Interpreter::visit(Stmt::ClassPtr stmt) {
+    LoxClass *superclass = nullptr;
+    if (stmt->superclass) {
+        Value toBeSuperClass = evaluate(stmt->superclass);
+        if (!std::holds_alternative<LoxCallablePtr>(toBeSuperClass)) {
+            throw RuntimeError(stmt->superclass->name,
+                               "Superclass must be a class.");
+        }
+        if (!(superclass = std::dynamic_pointer_cast<LoxClass>(
+                               std::get<LoxCallablePtr>(toBeSuperClass))
+                               .get())) {
+            throw RuntimeError(stmt->superclass->name,
+                               "Superclass must be a class.");
+        }
+    }
+
     currentEnvironment->define(stmt->name.lexeme, {});
 
     auto methods = std::unordered_map<std::string, LoxFunctionPtr>();
@@ -135,8 +150,8 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
 
     currentEnvironment->assign(
         stmt->name,
-        std::dynamic_pointer_cast<LoxCallable>(
-            std::make_shared<LoxClass>(stmt->name.lexeme, methods)));
+        std::dynamic_pointer_cast<LoxCallable>(std::make_shared<LoxClass>(
+            stmt->name.lexeme, superclass, methods)));
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,

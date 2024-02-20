@@ -14,12 +14,13 @@ enum class ClassType {
 class LoxClass : public LoxCallable {
 private:
     const std::string name;
+    const LoxClass *superclass;
     std::unordered_map<std::string, LoxFunctionPtr> methods;
 
 public:
-    LoxClass(std::string name,
+    LoxClass(std::string name, LoxClass *superclass,
              std::unordered_map<std::string, LoxFunctionPtr> methods)
-        : name(name), methods(std::move(methods)) {}
+        : name(name), superclass(superclass), methods(std::move(methods)) {}
 
     const std::string &getName() const;
     LoxFunctionPtr findMethod(const std::string &name) const;
@@ -31,7 +32,7 @@ public:
 
 class LoxInstance : public std::enable_shared_from_this<LoxInstance> {
 private:
-    LoxClass *klass;
+    const LoxClass *klass;
     std::unordered_map<std::string, Value> fields;
 
 public:

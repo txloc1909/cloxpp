@@ -46,6 +46,13 @@ Stmt::StmtPtr Parser::declaration() {
 
 Stmt::StmtPtr Parser::classDeclaration() {
     Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+
+    Expr::VariablePtr superclass = nullptr;
+    if (match(TokenType::LESS)) {
+        consume(TokenType::IDENTIFIER, "Expect superclass name.");
+        superclass = std::make_shared<Expr::Variable>(previous());
+    }
+
     consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
 
     auto methods = std::vector<Stmt::FunctionPtr>();
@@ -55,7 +62,7 @@ Stmt::StmtPtr Parser::classDeclaration() {
     }
 
     consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
-    return std::make_shared<Stmt::Class>(name, std::move(methods));
+    return std::make_shared<Stmt::Class>(name, superclass, std::move(methods));
 }
 
 Stmt::StmtPtr Parser::varDeclaration() {

@@ -14,6 +14,7 @@
 namespace Stmt {
 
 using ExprNodePtr = Expr::ExprPtr;
+using ExprVariablePtr = Expr::VariablePtr;
 
 struct Expr;
 struct Print;
@@ -129,10 +130,12 @@ struct Return : public BaseStmt, public std::enable_shared_from_this<Return> {
 
 struct Class : public BaseStmt, public std::enable_shared_from_this<Class> {
     const Token name;
+    const ExprVariablePtr superclass;
     const std::vector<FunctionPtr> methods;
 
-    Class(Token name, std::vector<FunctionPtr> methods)
-        : name(name), methods(std::move(methods)) {}
+    Class(Token name, ExprVariablePtr superclass,
+          std::vector<FunctionPtr> methods)
+        : name(name), superclass(superclass), methods(std::move(methods)) {}
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
 

@@ -132,6 +132,16 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     declare(stmt->name);
     define(stmt->name);
 
+    if (stmt->superclass &&
+        stmt->name.lexeme == stmt->superclass->name.lexeme) {
+        handler.error(stmt->superclass->name,
+                      "A class can't inherit from itself.");
+    }
+
+    if (stmt->superclass) {
+        resolve(stmt->superclass);
+    }
+
     beginScope();
     scopes.back()["this"] = true;
 
