@@ -276,11 +276,11 @@ Value Interpreter::visit(Expr::CallPtr expr) {
         arguments.push_back(evaluate(arg));
     }
 
-    if (!std::holds_alternative<std::shared_ptr<LoxCallable>>(callee)) {
+    if (!std::holds_alternative<LoxCallablePtr>(callee)) {
         throw RuntimeError(expr->paren, "Can only call functions and classes.");
     }
 
-    auto callable = std::get<std::shared_ptr<LoxCallable>>(callee);
+    auto callable = std::get<LoxCallablePtr>(callee);
     if (arguments.size() != callable->arity()) {
         throw RuntimeError(expr->paren,
                            "Expected " + std::to_string(callable->arity()) +
@@ -293,8 +293,8 @@ Value Interpreter::visit(Expr::CallPtr expr) {
 
 Value Interpreter::visit(Expr::GetPtr expr) {
     Value object = evaluate(expr->object);
-    if (std::holds_alternative<std::shared_ptr<LoxInstance>>(object)) {
-        return std::get<std::shared_ptr<LoxInstance>>(object)->get(expr->name);
+    if (std::holds_alternative<LoxInstancePtr>(object)) {
+        return std::get<LoxInstancePtr>(object)->get(expr->name);
     }
 
     throw RuntimeError(expr->name, "Only instances have properties.");
@@ -303,12 +303,12 @@ Value Interpreter::visit(Expr::GetPtr expr) {
 Value Interpreter::visit(Expr::SetPtr expr) {
     Value object = evaluate(expr->object);
 
-    if (!std::holds_alternative<std::shared_ptr<LoxInstance>>(object)) {
+    if (!std::holds_alternative<LoxInstancePtr>(object)) {
         throw RuntimeError(expr->name, "Only instances have fields.");
     }
 
     Value value = evaluate(expr->value);
-    std::get<std::shared_ptr<LoxInstance>>(object)->set(expr->name, value);
+    std::get<LoxInstancePtr>(object)->set(expr->name, value);
     return value;
 }
 
