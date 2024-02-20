@@ -1,12 +1,19 @@
 #include "lox_class.hpp"
 #include "runtime_error.hpp"
 
-Value LoxClass::call(Interpreter & /*interpreter*/,
-                     const std::vector<Value> & /*arguments*/) {
-    return std::make_shared<LoxInstance>(this);
+Value LoxClass::call(Interpreter &interpreter,
+                     const std::vector<Value> &arguments) {
+    auto instance = std::make_shared<LoxInstance>(this);
+    if (auto initializer = findMethod("init")) {
+        initializer->bind(instance)->call(interpreter, arguments);
+    }
+    return instance;
 }
 
-std::size_t LoxClass::arity() const { return 0; }
+std::size_t LoxClass::arity() const {
+    auto initializer = findMethod("init");
+    return initializer ? initializer->arity() : 0;
+}
 
 std::string LoxClass::toString() const { return name; }
 

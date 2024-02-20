@@ -117,6 +117,10 @@ void Resolver::visit(Stmt::ReturnPtr stmt) {
     }
 
     if (stmt->value) {
+        if (currentFunction == FunctionType::INITIALIZER) {
+            handler.error(stmt->keyword,
+                          "Can't return a value from an initializer.");
+        }
         resolve(stmt->value);
     }
 }
@@ -132,7 +136,9 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     scopes.back()["this"] = true;
 
     for (auto &method : stmt->methods) {
-        resolveFunction(method, FunctionType::METHOD);
+        resolveFunction(method, method->name.lexeme == "init"
+                                    ? FunctionType::INITIALIZER
+                                    : FunctionType::METHOD);
     }
 
     endScope();

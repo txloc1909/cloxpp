@@ -128,8 +128,9 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
 
     auto methods = std::unordered_map<std::string, LoxFunctionPtr>();
     for (Stmt::FunctionPtr method : stmt->methods) {
-        methods[method->name.lexeme] =
-            std::make_shared<LoxFunction>(method, currentEnvironment);
+        const bool isInitializer = method->name.lexeme == "init";
+        methods[method->name.lexeme] = std::make_shared<LoxFunction>(
+            method, currentEnvironment, isInitializer);
     }
 
     currentEnvironment->assign(

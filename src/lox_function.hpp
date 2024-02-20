@@ -8,6 +8,7 @@ enum class FunctionType {
     NONE,
     FUNCTION,
     METHOD,
+    INITIALIZER,
 };
 const char *functionTypeToString(FunctionType type);
 
@@ -18,10 +19,16 @@ class LoxFunction : public LoxCallable {
 private:
     const Stmt::FunctionPtr declaration;
     const EnvironmentPtr closure;
+    const bool isInitializer;
 
 public:
     LoxFunction(Stmt::FunctionPtr declaration, EnvironmentPtr closure)
-        : declaration(declaration), closure(closure) {}
+        : declaration(declaration), closure(closure), isInitializer(false) {}
+
+    LoxFunction(Stmt::FunctionPtr declaration, EnvironmentPtr closure,
+                bool isInitializer)
+        : declaration(declaration), closure(closure),
+          isInitializer(isInitializer) {}
 
     Value call(Interpreter &interpreter,
                const std::vector<Value> &arguments) override;

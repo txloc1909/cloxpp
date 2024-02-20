@@ -14,6 +14,8 @@ const char *functionTypeToString(FunctionType type) {
         return "function";
     case FunctionType::METHOD:
         return "method";
+    case FunctionType::INITIALIZER:
+        return "initializer";
     default:
         throw std::runtime_error("Unreachable!");
     }
@@ -31,7 +33,14 @@ Value LoxFunction::call(Interpreter &interpreter,
     try {
         interpreter.executeBlock(declaration->body, environment);
     } catch (const RuntimeReturn &returnValue) {
+        if (isInitializer) {
+            return closure->getAt(0, "this");
+        }
         return returnValue.value;
+    }
+
+    if (isInitializer) {
+        return closure->getAt(0, "this");
     }
 
     return {};
@@ -46,7 +55,8 @@ std::string LoxFunction::toString() const {
 LoxFunctionPtr LoxFunction::bind(LoxInstancePtr instance) {
     auto environment = std::make_shared<Environment>(closure);
     environment->define("this", instance);
-    return std::make_shared<LoxFunction>(declaration, environment);
+    return std::make_shared<LoxFunction>(declaration, environment,
+                                         isInitializer);
 }
 
 Value NativeClock::call(Interpreter & /*interpreter*/,
