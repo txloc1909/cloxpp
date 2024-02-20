@@ -4,7 +4,7 @@
 #include "lox_callable.hpp"
 #include "stmt.hpp"
 
-enum FunctionType {
+enum class FunctionType {
     NONE,
     FUNCTION,
     METHOD,

@@ -6,6 +6,11 @@
 #include "lox_callable.hpp"
 #include "lox_function.hpp"
 
+enum class ClassType {
+    NONE,
+    CLASS,
+};
+
 class LoxClass : public LoxCallable {
 private:
     const std::string name;

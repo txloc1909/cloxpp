@@ -64,7 +64,13 @@ void Resolver::visit(Expr::SetPtr expr) {
     resolve(expr->value);
 }
 
-void Resolver::visit(Expr::ThisPtr expr) { resolveLocal(expr, expr->keyword); }
+void Resolver::visit(Expr::ThisPtr expr) {
+    if (currentClass == ClassType::NONE) {
+        handler.error(expr->keyword, "Can't use 'this' outside of a class.");
+        return;
+    }
+    resolveLocal(expr, expr->keyword);
+}
 
 void Resolver::resolve(const Stmt::StmtPtr stmt) { return stmt->accept(*this); }
 
@@ -116,6 +122,9 @@ void Resolver::visit(Stmt::ReturnPtr stmt) {
 }
 
 void Resolver::visit(Stmt::ClassPtr stmt) {
+    ClassType enclosingClass = currentClass;
+    currentClass = ClassType::CLASS;
+
     declare(stmt->name);
     define(stmt->name);
 
@@ -127,6 +136,7 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     }
 
     endScope();
+    currentClass = enclosingClass;
 }
 
 void Resolver::resolveLocal(Expr::ExprPtr expr, const Token &name) {

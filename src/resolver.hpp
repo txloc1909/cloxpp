@@ -5,6 +5,7 @@
 
 #include "expr.hpp"
 #include "interpreter.hpp"
+#include "lox_class.hpp"
 #include "lox_function.hpp"
 #include "stmt.hpp"
 
@@ -12,7 +13,7 @@ class Resolver : Expr::Visitor<void>, Stmt::Visitor<void> {
 public:
     Resolver(Interpreter &interpreter, ErrorHandler &handler)
         : handler(handler), interpreter(interpreter), scopes({}),
-          currentFunction(FunctionType::NONE){};
+          currentFunction(FunctionType::NONE), currentClass(ClassType::NONE){};
     void resolve(const std::vector<Stmt::StmtPtr> &statements);
 
 private:
@@ -20,6 +21,7 @@ private:
     Interpreter &interpreter;
     std::vector<std::unordered_map<std::string, bool>> scopes;
     FunctionType currentFunction;
+    ClassType currentClass;
 
     void resolve(const Expr::ExprPtr expr);
     void visit(Expr::BinaryPtr expr) override;
