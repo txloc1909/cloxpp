@@ -72,7 +72,16 @@ void Resolver::visit(Expr::ThisPtr expr) {
     resolveLocal(expr, expr->keyword);
 }
 
-void Resolver::visit(Expr::SuperPtr expr) { resolveLocal(expr, expr->keyword); }
+void Resolver::visit(Expr::SuperPtr expr) {
+    if (currentClass == ClassType::NONE) {
+        handler.error(expr->keyword, "Can't use 'super' outside of a class.");
+    } else if (currentClass != ClassType::SUBCLASS) {
+        handler.error(expr->keyword,
+                      "Can't use 'super' in a class with no superclass.");
+    }
+
+    resolveLocal(expr, expr->keyword);
+}
 
 void Resolver::resolve(const Stmt::StmtPtr stmt) { return stmt->accept(*this); }
 
@@ -141,6 +150,7 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     }
 
     if (hasSuperClass) {
+        currentClass = ClassType::SUBCLASS;
         resolve(stmt->superclass);
         beginScope();
         scopes.back()["super"] = true;

@@ -9,6 +9,7 @@
 enum class ClassType {
     NONE,
     CLASS,
+    SUBCLASS,
 };
 
 class LoxClass : public LoxCallable {
