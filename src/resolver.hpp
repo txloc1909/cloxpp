@@ -35,6 +35,7 @@ private:
     void visit(Expr::GetPtr expr) override;
     void visit(Expr::SetPtr expr) override;
     void visit(Expr::ThisPtr expr) override;
+    void visit(Expr::SuperPtr expr) override;
 
     void resolve(const Stmt::StmtPtr expr);
     void visit(Stmt::ExprPtr stmt) override;

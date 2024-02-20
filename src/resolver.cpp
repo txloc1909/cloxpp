@@ -72,6 +72,8 @@ void Resolver::visit(Expr::ThisPtr expr) {
     resolveLocal(expr, expr->keyword);
 }
 
+void Resolver::visit(Expr::SuperPtr expr) { resolveLocal(expr, expr->keyword); }
+
 void Resolver::resolve(const Stmt::StmtPtr stmt) { return stmt->accept(*this); }
 
 void Resolver::visit(Stmt::ExprPtr stmt) { resolve(stmt->expr); }
@@ -132,14 +134,16 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     declare(stmt->name);
     define(stmt->name);
 
-    if (stmt->superclass &&
-        stmt->name.lexeme == stmt->superclass->name.lexeme) {
+    const bool hasSuperClass = stmt->superclass != nullptr;
+    if (hasSuperClass && stmt->name.lexeme == stmt->superclass->name.lexeme) {
         handler.error(stmt->superclass->name,
                       "A class can't inherit from itself.");
     }
 
-    if (stmt->superclass) {
+    if (hasSuperClass) {
         resolve(stmt->superclass);
+        beginScope();
+        scopes.back()["super"] = true;
     }
 
     beginScope();
@@ -152,6 +156,9 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     }
 
     endScope();
+    if (hasSuperClass) {
+        endScope();
+    }
     currentClass = enclosingClass;
 }
 

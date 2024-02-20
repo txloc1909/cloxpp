@@ -124,8 +124,9 @@ void Interpreter::visit(Stmt::ReturnPtr stmt) {
 }
 
 void Interpreter::visit(Stmt::ClassPtr stmt) {
+    const bool hasSuperClass = stmt->superclass != nullptr;
     LoxClass *superclass = nullptr;
-    if (stmt->superclass) {
+    if (hasSuperClass) {
         Value toBeSuperClass = evaluate(stmt->superclass);
         if (!std::holds_alternative<LoxCallablePtr>(toBeSuperClass)) {
             throw RuntimeError(stmt->superclass->name,
@@ -141,11 +142,19 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
 
     currentEnvironment->define(stmt->name.lexeme, {});
 
+    EnvironmentPtr superclassEnv =
+        hasSuperClass ? std::make_shared<Environment>(currentEnvironment)
+                      : currentEnvironment;
+
     auto methods = std::unordered_map<std::string, LoxFunctionPtr>();
-    for (Stmt::FunctionPtr method : stmt->methods) {
-        const bool isInitializer = method->name.lexeme == "init";
-        methods[method->name.lexeme] = std::make_shared<LoxFunction>(
-            method, currentEnvironment, isInitializer);
+
+    {
+        auto superclassScope = ScopeManager(*this, superclassEnv);
+        for (Stmt::FunctionPtr method : stmt->methods) {
+            const bool isInitializer = method->name.lexeme == "init";
+            methods[method->name.lexeme] = std::make_shared<LoxFunction>(
+                method, currentEnvironment, isInitializer);
+        }
     }
 
     currentEnvironment->assign(
@@ -329,6 +338,23 @@ Value Interpreter::visit(Expr::SetPtr expr) {
 
 Value Interpreter::visit(Expr::ThisPtr expr) {
     return lookUpVariable(expr->keyword, expr);
+}
+
+Value Interpreter::visit(Expr::SuperPtr expr) {
+    int distance = locals.at(expr);
+
+    auto superclass = std::dynamic_pointer_cast<LoxClass>(
+        std::get<LoxCallablePtr>(currentEnvironment->getAt(distance, "super")));
+
+    auto instance = std::get<LoxInstancePtr>(
+        currentEnvironment->getAt(distance - 1, "this"));
+
+    if (auto method = superclass->findMethod(expr->method.lexeme)) {
+        return method->bind(instance);
+    } else {
+        throw RuntimeError(expr->method,
+                           "Undefined property '" + expr->method.lexeme + "'.");
+    }
 }
 
 ScopeManager::ScopeManager(Interpreter &interpreter, EnvironmentPtr new_env)

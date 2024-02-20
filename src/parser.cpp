@@ -392,6 +392,14 @@ Expr::ExprPtr Parser::primary() {
         return std::make_shared<Expr::Literal>(previous().literal.value());
     }
 
+    if (match(TokenType::SUPER)) {
+        Token keyword = previous();
+        consume(TokenType::DOT, "Expect '.' after 'super'.");
+        Token method =
+            consume(TokenType::IDENTIFIER, "Expect superclass method name.");
+        return std::make_shared<Expr::Super>(keyword, method);
+    }
+
     if (match(TokenType::THIS)) {
         return std::make_shared<Expr::This>(previous());
     }

@@ -52,6 +52,7 @@ private:
     Value visit(Expr::GetPtr expr) override;
     Value visit(Expr::SetPtr expr) override;
     Value visit(Expr::ThisPtr expr) override;
+    Value visit(Expr::SuperPtr expr) override;
 
     void execute(const Stmt::StmtPtr stmt);
     void visit(Stmt::ExprPtr stmt) override;

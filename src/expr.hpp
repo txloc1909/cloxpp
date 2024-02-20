@@ -27,6 +27,7 @@ struct Call;
 struct Get;
 struct Set;
 struct This;
+struct Super;
 
 using BinaryPtr = std::shared_ptr<Binary const>;
 using UnaryPtr = std::shared_ptr<Unary const>;
@@ -39,6 +40,7 @@ using CallPtr = std::shared_ptr<Call const>;
 using GetPtr = std::shared_ptr<Get const>;
 using SetPtr = std::shared_ptr<Set const>;
 using ThisPtr = std::shared_ptr<This const>;
+using SuperPtr = std::shared_ptr<Super const>;
 
 template <typename R>
 class Visitor {
@@ -54,6 +56,7 @@ public:
     virtual R visit(GetPtr expr) = 0;
     virtual R visit(SetPtr expr) = 0;
     virtual R visit(ThisPtr expr) = 0;
+    virtual R visit(SuperPtr expr) = 0;
 
     virtual ~Visitor() = default;
 };
@@ -166,6 +169,15 @@ struct This : public BaseExpr, public std::enable_shared_from_this<This> {
     const Token keyword;
 
     This(Token keyword) : keyword(keyword) {}
+    DEFINE_NODE_ACCEPT_METHOD(Value)
+    DEFINE_NODE_ACCEPT_METHOD(void)
+};
+
+struct Super : public BaseExpr, public std::enable_shared_from_this<Super> {
+    const Token keyword;
+    const Token method;
+
+    Super(Token keyword, Token method) : keyword(keyword), method(method) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
     DEFINE_NODE_ACCEPT_METHOD(void)
 };
