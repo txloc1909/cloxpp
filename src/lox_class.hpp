@@ -30,6 +30,7 @@ public:
     std::size_t arity() const override;
     std::string toString() const override;
 };
+using LoxClassPtr = std::shared_ptr<LoxClass>;
 
 class LoxInstance : public std::enable_shared_from_this<LoxInstance> {
 private:

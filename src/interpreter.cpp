@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <variant>
 
 #include "expr.hpp"
@@ -125,7 +126,7 @@ void Interpreter::visit(Stmt::ReturnPtr stmt) {
 
 void Interpreter::visit(Stmt::ClassPtr stmt) {
     const bool hasSuperClass = stmt->superclass != nullptr;
-    LoxClass *superclass = nullptr;
+    LoxClassPtr superclass = nullptr;
     if (hasSuperClass) {
         Value toBeSuperClass = evaluate(stmt->superclass);
         if (!std::holds_alternative<LoxCallablePtr>(toBeSuperClass)) {
@@ -133,8 +134,7 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
                                "Superclass must be a class.");
         }
         if (!(superclass = std::dynamic_pointer_cast<LoxClass>(
-                               std::get<LoxCallablePtr>(toBeSuperClass))
-                               .get())) {
+                  std::get<LoxCallablePtr>(toBeSuperClass)))) {
             throw RuntimeError(stmt->superclass->name,
                                "Superclass must be a class.");
         }
@@ -142,12 +142,13 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
 
     currentEnvironment->define(stmt->name.lexeme, {});
 
-    EnvironmentPtr superclassEnv =
-        hasSuperClass ? std::make_shared<Environment>(currentEnvironment)
-                      : currentEnvironment;
+    EnvironmentPtr superclassEnv = currentEnvironment;
+    if (hasSuperClass) {
+        superclassEnv = std::make_shared<Environment>(currentEnvironment);
+        superclassEnv->define("super", superclass);
+    }
 
     auto methods = std::unordered_map<std::string, LoxFunctionPtr>();
-
     {
         auto superclassScope = ScopeManager(*this, superclassEnv);
         for (Stmt::FunctionPtr method : stmt->methods) {
@@ -160,7 +161,7 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
     currentEnvironment->assign(
         stmt->name,
         std::dynamic_pointer_cast<LoxCallable>(std::make_shared<LoxClass>(
-            stmt->name.lexeme, superclass, methods)));
+            stmt->name.lexeme, superclass.get(), methods)));
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
