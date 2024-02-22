@@ -14,7 +14,6 @@ Environment *Environment::ancestor(int distance) const {
 }
 
 void Environment::define(std::string name, Value value) {
-    assert(values.find(name) == values.end());
     values[name] = value;
 }
 
