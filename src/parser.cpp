@@ -85,8 +85,8 @@ Stmt::StmtPtr Parser::function(const char *type) {
     auto params = std::vector<Token>();
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
-            if (params.size() >= 225) {
-                error(peek(), "Can't have more than 255 parameters");
+            if (params.size() >= 255) {
+                error(peek(), "Can't have more than 255 parameters.");
             }
 
             params.push_back(
