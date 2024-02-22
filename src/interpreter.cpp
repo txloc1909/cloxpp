@@ -226,8 +226,10 @@ Value Interpreter::visit(Expr::BinaryPtr expr) {
         throw RuntimeError(expr->op,
                            "Operands must be two numbers or two strings.");
     case TokenType::SLASH:
+        checkNumberOperands(expr->op, left, right);
         return std::get<double>(left) / std::get<double>(right);
     case TokenType::STAR:
+        checkNumberOperands(expr->op, left, right);
         return std::get<double>(left) * std::get<double>(right);
     default:
         return {}; // unreachable
