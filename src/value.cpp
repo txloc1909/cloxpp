@@ -4,7 +4,16 @@
 struct ToStringVisitor {
     std::string operator()(std::monostate) { return "nil"; }
     std::string operator()(const std::string &str) { return str; };
-    std::string operator()(double d) { return std::to_string(d); }
+    std::string operator()(double d) {
+        auto s = std::to_string(d);
+        auto dotPos = s.find_last_of('.');
+        auto lastNonZero = s.find_last_not_of('0');
+        if (lastNonZero != std::string::npos) {
+            s.erase(lastNonZero == dotPos ? lastNonZero : lastNonZero + 1);
+        }
+
+        return s;
+    }
     std::string operator()(bool b) { return b ? "true" : "false"; }
     std::string operator()(const LoxCallablePtr &callable) {
         return callable->toString();
