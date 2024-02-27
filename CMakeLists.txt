@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 set(CMAKE_CXX_EXTENSIONS Off)
 
 add_executable(jlox
-    src/main.cpp
+    src/main_jlox.cpp
     src/treewalk_interpreter.cpp
     src/error_handler.cpp
     src/value.cpp
