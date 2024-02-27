@@ -9,6 +9,7 @@ import subprocess
 
 JLOX_EXE = "./build/jlox"
 CLOX_EXE = "./build/clox"
+SCANNER_EXE = "./build/scanner"
 
 EXPECTED_OUTPUT_PATTERN = re.compile(r"// expect: ?(.*)")
 EXPECTED_ERROR_PATTERN = re.compile(r"// (Error.*)")
@@ -28,7 +29,7 @@ Suite = namedtuple("Suite", ["name", "language", "executable", "tests"])
 _suite = None                   # Current suite
 _all_suites = {}
 _c_suites = []
-_py_suites = []
+_java_suites = []
 
 
 class term:
@@ -306,11 +307,17 @@ def _define_test_suites():
         _c_suites.append(name)
 
     def java_suite(name: str, tests: dict[str, str]):
-        global _all_suites, _py_suites
+        global _all_suites, _java_suites
         _all_suites[name] = Suite(
             name, language="java",
             executable=JLOX_EXE, tests=tests)
-        _py_suites.append(name)
+        _java_suites.append(name)
+
+    def scanner_suite(name: str, tests: dict[str, str]):
+        global _all_suites
+        _all_suites[name] = Suite(
+            name, language="java",
+            executable=SCANNER_EXE, tests=tests)
 
     all = {"e2e_tests": "pass"}
 
@@ -320,7 +327,13 @@ def _define_test_suites():
     }
     no_limits = {"e2e_tests/limit": "skip"}
 
+    scanner_only = {
+        "e2e_tests": "skip",
+        "e2e_tests/scanning": "pass"
+    }
+
     java_suite("jlox", all | early_chapters | no_limits)
+    scanner_suite("scanner", scanner_only)
     c_suite("clox", all | early_chapters)
 
 
