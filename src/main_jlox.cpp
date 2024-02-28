@@ -3,7 +3,7 @@
 
 #include "treewalk_interpreter.hpp"
 
-int main(int argc, char *argv[]) {
+int main(int argc, const char *argv[]) {
     TreewalkInterpreter interpreter{};
     if (argc > 2) {
         std::cerr << "Usage: " << argv[0] << " [script]";
