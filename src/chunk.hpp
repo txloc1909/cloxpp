@@ -7,16 +7,14 @@ typedef enum {
     OP_RETURN,
 } OpCode;
 
-class Chunk {
-public:
-    Chunk();
-    ~Chunk();
-    void write(uint8_t byte);
-
-private:
+struct Chunk {
     int count;
     int capacity;
     uint8_t *code;
+
+    Chunk();
+    ~Chunk();
+    void write(uint8_t byte);
 };
 
 #endif // !CLOXPP_CHUNK_H
