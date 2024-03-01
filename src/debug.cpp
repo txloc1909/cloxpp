@@ -2,6 +2,8 @@
 
 #include "debug.hpp"
 
+namespace Clox {
+
 void disassembleChunk(const Chunk *chunk, const char *name) {
     std::printf("=== %s ===\n", name);
 
@@ -27,3 +29,5 @@ int disassembleInstruction(const Chunk *chunk, int offset) {
         return offset + 1;
     }
 }
+
+} // namespace Clox

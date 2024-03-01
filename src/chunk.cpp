@@ -1,6 +1,8 @@
 #include "chunk.hpp"
 #include "memory.hpp"
 
+namespace Clox {
+
 Chunk::Chunk() : count(0), capacity(0), code(nullptr) {}
 
 Chunk::~Chunk() {
@@ -19,3 +21,5 @@ void Chunk::write(uint8_t byte) {
     code[count] = byte;
     count++;
 }
+
+} // namespace Clox

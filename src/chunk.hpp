@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+namespace Clox {
+
 typedef enum {
     OP_RETURN,
 } OpCode;
@@ -17,4 +19,5 @@ struct Chunk {
     void write(uint8_t byte);
 };
 
+} // namespace Clox
 #endif // !CLOXPP_CHUNK_H

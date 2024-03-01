@@ -2,6 +2,8 @@
 #include "debug.hpp"
 
 int main() {
+    using namespace Clox;
+
     Chunk chunk{};
     chunk.write(OP_RETURN);
     chunk.write(OP_RETURN);
