@@ -9,6 +9,8 @@
 #include "lox_function.hpp"
 #include "stmt.hpp"
 
+namespace Jlox {
+
 class Resolver : Expr::Visitor<void>, Stmt::Visitor<void> {
 public:
     Resolver(Interpreter &interpreter, ErrorHandler &handler)
@@ -56,4 +58,5 @@ private:
     void endScope();
 };
 
+} // namespace Jlox
 #endif // !CLOXPP_RESOLVER_H

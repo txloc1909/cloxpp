@@ -6,6 +6,8 @@
 #include "lox_callable.hpp"
 #include "lox_function.hpp"
 
+namespace Jlox {
+
 enum class ClassType {
     NONE,
     CLASS,
@@ -45,4 +47,5 @@ public:
 };
 using LoxInstancePtr = std::shared_ptr<LoxInstance>;
 
+} // namespace Jlox
 #endif // !CLOXPP_LOX_CLASS_H

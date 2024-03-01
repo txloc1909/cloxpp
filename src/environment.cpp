@@ -2,6 +2,8 @@
 #include "runtime_error.hpp"
 #include <cassert>
 
+namespace Jlox {
+
 Environment *Environment::ancestor(int distance) const {
     if (distance == 0) {
         return const_cast<Environment *>(this);
@@ -53,3 +55,5 @@ Value Environment::get(const Token &name) const {
 Value Environment::getAt(int distance, const std::string &name) const {
     return ancestor(distance)->values.at(name);
 }
+
+} // namespace Jlox

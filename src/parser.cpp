@@ -9,6 +9,8 @@
 #include "stmt.hpp"
 #include "token.hpp"
 
+using Jlox::FunctionType;
+
 Parser::Parser(const std::vector<Token> &tokens, ErrorHandler &handler)
     : handler(handler), tokens(tokens) {}
 

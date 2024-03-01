@@ -12,7 +12,8 @@
         return visitor.visit(shared_from_this());                              \
     }
 
-using LiteralValue = Literal; // Alias
+using LiteralValue = Jlox::Literal;
+using Value = Jlox::Value;
 
 namespace Expr {
 

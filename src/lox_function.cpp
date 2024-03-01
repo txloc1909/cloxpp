@@ -6,6 +6,8 @@
 #include "lox_function.hpp"
 #include "return.hpp"
 
+namespace Jlox {
+
 const char *functionTypeToString(FunctionType type) {
     switch (type) {
     case FunctionType::NONE:
@@ -71,3 +73,5 @@ Value NativeClock::call(Interpreter & /*interpreter*/,
 std::size_t NativeClock::arity() const { return 0; }
 
 std::string NativeClock::toString() const { return "<native fn>"; }
+
+} // namespace Jlox

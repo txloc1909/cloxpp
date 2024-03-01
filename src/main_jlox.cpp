@@ -4,6 +4,7 @@
 #include "treewalk_interpreter.hpp"
 
 int main(int argc, const char *argv[]) {
+    using namespace Jlox;
     TreewalkInterpreter interpreter{};
     if (argc > 2) {
         std::cerr << "Usage: " << argv[0] << " [script]";

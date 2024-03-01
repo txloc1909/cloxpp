@@ -8,6 +8,8 @@
 #include "error_handler.hpp"
 #include "token.hpp"
 
+using Jlox::Literal;
+
 class Scanner {
 private:
     ErrorHandler &handler;

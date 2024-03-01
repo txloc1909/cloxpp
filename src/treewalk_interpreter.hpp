@@ -7,6 +7,8 @@
 #include "error_handler.hpp"
 #include "interpreter.hpp"
 
+namespace Jlox {
+
 class TreewalkInterpreter {
 public:
     TreewalkInterpreter();
@@ -20,4 +22,5 @@ private:
     Interpreter interpreter;
 };
 
+} // namespace Jlox
 #endif // !CLOXPP_TREEWALK_INTERPRETER_H

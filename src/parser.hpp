@@ -7,7 +7,6 @@
 
 #include "error_handler.hpp"
 #include "expr.hpp"
-#include "lox_function.hpp"
 #include "stmt.hpp"
 #include "token.hpp"
 

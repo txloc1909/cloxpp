@@ -57,6 +57,7 @@ enum class TokenType {
 };
 std::ostream &operator<<(std::ostream &os, const TokenType type);
 
+using Jlox::Literal;
 struct Token {
     const TokenType type;
     const std::string lexeme;

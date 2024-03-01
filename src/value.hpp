@@ -6,6 +6,8 @@
 
 #include "concatenator.hpp"
 
+namespace Jlox {
+
 // monostate represents the nil value
 using Literal = std::variant<std::monostate, std::string, double, bool>;
 
@@ -23,4 +25,5 @@ std::string stringify(const Value &value);
 std::ostream &operator<<(std::ostream &os, const Literal &literal);
 std::ostream &operator<<(std::ostream &os, const Value &value);
 
+} // namespace Jlox
 #endif // !CLOXPP_VALUE_H

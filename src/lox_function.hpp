@@ -4,6 +4,8 @@
 #include "lox_callable.hpp"
 #include "stmt.hpp"
 
+namespace Jlox {
+
 enum class FunctionType {
     NONE,
     FUNCTION,
@@ -45,4 +47,5 @@ public:
     std::string toString() const override;
 };
 
+} // namespace Jlox
 #endif // !CLOXPP_LOX_FUNCTION_H

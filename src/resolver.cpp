@@ -1,6 +1,8 @@
 #include "resolver.hpp"
 #include <cassert>
 
+namespace Jlox {
+
 void Resolver::resolve(const std::vector<Stmt::StmtPtr> &statements) {
     for (auto &stmt : statements) {
         resolve(stmt);
@@ -221,3 +223,5 @@ void Resolver::define(const Token &name) {
 void Resolver::beginScope() { scopes.push_back({}); }
 
 void Resolver::endScope() { scopes.pop_back(); }
+
+} // namespace Jlox

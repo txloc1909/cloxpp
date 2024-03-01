@@ -1,6 +1,8 @@
 #include "value.hpp"
 #include "lox_class.hpp"
 
+namespace Jlox {
+
 struct ToStringVisitor {
     std::string operator()(std::monostate) { return "nil"; }
     std::string operator()(const std::string &str) { return str; };
@@ -40,3 +42,5 @@ std::ostream &operator<<(std::ostream &os, const Value &value) {
     os << stringify(value);
     return os;
 }
+
+} // namespace Jlox

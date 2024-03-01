@@ -7,6 +7,8 @@
 #include "token.hpp"
 #include "value.hpp"
 
+namespace Jlox {
+
 class Environment;
 using EnvironmentPtr = std::shared_ptr<Environment>;
 
@@ -27,4 +29,5 @@ public:
     Value getAt(int distance, const std::string &name) const;
 };
 
+} // namespace Jlox
 #endif // !CLOXPP_ENVIRONMENT_H

@@ -8,6 +8,8 @@
 #include "treewalk_interpreter.hpp"
 #include "utils.hpp"
 
+namespace Jlox {
+
 TreewalkInterpreter::TreewalkInterpreter()
     : errorHandler(std::make_unique<ErrorHandler>()),
       interpreter(Interpreter(*errorHandler.get())) {}
@@ -50,3 +52,5 @@ void TreewalkInterpreter::runPrompt() {
         errorHandler->hadError = false;
     }
 }
+
+} // namespace Jlox

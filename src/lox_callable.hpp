@@ -3,6 +3,8 @@
 
 #include "interpreter.hpp"
 
+namespace Jlox {
+
 class LoxCallable {
 public:
     virtual Value call(Interpreter &interpreter,
@@ -13,4 +15,5 @@ public:
     virtual ~LoxCallable() = default;
 };
 
+} // namespace Jlox
 #endif // !CLOXPP_LOX_CALLABLE_H

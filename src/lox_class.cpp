@@ -1,6 +1,8 @@
 #include "lox_class.hpp"
 #include "runtime_error.hpp"
 
+namespace Jlox {
+
 Value LoxClass::call(Interpreter &interpreter,
                      const std::vector<Value> &arguments) {
     auto instance = std::make_shared<LoxInstance>(this);
@@ -52,3 +54,4 @@ void LoxInstance::set(const Token &name, Value value) {
 std::string LoxInstance::toString() const {
     return klass->getName() + " instance";
 }
+} // namespace Jlox

@@ -10,6 +10,8 @@
 #include "runtime_error.hpp"
 #include "token.hpp"
 
+namespace Jlox {
+
 static bool isTruthy(Value value) {
     if (std::holds_alternative<std::monostate>(value))
         return false;
@@ -367,3 +369,5 @@ ScopeManager::ScopeManager(Interpreter &interpreter, EnvironmentPtr new_env)
 }
 
 ScopeManager::~ScopeManager() { interpreter.currentEnvironment = saved_env; }
+
+} // namespace Jlox

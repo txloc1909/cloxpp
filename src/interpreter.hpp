@@ -10,6 +10,8 @@
 #include "stmt.hpp"
 #include "value.hpp"
 
+namespace Jlox {
+
 class Interpreter;
 
 class ScopeManager {
@@ -72,4 +74,5 @@ private:
     friend ScopeManager::~ScopeManager();
 };
 
+} // namespace Jlox
 #endif // !CLOXPP_INTERPRETER_H
