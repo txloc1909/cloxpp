@@ -3,15 +3,8 @@
 
 #include <memory>
 #include <string>
-#include <variant>
 
-template <typename T, typename... Args>
-struct concatenator;
-
-template <typename... Args0, typename... Args1>
-struct concatenator<std::variant<Args0...>, Args1...> {
-    using type = std::variant<Args0..., Args1...>;
-};
+#include "concatenator.hpp"
 
 // monostate represents the nil value
 using Literal = std::variant<std::monostate, std::string, double, bool>;
