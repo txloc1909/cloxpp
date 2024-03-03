@@ -1,5 +1,6 @@
 #include "value.hpp"
 #include "lox_class.hpp"
+#include "memory.hpp"
 
 namespace Jlox {
 
@@ -44,3 +45,23 @@ std::ostream &operator<<(std::ostream &os, const Value &value) {
 }
 
 } // namespace Jlox
+
+namespace Clox {
+
+ValueArray::ValueArray() : capacity(0), count(0), values(nullptr) {}
+
+ValueArray::~ValueArray() {
+    FREE_ARRAY(Value, values, capacity);
+    capacity = 0;
+    count = 0;
+}
+
+void ValueArray::write(Value value) {
+    if (capacity < count + 1) {
+        int oldCapacity = capacity;
+        capacity = GROW_CAPACITY(oldCapacity);
+        values = GROW_ARRAY(Value, values, oldCapacity, capacity);
+    }
+}
+
+} // namespace Clox

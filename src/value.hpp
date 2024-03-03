@@ -26,4 +26,21 @@ std::ostream &operator<<(std::ostream &os, const Literal &literal);
 std::ostream &operator<<(std::ostream &os, const Value &value);
 
 } // namespace Jlox
+
+namespace Clox {
+
+using Value = double; // temporarily
+
+struct ValueArray {
+    int capacity;
+    int count;
+    Value *values;
+
+    ValueArray();
+    ~ValueArray();
+    void write(Value value);
+};
+
+} // namespace Clox
+//
 #endif // !CLOXPP_VALUE_H
