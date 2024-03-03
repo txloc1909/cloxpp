@@ -1,8 +1,11 @@
 #include "chunk.hpp"
 #include "debug.hpp"
+#include "vm.hpp"
 
 int main() {
     using namespace Clox;
+
+    VM vm{};
 
     Chunk chunk{};
 
@@ -13,5 +16,7 @@ int main() {
     chunk.write(OP_RETURN, 123);
 
     disassembleChunk(&chunk, "test chunk");
+
+    vm.interpret(&chunk);
     return 0;
 }

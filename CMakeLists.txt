@@ -46,6 +46,7 @@ add_executable(clox
     src/memory.cpp
     src/debug.cpp
     src/value.cpp
+    src/vm.cpp
 
     # TODO: unnecessary dependencies; refactor this
     src/lox_class.cpp
