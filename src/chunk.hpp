@@ -5,9 +5,9 @@
 
 namespace Clox {
 
-typedef enum {
+enum OpCode {
     OP_RETURN,
-} OpCode;
+};
 
 struct Chunk {
     int count;
