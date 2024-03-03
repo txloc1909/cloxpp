@@ -62,6 +62,9 @@ void ValueArray::write(Value value) {
         capacity = GROW_CAPACITY(oldCapacity);
         values = GROW_ARRAY(Value, values, oldCapacity, capacity);
     }
+
+    values[count] = value;
+    count++;
 }
 
 } // namespace Clox

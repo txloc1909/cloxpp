@@ -30,6 +30,8 @@ add_executable(scanner
     src/error_handler.cpp
     src/token.cpp
     src/utils.cpp
+
+    # TODO: unnecessary dependencies; refactor this
     src/lox_class.cpp
     src/lox_function.cpp
     src/environment.cpp
@@ -43,6 +45,14 @@ add_executable(clox
     src/chunk.cpp
     src/memory.cpp
     src/debug.cpp
+    src/value.cpp
+
+    # TODO: unnecessary dependencies; refactor this
+    src/lox_class.cpp
+    src/lox_function.cpp
+    src/environment.cpp
+    src/interpreter.cpp
+    src/error_handler.cpp
 )
 target_compile_options(clox PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(clox PRIVATE -fsanitize=undefined -fsanitize=address)
