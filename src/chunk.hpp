@@ -16,11 +16,12 @@ struct Chunk {
     int count;
     int capacity;
     uint8_t *code;
+    int *lines;
     ValueArray constants;
 
     Chunk();
     ~Chunk();
-    void write(uint8_t byte);
+    void write(uint8_t byte, int line);
     int addConstant(Value value);
 };
 

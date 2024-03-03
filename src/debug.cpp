@@ -30,6 +30,11 @@ static int simpleInstruction(const char *name, int offset) {
 
 int disassembleInstruction(const Chunk *chunk, int offset) {
     std::printf("%04d ", offset);
+    if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
+        std::printf("   | ");
+    } else {
+        std::printf("%4d ", chunk->lines[offset]);
+    }
 
     uint8_t instruction = chunk->code[offset];
     switch (instruction) {

@@ -7,10 +7,10 @@ int main() {
     Chunk chunk{};
 
     int constant = chunk.addConstant(1.2);
-    chunk.write(OP_CONSTANT);
-    chunk.write(constant);
+    chunk.write(OP_CONSTANT, 123);
+    chunk.write(constant, 123);
 
-    chunk.write(OP_RETURN);
+    chunk.write(OP_RETURN, 123);
 
     disassembleChunk(&chunk, "test chunk");
     return 0;
