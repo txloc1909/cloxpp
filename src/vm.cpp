@@ -3,7 +3,7 @@
 
 namespace Clox {
 
-VM::VM() = default;
+VM::VM() { resetStack(); }
 
 VM::~VM() = default;
 
@@ -38,5 +38,17 @@ InterpreteResult VM::run() {
 #undef READ_BYTE
 #undef READ_CONSTANT
 }
+
+void VM::push(Value value) {
+    *stackTop = value;
+    stackTop++;
+}
+
+Value VM::pop() {
+    stackTop--;
+    return *stackTop;
+}
+
+void VM::resetStack() { stackTop = stack; }
 
 } // namespace Clox
