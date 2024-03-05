@@ -26,10 +26,11 @@ InterpretResult VM::run() {
         switch (instruction = READ_BYTE()) {
         case OP_CONSTANT: {
             Value constant = READ_CONSTANT();
-            std::printf("%g\n", constant); // temporarily
+            push(constant);
             break;
         }
         case OP_RETURN: {
+            std::printf("%g\n", pop());
             return InterpretResult::OK;
         }
         }
