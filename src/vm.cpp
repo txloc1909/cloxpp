@@ -19,6 +19,13 @@ InterpretResult VM::run() {
 
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
+        std::printf("          ");
+        for (Value *slot = stack; slot < stackTop; slot++) {
+            std::printf("[ ");
+            std::printf("%g", *slot); // temporarily
+            std::printf(" ]");
+        }
+        std::printf("\n");
         disassembleInstruction(chunk, static_cast<int>(ip - chunk->code));
 #endif // DEBUG_TRACE_EXECUTION
 
