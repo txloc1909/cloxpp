@@ -36,6 +36,10 @@ InterpretResult VM::run() {
             push(constant);
             break;
         }
+        case OP_NEGATE: {
+            push(-pop());
+            break;
+        }
         case OP_RETURN: {
             std::printf("%g\n", pop());
             return InterpretResult::OK;
