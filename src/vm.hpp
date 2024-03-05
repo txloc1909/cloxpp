@@ -7,7 +7,7 @@
 
 namespace Clox {
 
-enum class InterpreteResult {
+enum class InterpretResult {
     OK,
     COMPILE_ERROR,
     RUNTIME_ERROR,
@@ -17,8 +17,8 @@ class VM {
 public:
     VM();
     ~VM();
-    InterpreteResult interpret(Chunk *chunk);
-    InterpreteResult run();
+    InterpretResult interpret(Chunk *chunk);
+    InterpretResult run();
 
     void push(Value value);
     Value pop();

@@ -7,13 +7,13 @@ VM::VM() { resetStack(); }
 
 VM::~VM() = default;
 
-InterpreteResult VM::interpret(Chunk *chunk) {
+InterpretResult VM::interpret(Chunk *chunk) {
     this->chunk = chunk;
     this->ip = this->chunk->code;
     return run();
 }
 
-InterpreteResult VM::run() {
+InterpretResult VM::run() {
 #define READ_BYTE() (*ip++)
 #define READ_CONSTANT() (chunk->constants.values[READ_BYTE()])
 
@@ -30,7 +30,7 @@ InterpreteResult VM::run() {
             break;
         }
         case OP_RETURN: {
-            return InterpreteResult::OK;
+            return InterpretResult::OK;
         }
         }
     }
