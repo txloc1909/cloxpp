@@ -55,5 +55,6 @@ add_executable(clox
     src/interpreter.cpp
     src/error_handler.cpp
 )
-target_compile_options(clox PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
+target_compile_options(clox PRIVATE -DDEBUG_TRACE_EXECUTION -Wall -Wextra
+    -fsanitize=undefined -fsanitize=address)
 target_link_options(clox PRIVATE -fsanitize=undefined -fsanitize=address)

@@ -1,4 +1,5 @@
 #include "vm.hpp"
+#include "debug.hpp" // IWYU pragma: keep
 
 namespace Clox {
 
@@ -13,10 +14,14 @@ InterpreteResult VM::interpret(Chunk *chunk) {
 }
 
 InterpreteResult VM::run() {
-#define READ_BYTE() (*this->ip++)
-#define READ_CONSTANT() (this->chunk->constants.values[READ_BYTE()])
+#define READ_BYTE() (*ip++)
+#define READ_CONSTANT() (chunk->constants.values[READ_BYTE()])
 
     for (;;) {
+#ifdef DEBUG_TRACE_EXECUTION
+        disassembleInstruction(chunk, static_cast<int>(ip - chunk->code));
+#endif // DEBUG_TRACE_EXECUTION
+
         uint8_t instruction;
         switch (instruction = READ_BYTE()) {
         case OP_CONSTANT: {
