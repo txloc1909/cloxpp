@@ -19,6 +19,9 @@ add_executable(jlox
     src/lox_function.cpp
     src/resolver.cpp
     src/lox_class.cpp
+
+    # TODO: unnecessary dependencies; refactor this
+    src/memory.cpp
 )
 target_compile_options(jlox PRIVATE -Wall -Wextra)
 target_link_options(jlox PRIVATE)
@@ -36,6 +39,7 @@ add_executable(scanner
     src/lox_function.cpp
     src/environment.cpp
     src/interpreter.cpp
+    src/memory.cpp
 )
 target_compile_options(scanner PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(scanner PRIVATE -fsanitize=undefined -fsanitize=address)
