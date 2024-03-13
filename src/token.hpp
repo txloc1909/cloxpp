@@ -57,17 +57,13 @@ enum class TokenType {
 };
 std::ostream &operator<<(std::ostream &os, const TokenType type);
 
-using Jlox::Literal;
 struct Token {
     const TokenType type;
-    const std::string lexeme;
-    const std::optional<Literal> literal;
+    const std::string_view lexeme;
     const int line;
 
-    Token(TokenType type_, std::string lexeme_, std::optional<Literal> literal_,
-          int line_)
-        : type(type_), lexeme(std::move(lexeme_)), literal(literal_),
-          line(line_){};
+    Token(TokenType type_, std::string_view lexeme_, int line_)
+        : type(type_), lexeme(std::move(lexeme_)), line(line_){};
 };
 
 std::ostream &operator<<(std::ostream &os, const Token &token);

@@ -18,7 +18,7 @@ void ErrorHandler::error(Token token, const char *message) {
     if (token.type == TokenType::EOF_) {
         report(token.line, " at end", message);
     } else {
-        report(token.line, " at '" + token.lexeme + "'", message);
+        report(token.line, " at '" + std::string{token.lexeme} + "'", message);
     }
 }
 
