@@ -1,10 +1,7 @@
 #ifndef CLOXPP_TOKEN_H
 #define CLOXPP_TOKEN_H
 
-#include <optional>
 #include <ostream>
-
-#include "value.hpp"
 
 enum class TokenType {
     // Single-character token

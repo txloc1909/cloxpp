@@ -28,18 +28,10 @@ target_link_options(jlox PRIVATE)
 
 add_executable(scanner
     src/main_scanner.cpp
-    src/value.cpp
     src/scanner.cpp
     src/error_handler.cpp
     src/token.cpp
     src/utils.cpp
-
-    # TODO: unnecessary dependencies; refactor this
-    src/lox_class.cpp
-    src/lox_function.cpp
-    src/environment.cpp
-    src/interpreter.cpp
-    src/memory.cpp
 )
 target_compile_options(scanner PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
 target_link_options(scanner PRIVATE -fsanitize=undefined -fsanitize=address)
@@ -58,6 +50,7 @@ add_executable(clox
     src/environment.cpp
     src/interpreter.cpp
     src/error_handler.cpp
+    src/token.cpp
 )
 target_compile_options(clox PRIVATE -DDEBUG_TRACE_EXECUTION -Wall -Wextra
     -fsanitize=undefined -fsanitize=address)
