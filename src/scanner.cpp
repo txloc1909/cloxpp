@@ -124,8 +124,7 @@ Token Scanner::createToken(TokenType type) {
     return Token(type, lexeme, line);
 }
 
-Token Scanner::createToken(TokenType type, Literal literal) {
-    const std::string_view lexeme{source.data() + start, current - start};
+Token Scanner::createToken(TokenType type, std::string_view lexeme) {
     return Token(type, lexeme, line);
 }
 
@@ -143,8 +142,8 @@ std::optional<Token> Scanner::consumeString() {
 
     advance(); // The closing quote
 
-    auto string = source.substr(start + 1, current - start - 2);
-    return createToken(TokenType::STRING, string);
+    std::string_view strLexeme{source.data() + start + 1, current - start - 2};
+    return createToken(TokenType::STRING, strLexeme);
 }
 
 Token Scanner::consumeNumber() {
@@ -158,7 +157,7 @@ Token Scanner::consumeNumber() {
             advance();
     }
 
-    double value = std::stod(source.substr(start, current - start));
+    std::string_view value{source.data() + start, current - start};
     return createToken(TokenType::NUMBER, value);
 }
 

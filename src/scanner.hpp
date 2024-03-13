@@ -8,8 +8,6 @@
 #include "error_handler.hpp"
 #include "token.hpp"
 
-using Jlox::Literal;
-
 class Scanner {
 private:
     ErrorHandler &handler;
@@ -20,7 +18,7 @@ private:
 
     std::optional<Token> scanOneToken();
     Token createToken(TokenType type);
-    Token createToken(TokenType type, Literal literal);
+    Token createToken(TokenType type, std::string_view lexeme);
     std::optional<Token> consumeString();
     Token consumeNumber();
     Token consumeIdentifier();
