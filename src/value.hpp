@@ -3,8 +3,7 @@
 
 #include <memory>
 #include <string>
-
-#include "concatenator.hpp"
+#include <variant>
 
 namespace Jlox {
 
@@ -17,7 +16,8 @@ class LoxInstance;
 using LoxCallablePtr = std::shared_ptr<LoxCallable>;
 using LoxInstancePtr = std::shared_ptr<LoxInstance>;
 
-using Value = concatenator<Literal, LoxCallablePtr, LoxInstancePtr>::type;
+using Value = std::variant<std::monostate, std::string, double, bool,
+                           LoxCallablePtr, LoxInstancePtr>;
 
 std::string stringify(const Literal &value);
 std::string stringify(const Value &value);
