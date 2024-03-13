@@ -1,6 +1,5 @@
 #include <initializer_list>
 #include <memory>
-#include <optional>
 #include <vector>
 
 #include "expr.hpp"
@@ -390,8 +389,16 @@ Expr::ExprPtr Parser::primary() {
     }
 
     if (match({TokenType::NUMBER, TokenType::STRING})) {
-        // tokens of these types are guaranteed to have a literal value
-        return std::make_shared<Expr::Literal>(previous().literal.value());
+        auto token = previous();
+        switch (token.type) {
+        case TokenType::STRING:
+            return std::make_shared<Expr::Literal>(token.getLexemeString());
+        case TokenType::NUMBER:
+            return std::make_shared<Expr::Literal>(
+                std::stod(token.getLexemeString()));
+        default:
+            throw std::runtime_error("Unreachable");
+        }
     }
 
     if (match(TokenType::SUPER)) {

@@ -23,7 +23,7 @@ void Resolver::visit(Expr::UnaryPtr expr) { resolve(expr->right); }
 void Resolver::visit(Expr::LiteralPtr /*expr*/) {} // do nothing
 
 void Resolver::visit(Expr::VariablePtr expr) {
-    auto &name = expr->name.lexeme;
+    const auto &name = expr->name.getLexemeString();
     if (!scopes.empty()) {
         const auto &scope = scopes.back();
         if (scope.find(name) != scope.end()) {
@@ -146,7 +146,9 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     define(stmt->name);
 
     const bool hasSuperClass = stmt->superclass != nullptr;
-    if (hasSuperClass && stmt->name.lexeme == stmt->superclass->name.lexeme) {
+    const auto &className = stmt->name.getLexemeString();
+    const auto &superClassName = stmt->superclass->name.getLexemeString();
+    if (hasSuperClass && className == superClassName) {
         handler.error(stmt->superclass->name,
                       "A class can't inherit from itself.");
     }
@@ -162,7 +164,7 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
     scopes.back()["this"] = true;
 
     for (auto &method : stmt->methods) {
-        resolveFunction(method, method->name.lexeme == "init"
+        resolveFunction(method, method->name.getLexemeString() == "init"
                                     ? FunctionType::INITIALIZER
                                     : FunctionType::METHOD);
     }
@@ -178,7 +180,7 @@ void Resolver::resolveLocal(Expr::ExprPtr expr, const Token &name) {
     const int numScopes = scopes.size();
     for (int i = numScopes - 1; i >= 0; i--) {
         const auto &scope = scopes.at(i);
-        if (scope.find(name.lexeme) != scope.end()) {
+        if (scope.find(name.getLexemeString()) != scope.end()) {
             interpreter.resolve(expr, numScopes - 1 - i);
             return;
         }
@@ -205,10 +207,11 @@ void Resolver::declare(const Token &name) {
         return;
 
     auto &scope = scopes.back();
-    if (scope.find(name.lexeme) != scope.end()) {
+    auto target = name.getLexemeString();
+    if (scope.find(target) != scope.end()) {
         handler.error(name, "Already a variable with this name in this scope.");
     }
-    scope[name.lexeme] = false;
+    scope[target] = false;
 }
 
 void Resolver::define(const Token &name) {
@@ -216,8 +219,9 @@ void Resolver::define(const Token &name) {
         return;
 
     auto &scope = scopes.back();
-    assert(scope.find(name.lexeme) != scope.end() && !scope.at(name.lexeme));
-    scope.at(name.lexeme) = true;
+    auto target = name.getLexemeString();
+    assert(scope.find(target) != scope.end() && !scope.at(target));
+    scope.at(target) = true;
 }
 
 void Resolver::beginScope() { scopes.push_back({}); }

@@ -19,10 +19,8 @@ using LoxInstancePtr = std::shared_ptr<LoxInstance>;
 using Value = std::variant<std::monostate, std::string, double, bool,
                            LoxCallablePtr, LoxInstancePtr>;
 
-std::string stringify(const Literal &value);
 std::string stringify(const Value &value);
 
-std::ostream &operator<<(std::ostream &os, const Literal &literal);
 std::ostream &operator<<(std::ostream &os, const Value &value);
 
 } // namespace Jlox
