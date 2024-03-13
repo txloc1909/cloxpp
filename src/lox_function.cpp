@@ -29,7 +29,8 @@ Value LoxFunction::call(Interpreter &interpreter,
 
     assert(declaration->params.size() == arguments.size());
     for (size_t i = 0; i < declaration->params.size(); i++) {
-        environment->define(declaration->params.at(i).lexeme, arguments.at(i));
+        environment->define(declaration->params.at(i).getLexemeString(),
+                            arguments.at(i));
     }
 
     try {
@@ -51,7 +52,7 @@ Value LoxFunction::call(Interpreter &interpreter,
 std::size_t LoxFunction::arity() const { return declaration->params.size(); }
 
 std::string LoxFunction::toString() const {
-    return "<fn " + declaration->name.lexeme + ">";
+    return "<fn " + declaration->name.getLexemeString() + ">";
 }
 
 LoxFunctionPtr LoxFunction::bind(LoxInstancePtr instance) {

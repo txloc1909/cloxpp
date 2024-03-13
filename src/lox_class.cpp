@@ -34,21 +34,22 @@ LoxFunctionPtr LoxClass::findMethod(const std::string &name) const {
 }
 
 Value LoxInstance::get(const Token &name) const {
-    if (fields.find(name.lexeme) != fields.end()) {
-        return fields.at(name.lexeme);
+    auto attrName = name.getLexemeString();
+    if (fields.find(attrName) != fields.end()) {
+        return fields.at(attrName);
     }
 
-    LoxFunctionPtr method = klass->findMethod(name.lexeme);
+    LoxFunctionPtr method = klass->findMethod(attrName);
     if (method) {
         return method->bind(
             const_cast<LoxInstance *>(this)->shared_from_this());
     }
 
-    throw RuntimeError(name, "Undefined property '" + name.lexeme + "'.");
+    throw RuntimeError(name, "Undefined property '" + attrName + "'.");
 }
 
 void LoxInstance::set(const Token &name, Value value) {
-    fields[name.lexeme] = value;
+    fields[name.getLexemeString()] = value;
 }
 
 std::string LoxInstance::toString() const {

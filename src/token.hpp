@@ -64,6 +64,8 @@ struct Token {
 
     Token(TokenType type_, std::string_view lexeme_, int line_)
         : type(type_), lexeme(std::move(lexeme_)), line(line_){};
+
+    std::string getLexemeString() const;
 };
 
 std::ostream &operator<<(std::ostream &os, const Token &token);

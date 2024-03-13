@@ -89,7 +89,7 @@ void Interpreter::visit(Stmt::VarPtr stmt) {
         value = evaluate(stmt->initializer);
     }
 
-    currentEnvironment->define(stmt->name.lexeme, value);
+    currentEnvironment->define(stmt->name.getLexemeString(), value);
 }
 
 void Interpreter::visit(Stmt::BlockPtr stmt) {
@@ -114,7 +114,7 @@ void Interpreter::visit(Stmt::WhilePtr stmt) {
 void Interpreter::visit(Stmt::FunctionPtr stmt) {
     Value function = std::make_shared<LoxFunction>(stmt->shared_from_this(),
                                                    currentEnvironment);
-    currentEnvironment->define(stmt->name.lexeme, function);
+    currentEnvironment->define(stmt->name.getLexemeString(), function);
 }
 
 void Interpreter::visit(Stmt::ReturnPtr stmt) {
@@ -142,7 +142,7 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
         }
     }
 
-    currentEnvironment->define(stmt->name.lexeme, {});
+    currentEnvironment->define(stmt->name.getLexemeString(), {});
 
     EnvironmentPtr superclassEnv = currentEnvironment;
     if (hasSuperClass) {
@@ -154,8 +154,9 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
     {
         auto superclassScope = ScopeManager(*this, superclassEnv);
         for (Stmt::FunctionPtr method : stmt->methods) {
-            const bool isInitializer = method->name.lexeme == "init";
-            methods[method->name.lexeme] = std::make_shared<LoxFunction>(
+            auto methodName = method->name.getLexemeString();
+            const bool isInitializer = methodName == "init";
+            methods[methodName] = std::make_shared<LoxFunction>(
                 method, currentEnvironment, isInitializer);
         }
     }
@@ -163,7 +164,7 @@ void Interpreter::visit(Stmt::ClassPtr stmt) {
     currentEnvironment->assign(
         stmt->name,
         std::dynamic_pointer_cast<LoxCallable>(std::make_shared<LoxClass>(
-            stmt->name.lexeme, superclass.get(), methods)));
+            stmt->name.getLexemeString(), superclass.get(), methods)));
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt::StmtPtr> &statements,
@@ -182,7 +183,7 @@ Value Interpreter::lookUpVariable(const Token &name,
                                   const Expr::ExprPtr &expr) {
     if (locals.find(expr) != locals.end()) {
         int depth = locals.at(expr);
-        return currentEnvironment->getAt(depth, name.lexeme);
+        return currentEnvironment->getAt(depth, name.getLexemeString());
     } else {
         return globals_->get(name);
     }
@@ -354,11 +355,12 @@ Value Interpreter::visit(Expr::SuperPtr expr) {
     auto instance = std::get<LoxInstancePtr>(
         currentEnvironment->getAt(distance - 1, "this"));
 
-    if (auto method = superclass->findMethod(expr->method.lexeme)) {
+    if (auto method = superclass->findMethod(expr->method.getLexemeString())) {
         return method->bind(instance);
     } else {
-        throw RuntimeError(expr->method,
-                           "Undefined property '" + expr->method.lexeme + "'.");
+        throw RuntimeError(expr->method, "Undefined property '" +
+                                             expr->method.getLexemeString() +
+                                             "'.");
     }
 }
 

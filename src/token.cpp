@@ -123,6 +123,8 @@ std::ostream &operator<<(std::ostream &os, const TokenType type) {
     return os;
 }
 
+std::string Token::getLexemeString() const { return std::string{lexeme}; }
+
 std::ostream &operator<<(std::ostream &os, const Token &token) {
     os << token.type << " " << token.lexeme << " ";
     return os;

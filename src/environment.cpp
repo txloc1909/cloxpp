@@ -20,8 +20,9 @@ void Environment::define(std::string name, Value value) {
 }
 
 void Environment::assign(const Token &name, Value value) {
-    if (values.find(name.lexeme) != values.end()) {
-        values.at(name.lexeme) = value;
+    auto target = name.getLexemeString();
+    if (values.find(target) != values.end()) {
+        values.at(target) = value;
         return;
     }
 
@@ -30,26 +31,29 @@ void Environment::assign(const Token &name, Value value) {
         return;
     }
 
-    throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
+    throw RuntimeError(name, "Undefined variable '" + target + "'.");
 }
 
 void Environment::assignAt(int distance, const Token &name, Value value) {
-    auto *target_env = ancestor(distance);
-    auto &target_values = target_env->values;
-    assert(target_values.find(name.lexeme) != target_values.end());
-    target_values[name.lexeme] = value;
+    auto *targetEnv = ancestor(distance);
+    auto &targetValues = targetEnv->values;
+    auto targetName = name.getLexemeString();
+
+    assert(targetValues.find(targetName) != targetValues.end());
+    targetValues[targetName] = value;
 }
 
 Value Environment::get(const Token &name) const {
-    if (values.find(name.lexeme) != values.end()) {
-        return values.at(name.lexeme);
+    auto target = name.getLexemeString();
+    if (values.find(target) != values.end()) {
+        return values.at(target);
     }
 
     if (enclosing) {
         return enclosing->get(name);
     }
 
-    throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
+    throw RuntimeError(name, "Undefined variable '" + target + "'.");
 }
 
 Value Environment::getAt(int distance, const std::string &name) const {
