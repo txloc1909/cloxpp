@@ -7,20 +7,17 @@
 
 namespace Jlox {
 
-// monostate represents the nil value
-using Literal = std::variant<std::monostate, std::string, double, bool>;
-
 // forward declare some types here, to be included in Value
 class LoxCallable;
 class LoxInstance;
 using LoxCallablePtr = std::shared_ptr<LoxCallable>;
 using LoxInstancePtr = std::shared_ptr<LoxInstance>;
 
+// monostate represents the nil value
 using Value = std::variant<std::monostate, std::string, double, bool,
                            LoxCallablePtr, LoxInstancePtr>;
 
 std::string stringify(const Value &value);
-
 std::ostream &operator<<(std::ostream &os, const Value &value);
 
 } // namespace Jlox

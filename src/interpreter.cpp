@@ -257,14 +257,7 @@ Value Interpreter::visit(Expr::UnaryPtr expr) {
     }
 }
 
-Value Interpreter::visit(Expr::LiteralPtr expr) {
-    auto value = Value{};
-
-    // since Literal is a subset of Value, this std::visit call is trivial
-    std::visit([&](auto &&arg) { value = arg; }, expr->value);
-
-    return value;
-}
+Value Interpreter::visit(Expr::LiteralPtr expr) { return expr->value; }
 
 Value Interpreter::visit(Expr::VariablePtr expr) {
     return lookUpVariable(expr->name, expr);

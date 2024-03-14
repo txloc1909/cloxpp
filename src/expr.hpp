@@ -12,7 +12,6 @@
         return visitor.visit(shared_from_this());                              \
     }
 
-using LiteralValue = Jlox::Literal;
 using Value = Jlox::Value;
 
 namespace Expr {
@@ -99,9 +98,9 @@ struct Unary : public BaseExpr, public std::enable_shared_from_this<Unary> {
 };
 
 struct Literal : public BaseExpr, public std::enable_shared_from_this<Literal> {
-    const LiteralValue value;
+    const Value value;
 
-    Literal(LiteralValue value) : value(value) {}
+    Literal(Value value) : value(value) {}
     DEFINE_NODE_ACCEPT_METHOD(Value)
     DEFINE_NODE_ACCEPT_METHOD(void)
 };

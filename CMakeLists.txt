@@ -23,8 +23,8 @@ add_executable(jlox
     # TODO: unnecessary dependencies; refactor this
     src/memory.cpp
 )
-target_compile_options(jlox PRIVATE -Wall -Wextra)
-target_link_options(jlox PRIVATE)
+target_compile_options(jlox PRIVATE -Wall -Wextra -fsanitize=undefined -fsanitize=address)
+target_link_options(jlox PRIVATE -fsanitize=undefined -fsanitize=address)
 
 add_executable(scanner
     src/main_scanner.cpp
