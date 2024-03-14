@@ -26,12 +26,8 @@ struct ToStringVisitor {
     }
 };
 
-std::string stringify(const Value &value) {
-    return std::visit(ToStringVisitor(), value);
-}
-
 std::ostream &operator<<(std::ostream &os, const Value &value) {
-    os << stringify(value);
+    os << std::visit(ToStringVisitor(), value);
     return os;
 }
 
