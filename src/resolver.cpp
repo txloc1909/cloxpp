@@ -147,7 +147,8 @@ void Resolver::visit(Stmt::ClassPtr stmt) {
 
     const bool hasSuperClass = stmt->superclass != nullptr;
     const auto &className = stmt->name.getLexemeString();
-    const auto &superClassName = stmt->superclass->name.getLexemeString();
+    const auto &superClassName =
+        hasSuperClass ? stmt->superclass->name.getLexemeString() : "";
     if (hasSuperClass && className == superClassName) {
         handler.error(stmt->superclass->name,
                       "A class can't inherit from itself.");
