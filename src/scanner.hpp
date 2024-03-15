@@ -19,6 +19,9 @@ private:
     std::optional<Token> scanOneToken();
     Token createToken(TokenType type);
     Token createToken(TokenType type, std::string_view lexeme);
+    TokenType checkKeyword(std::size_t start, std::size_t length,
+                           const char *rest, TokenType type);
+    TokenType identifierType();
     std::optional<Token> consumeString();
     Token consumeNumber();
     Token consumeIdentifier();

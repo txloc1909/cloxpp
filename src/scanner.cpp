@@ -1,21 +1,10 @@
+#include <cstring>
 #include <optional>
-#include <unordered_map>
 #include <vector>
 
 #include "error_handler.hpp"
 #include "scanner.hpp"
 #include "token.hpp"
-
-static const std::unordered_map<std::string, TokenType> KEYWORDS = {
-    {"and", TokenType::AND},       {"class", TokenType::CLASS},
-    {"else", TokenType::ELSE},     {"false", TokenType::FALSE},
-    {"for", TokenType::FOR},       {"fun", TokenType::FUN},
-    {"if", TokenType::IF},         {"nil", TokenType::NIL},
-    {"or", TokenType::OR},         {"print", TokenType::PRINT},
-    {"return", TokenType::RETURN}, {"super", TokenType::SUPER},
-    {"this", TokenType::THIS},     {"true", TokenType::TRUE},
-    {"var", TokenType::VAR},       {"while", TokenType::WHILE},
-};
 
 static bool isdigit(char c) { return c >= '0' && c <= '9'; }
 
@@ -160,20 +149,75 @@ Token Scanner::consumeNumber() {
     return createToken(TokenType::NUMBER, value);
 }
 
+TokenType Scanner::checkKeyword(std::size_t start, std::size_t length,
+                                const char *rest, TokenType type) {
+    if (static_cast<std::size_t>(this->current - this->start) ==
+            start + length &&
+        std::memcmp(this->start + start, rest, length) == 0) {
+        return type;
+    }
+
+    return TokenType::IDENTIFIER;
+}
+
+TokenType Scanner::identifierType() {
+    switch (*start) {
+    case 'a':
+        return checkKeyword(1, 2, "nd", TokenType::AND);
+    case 'c':
+        return checkKeyword(1, 4, "lass", TokenType::CLASS);
+    case 'e':
+        return checkKeyword(1, 3, "lse", TokenType::ELSE);
+    case 'f': {
+        if (static_cast<std::size_t>(current - start) > 1) {
+            switch (*(start + 1)) {
+            case 'a':
+                return checkKeyword(2, 3, "lse", TokenType::FALSE);
+            case 'o':
+                return checkKeyword(2, 1, "r", TokenType::FOR);
+            case 'u':
+                return checkKeyword(2, 1, "n", TokenType::FUN);
+            }
+        }
+        break;
+    }
+    case 'i':
+        return checkKeyword(1, 1, "f", TokenType::IF);
+    case 'n':
+        return checkKeyword(1, 2, "il", TokenType::NIL);
+    case 'o':
+        return checkKeyword(1, 1, "r", TokenType::OR);
+    case 'p':
+        return checkKeyword(1, 4, "rint", TokenType::PRINT);
+    case 'r':
+        return checkKeyword(1, 5, "eturn", TokenType::RETURN);
+    case 's':
+        return checkKeyword(1, 4, "uper", TokenType::SUPER);
+    case 't': {
+        if (static_cast<std::size_t>(current - start) > 1) {
+            switch (*(start + 1)) {
+            case 'h':
+                return checkKeyword(2, 2, "is", TokenType::THIS);
+            case 'r':
+                return checkKeyword(2, 2, "ue", TokenType::TRUE);
+            }
+        }
+        break;
+    }
+    case 'v':
+        return checkKeyword(1, 2, "ar", TokenType::VAR);
+    case 'w':
+        return checkKeyword(1, 4, "hile", TokenType::WHILE);
+    }
+
+    return TokenType::IDENTIFIER;
+}
+
 Token Scanner::consumeIdentifier() {
     while (isalphanumeric(peek()))
         advance();
 
-    std::string text(start, static_cast<std::size_t>(current - start));
-
-    TokenType type;
-    if (KEYWORDS.find(text) == KEYWORDS.end()) {
-        type = TokenType::IDENTIFIER;
-    } else {
-        type = KEYWORDS.at(text);
-    }
-
-    return createToken(type);
+    return createToken(identifierType());
 }
 
 bool Scanner::isAtEnd() { return *current == '\0'; }
