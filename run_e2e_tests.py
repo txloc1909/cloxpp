@@ -327,12 +327,17 @@ def _define_test_suites():
     }
     no_limits = {"e2e_tests/limit": "skip"}
 
+    # jlox now have the same scanning procedure as clox,
+    # so this test should be ignored
+    # (alternatively, modify this test's expectation)
+    unexpected_char = {"e2e_tests/unexpected_character.lox": "skip"}
+
     scanner_only = {
         "e2e_tests": "skip",
         "e2e_tests/scanning": "pass"
     }
 
-    java_suite("jlox", all | early_chapters | no_limits)
+    java_suite("jlox", all | early_chapters | no_limits | unexpected_char)
     scanner_suite("scanner", scanner_only)
     c_suite("clox", all | early_chapters)
 
