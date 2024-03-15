@@ -12,8 +12,8 @@ class Scanner {
 private:
     ErrorHandler &handler;
     const std::string &source;
-    std::size_t start;
-    std::size_t current;
+    const char *start;
+    const char *current;
     std::size_t line;
 
     std::optional<Token> scanOneToken();
