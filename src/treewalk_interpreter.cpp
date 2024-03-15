@@ -26,8 +26,25 @@ void TreewalkInterpreter::runFile(const char *path) {
 }
 
 void TreewalkInterpreter::run(const std::string &source) {
-    auto scanner = Scanner(source, *errorHandler.get());
-    auto parser = Parser(scanner.scanTokens(), *errorHandler.get());
+    auto scanner = Scanner(source);
+    auto tokens = std::vector<Token>();
+    for (;;) {
+        Token token = scanner.scanOneToken();
+        if (token.type == TokenType::ERROR) {
+            errorHandler->error(token.line, token.getLexemeString().data());
+            break;
+        }
+
+        tokens.push_back(token);
+        if (token.type == TokenType::EOF_) {
+            break;
+        }
+    }
+    if (errorHandler->hadError) {
+        return;
+    }
+
+    auto parser = Parser(tokens, *errorHandler.get());
     auto statements = parser.parse();
 
     if (errorHandler->hadError) {
