@@ -116,6 +116,9 @@ std::ostream &operator<<(std::ostream &os, const TokenType type) {
     case TokenType::WHILE:
         os << "WHILE";
         break;
+    case TokenType::ERROR:
+        os << "ERROR";
+        break;
     case TokenType::EOF_:
         os << "EOF";
         break;

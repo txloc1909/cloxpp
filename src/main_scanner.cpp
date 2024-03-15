@@ -7,10 +7,19 @@
 #include "utils.hpp"
 
 void scan(const std::string &source) {
-    auto handler = ErrorHandler();
-    auto scanner = Scanner(source, handler);
-    for (const Token &t : scanner.scanTokens()) {
-        std::cout << t << "\n";
+    auto errorHandler = ErrorHandler();
+    auto scanner = Scanner(source);
+
+    for (;;) {
+        Token token = scanner.scanOneToken();
+        if (token.type == TokenType::ERROR) {
+            errorHandler.error(token.line, token.getLexemeString().data());
+            break;
+        } else if (token.type == TokenType::EOF_) {
+            break;
+        } else {
+            std::cout << token << "\n";
+        }
     }
 }
 

@@ -1,8 +1,5 @@
 #include <cstring>
-#include <optional>
-#include <vector>
 
-#include "error_handler.hpp"
 #include "scanner.hpp"
 #include "token.hpp"
 
@@ -14,26 +11,19 @@ static bool isalpha(char c) {
 
 static bool isalphanumeric(char c) { return isdigit(c) || isalpha(c); }
 
-Scanner::Scanner(const std::string &source, ErrorHandler &handler)
-    : handler(handler), source(source), start(source.data()), current(start),
-      line(1) {}
+Scanner::Scanner(const std::string &source)
+    : source(source), start(source.data()), current(start), line(1) {}
 
-std::vector<Token> Scanner::scanTokens() {
-    auto tokens = std::vector<Token>();
-    while (!isAtEnd()) {
-        start = current;
-        auto tok = scanOneToken();
-        if (tok) {
-            tokens.push_back(tok.value());
-        }
-    }
+Token Scanner::scanOneToken() {
+    skipWhitespace();
+    start = current;
 
-    tokens.push_back(Token(TokenType::EOF_, "", line));
-    return tokens;
-}
-
-std::optional<Token> Scanner::scanOneToken() {
     char c = advance();
+    if (isalpha(c))
+        return consumeIdentifier();
+    if (isdigit(c))
+        return consumeNumber();
+
     switch (c) {
     case '(':
         return createToken(TokenType::LEFT_PAREN);
@@ -55,6 +45,8 @@ std::optional<Token> Scanner::scanOneToken() {
         return createToken(TokenType::SEMICOLON);
     case '*':
         return createToken(TokenType::STAR);
+    case '/':
+        return createToken(TokenType::SLASH);
 
     case '!':
         return createToken(match('=') ? TokenType::BANG_EQUAL
@@ -68,41 +60,14 @@ std::optional<Token> Scanner::scanOneToken() {
     case '<':
         return createToken(match('=') ? TokenType::LESS_EQUAL
                                       : TokenType::LESS);
-
-    case '/': {
-        if (match('/')) {
-            while (peek() != '\n' && !isAtEnd())
-                advance();
-        } else {
-            return createToken(TokenType::SLASH);
-        }
-        break;
-    }
-    case ' ':
-    case '\r':
-    case '\t':
-        break;
-    case '\n': {
-        line++;
-        break;
-    }
-
     case '"':
         return consumeString();
-
-    default: {
-        if (isdigit(c)) {
-            return consumeNumber();
-        } else if (isalpha(c)) {
-            return consumeIdentifier();
-        } else {
-            handler.error(line, "Unexpected character.");
-            return std::nullopt;
-        }
-    }
     }
 
-    return std::nullopt;
+    if (isAtEnd())
+        return createToken(TokenType::EOF_);
+
+    return createErrorToken("Unexpected character.");
 }
 
 Token Scanner::createToken(TokenType type) {
@@ -115,7 +80,41 @@ Token Scanner::createToken(TokenType type, std::string_view lexeme) {
     return Token(type, lexeme, line);
 }
 
-std::optional<Token> Scanner::consumeString() {
+Token Scanner::createErrorToken(const char *message) {
+    return Token(TokenType::ERROR, message, line);
+}
+
+void Scanner::skipWhitespace() {
+    for (;;) {
+        char c = peek();
+        switch (c) {
+        case ' ':
+        case '\r':
+        case '\t': {
+            advance();
+            break;
+        }
+        case '\n': {
+            line++;
+            advance();
+            break;
+        }
+        case '/': { // handle comment
+            if (peekNext() == '/') {
+                while (peek() != '\n' && !isAtEnd())
+                    advance();
+            } else {
+                return;
+            }
+            break;
+        }
+        default:
+            return;
+        }
+    }
+}
+
+Token Scanner::consumeString() {
     while (peek() != '"' && !isAtEnd()) {
         if (peek() == '\n')
             line++;
@@ -123,15 +122,13 @@ std::optional<Token> Scanner::consumeString() {
     }
 
     if (isAtEnd()) {
-        handler.error(line, "Unterminated string.");
-        return std::nullopt;
+        return createErrorToken("Unterminated string.");
     }
 
     advance(); // The closing quote
-
-    std::string_view strLexeme{start + 1,
-                               static_cast<std::size_t>(current - start - 2)};
-    return createToken(TokenType::STRING, strLexeme);
+    auto lexeme = std::string_view{
+        start + 1, static_cast<std::size_t>(current - start) - 2};
+    return createToken(TokenType::STRING, lexeme);
 }
 
 Token Scanner::consumeNumber() {
@@ -144,9 +141,7 @@ Token Scanner::consumeNumber() {
         while (isdigit(peek()))
             advance();
     }
-
-    std::string_view value{start, static_cast<std::size_t>(current - start)};
-    return createToken(TokenType::NUMBER, value);
+    return createToken(TokenType::NUMBER);
 }
 
 TokenType Scanner::checkKeyword(std::size_t start, std::size_t length,
@@ -223,6 +218,12 @@ Token Scanner::consumeIdentifier() {
 bool Scanner::isAtEnd() { return *current == '\0'; }
 
 char Scanner::advance() {
+    if (isAtEnd()) {
+        // must have this if clause,
+        // else scanner cannot reach EOF and create EOF token
+        // I have no idea why...
+        return '\0';
+    }
     current++;
     return *(current - 1);
 }

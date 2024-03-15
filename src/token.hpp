@@ -50,6 +50,7 @@ enum class TokenType {
     VAR,
     WHILE,
 
+    ERROR,
     EOF_,
 };
 std::ostream &operator<<(std::ostream &os, const TokenType type);
