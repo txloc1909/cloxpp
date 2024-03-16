@@ -1,36 +1,19 @@
-#include "chunk.hpp"
-#include "debug.hpp"
+#include <iostream>
+
 #include "vm.hpp"
 
-int main() {
+int main(int argc, const char *argv[]) {
     using namespace Clox;
 
     VM vm{};
+    if (argc > 2) {
+        std::cerr << "Usage: " << argv[0] << " [path]";
+        std::exit(64);
+    } else if (argc == 2) {
+        vm.runFile(argv[1]);
+    } else {
+        vm.repl();
+    }
 
-    Chunk chunk{};
-
-    int constant = chunk.addConstant(1.2);
-    chunk.write(OP_CONSTANT, 123);
-    chunk.write(constant, 123);
-
-    constant = chunk.addConstant(3.4);
-    chunk.write(OP_CONSTANT, 123);
-    chunk.write(constant, 123);
-
-    chunk.write(OP_ADD, 123);
-
-    constant = chunk.addConstant(5.6);
-    chunk.write(OP_CONSTANT, 123);
-    chunk.write(constant, 123);
-
-    chunk.write(OP_DIVIDE, 123);
-    chunk.write(OP_NEGATE, 123);
-
-    chunk.write(OP_RETURN, 123);
-
-    disassembleChunk(&chunk, "test chunk");
-
-    std::printf("=== execute ===\n");
-    vm.interpret(&chunk);
     return 0;
 }

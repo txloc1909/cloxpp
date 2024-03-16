@@ -17,7 +17,9 @@ class VM {
 public:
     VM();
     ~VM();
-    InterpretResult interpret(Chunk *chunk);
+    void runFile(const char *path);
+    void repl();
+    InterpretResult interpret(const std::string &source);
     InterpretResult run();
 
     void push(Value value);

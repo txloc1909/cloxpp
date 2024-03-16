@@ -42,7 +42,11 @@ add_executable(clox
     src/memory.cpp
     src/debug.cpp
     src/value.cpp
+    src/utils.cpp
     src/vm.cpp
+    src/token.cpp
+    src/scanner.cpp
+    src/compiler.cpp
 
     # TODO: unnecessary dependencies; refactor this
     src/lox_class.cpp
@@ -50,7 +54,6 @@ add_executable(clox
     src/environment.cpp
     src/interpreter.cpp
     src/error_handler.cpp
-    src/token.cpp
 )
 target_compile_options(clox PRIVATE -DDEBUG_TRACE_EXECUTION -Wall -Wextra
     -fsanitize=undefined -fsanitize=address)

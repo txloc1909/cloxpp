@@ -1,5 +1,9 @@
-#include "vm.hpp"
+#include <iostream>
+
+#include "compiler.hpp"
 #include "debug.hpp" // IWYU pragma: keep
+#include "utils.hpp"
+#include "vm.hpp"
 
 namespace Clox {
 
@@ -7,9 +11,32 @@ VM::VM() { resetStack(); }
 
 VM::~VM() = default;
 
-InterpretResult VM::interpret(Chunk *chunk) {
-    this->chunk = chunk;
-    this->ip = this->chunk->code;
+void VM::runFile(const char *path) {
+    auto result = interpret(readFile(path));
+
+    if (result == InterpretResult::COMPILE_ERROR)
+        std::exit(65);
+    if (result == InterpretResult::RUNTIME_ERROR)
+        std::exit(70);
+}
+
+void VM::repl() {
+    std::string line;
+    while (std::cin) {
+        std::cout << ">>> ";
+        std::getline(std::cin, line);
+        interpret(line);
+    }
+}
+
+InterpretResult VM::interpret(const std::string &source) {
+    Chunk newChunk{};
+    if (!compile(source, &newChunk)) {
+        return InterpretResult::COMPILE_ERROR;
+    }
+
+    chunk = &newChunk;
+    ip = chunk->code;
     return run();
 }
 
