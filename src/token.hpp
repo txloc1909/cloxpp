@@ -56,9 +56,9 @@ enum class TokenType {
 std::ostream &operator<<(std::ostream &os, const TokenType type);
 
 struct Token {
-    const TokenType type;
-    const std::string_view lexeme;
-    const int line;
+    TokenType type;
+    std::string_view lexeme;
+    int line;
 
     Token() : type(TokenType::EOF_), lexeme("\0"), line(1) {}
     Token(TokenType type_, std::string_view lexeme_, int line_)
