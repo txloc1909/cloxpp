@@ -60,6 +60,7 @@ struct Token {
     const std::string_view lexeme;
     const int line;
 
+    Token() : type(TokenType::EOF_), lexeme("\0"), line(1) {}
     Token(TokenType type_, std::string_view lexeme_, int line_)
         : type(type_), lexeme(std::move(lexeme_)), line(line_){};
 
