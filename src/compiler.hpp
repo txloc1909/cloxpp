@@ -23,7 +23,8 @@ enum class Precedence {
     PRIMARY,
 };
 
-using ParseFn = std::function<void()>;
+class SinglePassCompiler;
+using ParseFn = std::function<void(SinglePassCompiler &)>;
 
 struct ParseRule {
     ParseFn prefix;
@@ -59,6 +60,7 @@ struct PrattParser {
 
     void registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
                            Precedence prec);
+    ParseRule &getRule(TokenType type);
 };
 using Parser = PrattParser;
 

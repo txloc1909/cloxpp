@@ -53,10 +53,25 @@ void Parser::registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
     rules[type] = {prefix, infix, prec};
 }
 
+ParseRule &Parser::getRule(TokenType type) { return rules[type]; }
+
 SinglePassCompiler::SinglePassCompiler(const std::string &source)
-    : parser(Parser(source)){
-          // register parse fn here
-      };
+    : parser(Parser(source)) {
+    // register parse rule here:
+    parser.registerParseRule(TokenType::LEFT_PAREN,
+                             &SinglePassCompiler::grouping, nullptr,
+                             Precedence::NONE);
+    parser.registerParseRule(TokenType::MINUS, &SinglePassCompiler::unary,
+                             &SinglePassCompiler::binary, Precedence::TERM);
+    parser.registerParseRule(TokenType::PLUS, nullptr,
+                             &SinglePassCompiler::binary, Precedence::TERM);
+    parser.registerParseRule(TokenType::SLASH, nullptr,
+                             &SinglePassCompiler::binary, Precedence::FACTOR);
+    parser.registerParseRule(TokenType::STAR, nullptr,
+                             &SinglePassCompiler::binary, Precedence::FACTOR);
+    parser.registerParseRule(TokenType::NUMBER, &SinglePassCompiler::number,
+                             nullptr, Precedence::NONE);
+}
 
 bool SinglePassCompiler::compile(Chunk *chunk) {
     compilingChunk = chunk;
@@ -68,6 +83,10 @@ bool SinglePassCompiler::compile(Chunk *chunk) {
 }
 
 void SinglePassCompiler::expression() {}
+void SinglePassCompiler::grouping() {}
+void SinglePassCompiler::binary() {}
+void SinglePassCompiler::unary() {}
+void SinglePassCompiler::number() {}
 
 Chunk *SinglePassCompiler::currentChunk() const { return compilingChunk; }
 
