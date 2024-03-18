@@ -2,6 +2,7 @@
 #include <string>
 
 #include "compiler.hpp"
+#include "debug.hpp" // IWYU pragma: keep
 
 namespace Clox {
 
@@ -176,6 +177,13 @@ void SinglePassCompiler::emitConstant(Value value) {
 
 void SinglePassCompiler::emitReturn() { emitByte(OP_RETURN); }
 
-void SinglePassCompiler::endCompiler() { emitReturn(); }
+void SinglePassCompiler::endCompiler() {
+    emitReturn();
+#ifdef DEBUG_PRINT_CODE
+    if (!parser.hadError) {
+        disassembleChunk(currentChunk(), "code");
+    }
+#endif
+}
 
 } // namespace Clox
