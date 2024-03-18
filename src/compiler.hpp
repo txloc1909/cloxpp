@@ -61,6 +61,8 @@ struct PrattParser {
     void registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
                            Precedence prec);
     ParseRule &getRule(TokenType type);
+
+    void parsePrecedence(Precedence precedence, SinglePassCompiler &compiler);
 };
 using Parser = PrattParser;
 
@@ -81,8 +83,10 @@ private:
 
     Chunk *currentChunk() const;
 
+    uint8_t makeConstant(Value value);
     void emitByte(uint8_t byte);
     void emitBytes(uint8_t byte1, uint8_t byte2);
+    void emitConstant(Value value);
     void emitReturn();
     void endCompiler();
 };

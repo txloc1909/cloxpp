@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <string>
 
 #include "compiler.hpp"
 
@@ -55,6 +56,22 @@ void Parser::registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
 
 ParseRule &Parser::getRule(TokenType type) { return rules[type]; }
 
+void Parser::parsePrecedence(Precedence precedence,
+                             SinglePassCompiler &compiler) {
+    advance();
+    ParseFn prefixRule = getRule(previous.type).prefix;
+    if (!prefixRule) {
+        error("Expect expression.");
+        return;
+    }
+    prefixRule(compiler);
+    while (precedence <= getRule(current.type).precedence) {
+        advance();
+        ParseFn infixRule = getRule(previous.type).infix;
+        infixRule(compiler);
+    }
+}
+
 SinglePassCompiler::SinglePassCompiler(const std::string &source)
     : parser(Parser(source)) {
     // register parse rule here:
@@ -78,17 +95,71 @@ bool SinglePassCompiler::compile(Chunk *chunk) {
 
     expression();
     parser.consume(TokenType::EOF_, "Expect end of expression.");
-
+    endCompiler();
     return !parser.hadError;
 }
 
-void SinglePassCompiler::expression() {}
-void SinglePassCompiler::grouping() {}
-void SinglePassCompiler::binary() {}
-void SinglePassCompiler::unary() {}
-void SinglePassCompiler::number() {}
+void SinglePassCompiler::expression() {
+    parser.parsePrecedence(Precedence::ASSIGNMENT, *this);
+}
+
+void SinglePassCompiler::grouping() {
+    expression();
+    parser.consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
+}
+
+void SinglePassCompiler::unary() {
+    TokenType operatorType = parser.previous.type;
+    parser.parsePrecedence(Precedence::UNARY, *this);
+    switch (operatorType) {
+    case TokenType::MINUS:
+        emitByte(OP_NEGATE);
+        break;
+    default:
+        return;
+    }
+}
+
+void SinglePassCompiler::binary() {
+    TokenType operatorType = parser.previous.type;
+    ParseRule &rule = parser.getRule(operatorType);
+    auto nextPrec = static_cast<int>(rule.precedence) + 1;
+    parser.parsePrecedence(static_cast<Precedence>(nextPrec), *this);
+
+    switch (operatorType) {
+    case TokenType::PLUS:
+        emitByte(OP_ADD);
+        break;
+    case TokenType::MINUS:
+        emitByte(OP_SUBTRACT);
+        break;
+    case TokenType::STAR:
+        emitByte(OP_MULTIPLY);
+        break;
+    case TokenType::SLASH:
+        emitByte(OP_DIVIDE);
+        break;
+    default:
+        return;
+    }
+}
+
+void SinglePassCompiler::number() {
+    double value = std::strtod(parser.previous.lexeme.data(), nullptr);
+    emitConstant(value);
+}
 
 Chunk *SinglePassCompiler::currentChunk() const { return compilingChunk; }
+
+uint8_t SinglePassCompiler::makeConstant(Value value) {
+    int constant = currentChunk()->addConstant(value);
+    if (constant > UINT8_MAX) {
+        parser.error("Too many constants in one chunk.");
+        return 0;
+    }
+
+    return static_cast<uint8_t>(constant);
+}
 
 void SinglePassCompiler::emitByte(uint8_t byte) {
     currentChunk()->write(byte, parser.previous.line);
@@ -97,6 +168,10 @@ void SinglePassCompiler::emitByte(uint8_t byte) {
 void SinglePassCompiler::emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte1);
     emitByte(byte2);
+}
+
+void SinglePassCompiler::emitConstant(Value value) {
+    emitBytes(OP_CONSTANT, makeConstant(value));
 }
 
 void SinglePassCompiler::emitReturn() { emitByte(OP_RETURN); }
