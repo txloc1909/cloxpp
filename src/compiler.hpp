@@ -1,6 +1,7 @@
 #ifndef CLOXPP_COMPILER_H
 #define CLOXPP_COMPILER_H
 
+#include <functional>
 #include <string>
 
 #include "chunk.hpp"
@@ -8,16 +9,44 @@
 
 namespace Clox {
 
+enum class Precedence {
+    NONE,
+    ASSIGNMENT, // =
+    OR,         // or
+    AND,        // and
+    EQUALITY,   // == !=
+    COMPARISON, // < > <= >=
+    TERM,       // + -
+    FACTOR,     // * /
+    UNARY,      // ! -
+    CALL,       // . ()
+    PRIMARY,
+};
+
+using ParseFn = std::function<void()>;
+
+struct ParseRule {
+    ParseFn prefix;
+    ParseFn infix;
+    Precedence precedence;
+
+    ParseRule()
+        : prefix(nullptr), infix(nullptr), precedence(Precedence::NONE) {}
+    ParseRule(ParseFn prefix, ParseFn infix, Precedence prec)
+        : prefix(prefix), infix(infix), precedence(prec) {}
+};
+
 struct PrattParser {
     Scanner scanner;
     Token current;
     Token previous;
     bool hadError;
     bool panicMode;
+    std::unordered_map<TokenType, ParseRule> rules;
 
     PrattParser(const std::string &source)
         : scanner(Scanner(source)), current(scanner.scanOneToken()),
-          previous(current), hadError(false), panicMode(false) {}
+          previous(current), hadError(false), panicMode(false), rules({}){};
 
     void errorAt(const Token &token, const char *message);
     void errorAtCurrent(const char *message);
@@ -27,21 +56,28 @@ struct PrattParser {
     void consume(TokenType type, const char *message);
     bool check(TokenType type);
     bool match(TokenType type);
+
+    void registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
+                           Precedence prec);
 };
 using Parser = PrattParser;
 
 class SinglePassCompiler {
 public:
-    SinglePassCompiler(const std::string &source) : parser(Parser(source)){};
+    SinglePassCompiler(const std::string &source);
     bool compile(Chunk *chunk);
+
+    void expression();
+    void number();
+    void grouping();
+    void unary();
+    void binary();
 
 private:
     Parser parser;
     Chunk *compilingChunk;
 
     Chunk *currentChunk() const;
-
-    void expression();
 
     void emitByte(uint8_t byte);
     void emitBytes(uint8_t byte1, uint8_t byte2);

@@ -48,6 +48,16 @@ void Parser::consume(TokenType type, const char *message) {
     errorAtCurrent(message);
 }
 
+void Parser::registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
+                               Precedence prec) {
+    rules[type] = {prefix, infix, prec};
+}
+
+SinglePassCompiler::SinglePassCompiler(const std::string &source)
+    : parser(Parser(source)){
+          // register parse fn here
+      };
+
 bool SinglePassCompiler::compile(Chunk *chunk) {
     compilingChunk = chunk;
 
