@@ -31,7 +31,7 @@ void VM::repl() {
 
 InterpretResult VM::interpret(const std::string &source) {
     Chunk newChunk{};
-    if (!compile(source, &newChunk)) {
+    if (!SinglePassCompiler(source).compile(&newChunk)) {
         return InterpretResult::COMPILE_ERROR;
     }
 
