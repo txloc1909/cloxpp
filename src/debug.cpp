@@ -17,7 +17,8 @@ static int constantInstruction(const char *name, const Chunk *chunk,
     uint8_t constant = chunk->code[offset + 1];
 
     std::printf("%-16s %4d '", name, constant);
-    std::printf("%g", chunk->constants.values[constant]); // temporarily
+    std::printf("%g", std::get<double>(
+                          chunk->constants.values[constant])); // temporarily
     std::printf("'\n");
 
     return offset + 2;

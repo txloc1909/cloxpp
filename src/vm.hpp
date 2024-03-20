@@ -24,6 +24,7 @@ public:
 
     void push(Value value);
     Value pop();
+    Value peek(int distance);
 
 private:
     Chunk *chunk;
@@ -32,6 +33,7 @@ private:
     Value *stackTop;
 
     void resetStack();
+    void runtimeError(const char *format, ...);
 };
 
 } // namespace Clox

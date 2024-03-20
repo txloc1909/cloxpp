@@ -23,7 +23,8 @@ std::ostream &operator<<(std::ostream &os, const Value &value);
 
 namespace Clox {
 
-using Value = double; // temporarily
+using Nil = std::monostate;
+using Value = std::variant<Nil, double, bool>;
 
 struct ValueArray {
     int capacity;

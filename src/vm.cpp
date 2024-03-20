@@ -1,3 +1,5 @@
+#include <cstdarg>
+#include <cstdio>
 #include <iostream>
 
 #include "compiler.hpp"
@@ -43,11 +45,15 @@ InterpretResult VM::interpret(const std::string &source) {
 InterpretResult VM::run() {
 #define READ_BYTE() (*ip++)
 #define READ_CONSTANT() (chunk->constants.values[READ_BYTE()])
-#define BINARY_OP(op)                                                          \
+#define BINARY_OP(valueType, op)                                               \
     do {                                                                       \
-        double b = pop();                                                      \
-        double a = pop();                                                      \
-        push(a op b);                                                          \
+        if (!std::holds_alternative<double>(peek(0)) ||                        \
+            !std::holds_alternative<double>(peek(1))) {                        \
+            runtimeError("Operands must be numbers.");                         \
+        }                                                                      \
+        double b = std::get<double>(pop());                                    \
+        double a = std::get<double>(pop());                                    \
+        push(static_cast<valueType>(a op b));                                  \
     } while (false)
 
     for (;;) {
@@ -55,7 +61,7 @@ InterpretResult VM::run() {
         std::printf("          ");
         for (Value *slot = stack; slot < stackTop; slot++) {
             std::printf("[ ");
-            std::printf("%g", *slot); // temporarily
+            std::printf("%g", std::get<double>(*slot)); // temporarily
             std::printf(" ]");
         }
         std::printf("\n");
@@ -70,27 +76,31 @@ InterpretResult VM::run() {
             break;
         }
         case OP_ADD: {
-            BINARY_OP(+);
+            BINARY_OP(double, +);
             break;
         }
         case OP_SUBTRACT: {
-            BINARY_OP(-);
+            BINARY_OP(double, -);
             break;
         }
         case OP_MULTIPLY: {
-            BINARY_OP(*);
+            BINARY_OP(double, *);
             break;
         }
         case OP_DIVIDE: {
-            BINARY_OP(/);
+            BINARY_OP(double, /);
             break;
         }
         case OP_NEGATE: {
-            push(-pop());
+            if (!std::holds_alternative<double>(peek(0))) {
+                runtimeError("Operand must be a number.");
+                return InterpretResult::RUNTIME_ERROR;
+            }
+            push(-std::get<double>(pop()));
             break;
         }
         case OP_RETURN: {
-            std::printf("%g\n", pop());
+            std::printf("%g\n", std::get<double>(pop()));
             return InterpretResult::OK;
         }
         }
@@ -99,7 +109,7 @@ InterpretResult VM::run() {
 #undef READ_BYTE
 #undef READ_CONSTANT
 #undef BINARY_OP
-}
+} // namespace Clox
 
 void VM::push(Value value) {
     *stackTop = value;
@@ -111,6 +121,21 @@ Value VM::pop() {
     return *stackTop;
 }
 
+Value VM::peek(int distance) { return *(stackTop - 1 - distance); }
+
 void VM::resetStack() { stackTop = stack; }
+
+void VM::runtimeError(const char *format, ...) {
+    std::va_list args;
+    va_start(args, format);
+    std::vfprintf(stderr, format, args);
+    va_end(args);
+    std::fputs("\n", stderr);
+
+    std::size_t instruction = ip - chunk->code - 1;
+    int line = chunk->lines[instruction];
+    std::fprintf(stderr, "[line %d] in script\n", line);
+    resetStack();
+}
 
 } // namespace Clox
