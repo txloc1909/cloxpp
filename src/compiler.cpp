@@ -95,6 +95,8 @@ SinglePassCompiler::SinglePassCompiler(const std::string &source)
                              nullptr, Precedence::NONE);
     parser.registerParseRule(TokenType::FALSE, &SinglePassCompiler::literal,
                              nullptr, Precedence::NONE);
+    parser.registerParseRule(TokenType::BANG, &SinglePassCompiler::unary,
+                             nullptr, Precedence::NONE);
 }
 
 bool SinglePassCompiler::compile(Chunk *chunk) {
@@ -119,6 +121,9 @@ void SinglePassCompiler::unary() {
     TokenType operatorType = parser.previous.type;
     parser.parsePrecedence(Precedence::UNARY, *this);
     switch (operatorType) {
+    case TokenType::BANG:
+        emitByte(OP_NOT);
+        break;
     case TokenType::MINUS:
         emitByte(OP_NEGATE);
         break;

@@ -9,6 +9,11 @@
 
 namespace Clox {
 
+static bool isFalsey(Value value) {
+    return std::holds_alternative<Nil>(value) ||
+           (std::holds_alternative<bool>(value) && !std::get<bool>(value));
+}
+
 VM::VM() { resetStack(); }
 
 VM::~VM() = default;
@@ -99,6 +104,10 @@ InterpretResult VM::run() {
         }
         case OP_DIVIDE: {
             BINARY_OP(double, /);
+            break;
+        }
+        case OP_NOT: {
+            push(isFalsey(pop()));
             break;
         }
         case OP_NEGATE: {
