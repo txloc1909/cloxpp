@@ -14,6 +14,25 @@ static bool isFalsey(Value value) {
            (std::holds_alternative<bool>(value) && !std::get<bool>(value));
 }
 
+struct ValueEquality {
+    bool operator()(Nil, Nil) const { return true; }
+
+    template <typename T>
+    bool operator()(const T &a, const T &b) const {
+        return a == b;
+    }
+
+    template <typename T, typename U,
+              typename = std::enable_if_t<!std::is_same_v<T, U>>>
+    bool operator()(const T & /*a*/, const U & /*b*/) const {
+        return false;
+    }
+};
+
+static bool valuesEqual(Value a, Value b) {
+    return std::visit(ValueEquality(), a, b);
+}
+
 VM::VM() { resetStack(); }
 
 VM::~VM() = default;
@@ -88,6 +107,20 @@ InterpretResult VM::run() {
         }
         case OP_FALSE: {
             push(false);
+            break;
+        }
+        case OP_EQUAL: {
+            Value b = pop();
+            Value a = pop();
+            push(valuesEqual(a, b));
+            break;
+        }
+        case OP_GREATER: {
+            BINARY_OP(bool, >);
+            break;
+        }
+        case OP_LESS: {
+            BINARY_OP(bool, <);
             break;
         }
         case OP_ADD: {

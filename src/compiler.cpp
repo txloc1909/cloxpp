@@ -97,6 +97,22 @@ SinglePassCompiler::SinglePassCompiler(const std::string &source)
                              nullptr, Precedence::NONE);
     parser.registerParseRule(TokenType::BANG, &SinglePassCompiler::unary,
                              nullptr, Precedence::NONE);
+    parser.registerParseRule(TokenType::BANG_EQUAL, nullptr,
+                             &SinglePassCompiler::binary, Precedence::EQUALITY);
+    parser.registerParseRule(TokenType::EQUAL_EQUAL, nullptr,
+                             &SinglePassCompiler::binary, Precedence::EQUALITY);
+    parser.registerParseRule(TokenType::GREATER, nullptr,
+                             &SinglePassCompiler::binary,
+                             Precedence::COMPARISON);
+    parser.registerParseRule(TokenType::GREATER_EQUAL, nullptr,
+                             &SinglePassCompiler::binary,
+                             Precedence::COMPARISON);
+    parser.registerParseRule(TokenType::LESS, nullptr,
+                             &SinglePassCompiler::binary,
+                             Precedence::COMPARISON);
+    parser.registerParseRule(TokenType::LESS_EQUAL, nullptr,
+                             &SinglePassCompiler::binary,
+                             Precedence::COMPARISON);
 }
 
 bool SinglePassCompiler::compile(Chunk *chunk) {
@@ -139,6 +155,24 @@ void SinglePassCompiler::binary() {
     parser.parsePrecedence(static_cast<Precedence>(nextPrec), *this);
 
     switch (operatorType) {
+    case TokenType::BANG_EQUAL:
+        emitBytes(OP_EQUAL, OP_NOT);
+        break;
+    case TokenType::EQUAL_EQUAL:
+        emitByte(OP_EQUAL);
+        break;
+    case TokenType::GREATER:
+        emitByte(OP_GREATER);
+        break;
+    case TokenType::GREATER_EQUAL:
+        emitBytes(OP_LESS, OP_NOT);
+        break;
+    case TokenType::LESS:
+        emitByte(OP_LESS);
+        break;
+    case TokenType::LESS_EQUAL:
+        emitBytes(OP_GREATER, OP_NOT);
+        break;
     case TokenType::PLUS:
         emitByte(OP_ADD);
         break;
