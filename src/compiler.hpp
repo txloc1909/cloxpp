@@ -73,6 +73,7 @@ public:
 
     void expression();
     void number();
+    void literal();
     void grouping();
     void unary();
     void binary();

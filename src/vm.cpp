@@ -60,11 +60,9 @@ InterpretResult VM::run() {
 #ifdef DEBUG_TRACE_EXECUTION
         std::printf("          ");
         for (Value *slot = stack; slot < stackTop; slot++) {
-            std::printf("[ ");
-            std::printf("%g", std::get<double>(*slot)); // temporarily
-            std::printf(" ]");
+            std::cout << "[ " << *slot << " ]";
         }
-        std::printf("\n");
+        std::cout << "\n";
         disassembleInstruction(chunk, static_cast<int>(ip - chunk->code));
 #endif // DEBUG_TRACE_EXECUTION
 
@@ -73,6 +71,18 @@ InterpretResult VM::run() {
         case OP_CONSTANT: {
             Value constant = READ_CONSTANT();
             push(constant);
+            break;
+        }
+        case OP_NIL: {
+            push(Nil{});
+            break;
+        }
+        case OP_TRUE: {
+            push(true);
+            break;
+        }
+        case OP_FALSE: {
+            push(false);
             break;
         }
         case OP_ADD: {
@@ -100,7 +110,7 @@ InterpretResult VM::run() {
             break;
         }
         case OP_RETURN: {
-            std::printf("%g\n", std::get<double>(pop()));
+            std::cout << pop() << "\n";
             return InterpretResult::OK;
         }
         }

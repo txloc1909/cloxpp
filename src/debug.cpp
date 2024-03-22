@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <iostream>
 
 #include "debug.hpp"
 
@@ -17,8 +18,7 @@ static int constantInstruction(const char *name, const Chunk *chunk,
     uint8_t constant = chunk->code[offset + 1];
 
     std::printf("%-16s %4d '", name, constant);
-    std::printf("%g", std::get<double>(
-                          chunk->constants.values[constant])); // temporarily
+    std::cout << chunk->constants.values[constant]; // this is ugly :(
     std::printf("'\n");
 
     return offset + 2;
@@ -41,6 +41,12 @@ int disassembleInstruction(const Chunk *chunk, int offset) {
     switch (instruction) {
     case OP_CONSTANT:
         return constantInstruction("OP_CONSTANT", chunk, offset);
+    case OP_NIL:
+        return simpleInstruction("OP_NIL", offset);
+    case OP_TRUE:
+        return simpleInstruction("OP_TRUE", offset);
+    case OP_FALSE:
+        return simpleInstruction("OP_FALSE", offset);
     case OP_NEGATE:
         return simpleInstruction("OP_NEGATE", offset);
     case OP_ADD:

@@ -49,4 +49,19 @@ void ValueArray::write(Value value) {
     count++;
 }
 
+struct ToStringVisitor {
+    std::string operator()(std::monostate) { return "nil"; }
+    std::string operator()(double d) {
+        char buffer[13]; // %g directive writes between 1 and 13 bytes
+        std::sprintf(buffer, "%g", d);
+        return std::string(buffer);
+    }
+    std::string operator()(bool b) { return b ? "true" : "false"; }
+};
+
+std::ostream &operator<<(std::ostream &os, const Value &value) {
+    os << std::visit(ToStringVisitor(), value);
+    return os;
+}
+
 } // namespace Clox

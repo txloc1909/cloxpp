@@ -26,6 +26,8 @@ namespace Clox {
 using Nil = std::monostate;
 using Value = std::variant<Nil, double, bool>;
 
+std::ostream &operator<<(std::ostream &os, const Value &value);
+
 struct ValueArray {
     int capacity;
     int count;

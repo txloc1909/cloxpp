@@ -89,6 +89,12 @@ SinglePassCompiler::SinglePassCompiler(const std::string &source)
                              &SinglePassCompiler::binary, Precedence::FACTOR);
     parser.registerParseRule(TokenType::NUMBER, &SinglePassCompiler::number,
                              nullptr, Precedence::NONE);
+    parser.registerParseRule(TokenType::NIL, &SinglePassCompiler::literal,
+                             nullptr, Precedence::NONE);
+    parser.registerParseRule(TokenType::TRUE, &SinglePassCompiler::literal,
+                             nullptr, Precedence::NONE);
+    parser.registerParseRule(TokenType::FALSE, &SinglePassCompiler::literal,
+                             nullptr, Precedence::NONE);
 }
 
 bool SinglePassCompiler::compile(Chunk *chunk) {
@@ -148,6 +154,22 @@ void SinglePassCompiler::binary() {
 void SinglePassCompiler::number() {
     double value = std::strtod(parser.previous.lexeme.data(), nullptr);
     emitConstant(value);
+}
+
+void SinglePassCompiler::literal() {
+    switch (parser.previous.type) {
+    case TokenType::FALSE:
+        emitByte(OP_FALSE);
+        break;
+    case TokenType::TRUE:
+        emitByte(OP_TRUE);
+        break;
+    case TokenType::NIL:
+        emitByte(OP_NIL);
+        break;
+    default:
+        return;
+    }
 }
 
 Chunk *SinglePassCompiler::currentChunk() const { return compilingChunk; }
