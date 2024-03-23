@@ -9,30 +9,6 @@
 
 namespace Clox {
 
-static bool isFalsey(Value value) {
-    return value.isType<Nil>() ||
-           (value.isType<bool>() && !value.asType<bool>());
-}
-
-struct ValueEquality {
-    bool operator()(Nil, Nil) const { return true; }
-
-    template <typename T>
-    bool operator()(T a, T b) const {
-        return a == b;
-    }
-
-    template <typename T, typename U,
-              typename = std::enable_if_t<!std::is_same_v<T, U>>>
-    bool operator()(T /*a*/, U /*b*/) const {
-        return false;
-    }
-};
-
-static bool valuesEqual(Value a, Value b) {
-    return std::visit(ValueEquality(), a, b);
-}
-
 VM::VM() { resetStack(); }
 
 VM::~VM() = default;
@@ -111,7 +87,7 @@ InterpretResult VM::run() {
         case OP_EQUAL: {
             Value b = pop();
             Value a = pop();
-            push(valuesEqual(a, b));
+            push(a == b);
             break;
         }
         case OP_GREATER: {
@@ -153,7 +129,7 @@ InterpretResult VM::run() {
             break;
         }
         case OP_NOT: {
-            push(isFalsey(pop()));
+            push(pop().isFalsey());
             break;
         }
         case OP_NEGATE: {

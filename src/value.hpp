@@ -48,7 +48,17 @@ public:
 
 using Nil = std::monostate;
 using Number = double;
-using Value = ValueVariant<Nil, Number, bool, ObjString *>;
+using ValueTypes = ValueVariant<Nil, Number, bool, ObjString *>;
+class Value : public ValueTypes {
+public:
+    Value() : ValueTypes(std::in_place_type<Nil>) {}
+
+    template <typename T>
+    Value(T &&arg) : ValueTypes(std::forward<T>(arg)) {}
+
+    bool operator==(const Value &other) const;
+    bool isFalsey() const;
+};
 
 std::ostream &operator<<(std::ostream &os, const Value &value);
 
