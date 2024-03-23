@@ -22,6 +22,7 @@ add_executable(jlox
 
     # TODO: unnecessary dependencies; refactor this
     src/memory.cpp
+    src/object.cpp
 )
 target_compile_options(jlox PRIVATE -Wall -Wextra)
 target_link_options(jlox PRIVATE)
@@ -47,6 +48,7 @@ add_executable(clox
     src/token.cpp
     src/scanner.cpp
     src/compiler.cpp
+    src/object.cpp
 
     # TODO: unnecessary dependencies; refactor this
     src/lox_class.cpp

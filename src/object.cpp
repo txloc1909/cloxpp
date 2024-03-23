@@ -20,6 +20,13 @@ ObjString::~ObjString() {
     }
 }
 
+bool ObjString::operator==(const ObjString &other) const {
+    return size() == other.size() &&
+           std::equal(data(), data() + size(), other.data());
+}
+
 const char *ObjString::data() const { return chars; }
+
+int ObjString::size() const { return length; }
 
 } // namespace Clox

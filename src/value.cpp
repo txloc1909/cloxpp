@@ -57,6 +57,9 @@ struct ToStringVisitor {
         return std::string(buffer);
     }
     std::string operator()(bool b) { return b ? "true" : "false"; }
+    std::string operator()(const ObjString *str) {
+        return std::string(str->data());
+    }
 };
 
 std::ostream &operator<<(std::ostream &os, const Value &value) {

@@ -5,6 +5,8 @@
 #include <string>
 #include <variant>
 
+#include "object.hpp"
+
 namespace Jlox {
 
 // forward declare some types here, to be included in Value
@@ -24,7 +26,7 @@ std::ostream &operator<<(std::ostream &os, const Value &value);
 namespace Clox {
 
 using Nil = std::monostate;
-using Value = std::variant<Nil, double, bool>;
+using Value = std::variant<Nil, double, bool, ObjString *>;
 
 std::ostream &operator<<(std::ostream &os, const Value &value);
 

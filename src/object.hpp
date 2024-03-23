@@ -7,17 +7,26 @@ namespace Clox {
 
 class Obj {
 public:
+    template <typename T>
+    bool operator==(const T &other) const {
+        static_assert(std::is_base_of_v<Obj, T>, "T must be an Obj type");
+        return *static_cast<const T *>(this) == other;
+    }
+
     virtual ~Obj() = default;
 };
 
-class ObjString : Obj {
+class ObjString : public Obj {
 public:
     ObjString();
     ObjString(char *chars, int length);
     ObjString(std::string_view str);
     ~ObjString();
 
+    bool operator==(const ObjString &other) const;
+
     const char *data() const;
+    int size() const;
 
 private:
     char *chars;

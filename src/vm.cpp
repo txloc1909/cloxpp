@@ -18,13 +18,13 @@ struct ValueEquality {
     bool operator()(Nil, Nil) const { return true; }
 
     template <typename T>
-    bool operator()(const T &a, const T &b) const {
+    bool operator()(T a, T b) const {
         return a == b;
     }
 
     template <typename T, typename U,
               typename = std::enable_if_t<!std::is_same_v<T, U>>>
-    bool operator()(const T & /*a*/, const U & /*b*/) const {
+    bool operator()(T /*a*/, U /*b*/) const {
         return false;
     }
 };
