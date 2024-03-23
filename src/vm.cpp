@@ -124,7 +124,22 @@ InterpretResult VM::run() {
             break;
         }
         case OP_ADD: {
-            BINARY_OP(double, +);
+            if (std::holds_alternative<ObjString *>(peek(0)) &&
+                std::holds_alternative<ObjString *>(peek(1))) {
+                ObjString *b = std::get<ObjString *>(pop());
+                ObjString *a = std::get<ObjString *>(pop());
+                ObjString *result =
+                    new ObjString(ObjString::concatenate(*a, *b)); // leak
+                push(result);
+            } else if (std::holds_alternative<double>(peek(0)) &&
+                       std::holds_alternative<double>(peek(1))) {
+                double b = std::get<double>(pop());
+                double a = std::get<double>(pop());
+                push(a + b);
+            } else {
+                runtimeError("Operands must be two numbers or two strings.");
+                return InterpretResult::RUNTIME_ERROR;
+            }
             break;
         }
         case OP_SUBTRACT: {
@@ -161,7 +176,7 @@ InterpretResult VM::run() {
 #undef READ_BYTE
 #undef READ_CONSTANT
 #undef BINARY_OP
-} // namespace Clox
+}
 
 void VM::push(Value value) {
     *stackTop = value;

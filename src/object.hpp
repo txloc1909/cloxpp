@@ -28,6 +28,8 @@ public:
     const char *data() const;
     int size() const;
 
+    static ObjString concatenate(const ObjString &str1, const ObjString &str2);
+
 private:
     char *chars;
     int length;
