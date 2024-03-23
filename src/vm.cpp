@@ -10,8 +10,8 @@
 namespace Clox {
 
 static bool isFalsey(Value value) {
-    return std::holds_alternative<Nil>(value) ||
-           (std::holds_alternative<bool>(value) && !std::get<bool>(value));
+    return value.isType<Nil>() ||
+           (value.isType<bool>() && !value.asType<bool>());
 }
 
 struct ValueEquality {
@@ -71,12 +71,11 @@ InterpretResult VM::run() {
 #define READ_CONSTANT() (chunk->constants.values[READ_BYTE()])
 #define BINARY_OP(valueType, op)                                               \
     do {                                                                       \
-        if (!std::holds_alternative<double>(peek(0)) ||                        \
-            !std::holds_alternative<double>(peek(1))) {                        \
+        if (!peek(0).isType<Number>() || !peek(1).isType<Number>()) {          \
             runtimeError("Operands must be numbers.");                         \
         }                                                                      \
-        double b = std::get<double>(pop());                                    \
-        double a = std::get<double>(pop());                                    \
+        auto b = pop().asType<Number>();                                       \
+        auto a = pop().asType<Number>();                                       \
         push(static_cast<valueType>(a op b));                                  \
     } while (false)
 
@@ -124,17 +123,16 @@ InterpretResult VM::run() {
             break;
         }
         case OP_ADD: {
-            if (std::holds_alternative<ObjString *>(peek(0)) &&
-                std::holds_alternative<ObjString *>(peek(1))) {
-                ObjString *b = std::get<ObjString *>(pop());
-                ObjString *a = std::get<ObjString *>(pop());
+            if (peek(0).isType<ObjString *>() &&
+                peek(1).isType<ObjString *>()) {
+                ObjString *b = pop().asType<ObjString *>();
+                ObjString *a = pop().asType<ObjString *>();
                 ObjString *result =
                     new ObjString(ObjString::concatenate(*a, *b)); // leak
                 push(result);
-            } else if (std::holds_alternative<double>(peek(0)) &&
-                       std::holds_alternative<double>(peek(1))) {
-                double b = std::get<double>(pop());
-                double a = std::get<double>(pop());
+            } else if (peek(0).isType<Number>() && peek(1).isType<Number>()) {
+                auto b = pop().asType<Number>();
+                auto a = pop().asType<Number>();
                 push(a + b);
             } else {
                 runtimeError("Operands must be two numbers or two strings.");
@@ -143,15 +141,15 @@ InterpretResult VM::run() {
             break;
         }
         case OP_SUBTRACT: {
-            BINARY_OP(double, -);
+            BINARY_OP(Number, -);
             break;
         }
         case OP_MULTIPLY: {
-            BINARY_OP(double, *);
+            BINARY_OP(Number, *);
             break;
         }
         case OP_DIVIDE: {
-            BINARY_OP(double, /);
+            BINARY_OP(Number, /);
             break;
         }
         case OP_NOT: {
@@ -159,15 +157,15 @@ InterpretResult VM::run() {
             break;
         }
         case OP_NEGATE: {
-            if (!std::holds_alternative<double>(peek(0))) {
+            if (!peek(0).isType<Number>()) {
                 runtimeError("Operand must be a number.");
                 return InterpretResult::RUNTIME_ERROR;
             }
-            push(-std::get<double>(pop()));
+            push(-pop().asType<Number>());
             break;
         }
         case OP_RETURN: {
-            std::cout << pop() << "\n";
+            std::cout << pop() << "\n"; // temporarily
             return InterpretResult::OK;
         }
         }

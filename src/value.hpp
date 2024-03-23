@@ -25,8 +25,30 @@ std::ostream &operator<<(std::ostream &os, const Value &value);
 
 namespace Clox {
 
+template <typename... Types>
+class ValueVariant : public std::variant<Types...> {
+public:
+    using std::variant<Types...>::variant;
+
+    template <typename T>
+    bool isType() const {
+        return std::holds_alternative<T>(*this);
+    }
+
+    template <typename T>
+    T &asType() {
+        return std::get<T>(*this);
+    }
+
+    template <typename T>
+    const T &asType() const {
+        return std::get<T>(*this);
+    }
+};
+
 using Nil = std::monostate;
-using Value = std::variant<Nil, double, bool, ObjString *>;
+using Number = double;
+using Value = ValueVariant<Nil, Number, bool, ObjString *>;
 
 std::ostream &operator<<(std::ostream &os, const Value &value);
 

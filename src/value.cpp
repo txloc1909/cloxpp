@@ -50,10 +50,10 @@ void ValueArray::write(Value value) {
 }
 
 struct ToStringVisitor {
-    std::string operator()(std::monostate) { return "nil"; }
-    std::string operator()(double d) {
+    std::string operator()(Nil) { return "nil"; }
+    std::string operator()(Number num) {
         char buffer[13]; // %g directive writes between 1 and 13 bytes
-        std::sprintf(buffer, "%g", d);
+        std::sprintf(buffer, "%g", num);
         return std::string(buffer);
     }
     std::string operator()(bool b) { return b ? "true" : "false"; }

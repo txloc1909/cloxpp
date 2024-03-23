@@ -193,7 +193,7 @@ void SinglePassCompiler::binary() {
 }
 
 void SinglePassCompiler::number() {
-    double value = std::strtod(parser.previous.lexeme.data(), nullptr);
+    Number value = std::strtod(parser.previous.lexeme.data(), nullptr);
     emitConstant(value);
 }
 
