@@ -39,5 +39,5 @@ struct ValueArray {
 };
 
 } // namespace Clox
-//
+
 #endif // !CLOXPP_VALUE_H
