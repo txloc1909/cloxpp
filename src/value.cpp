@@ -50,14 +50,40 @@ void ValueArray::write(Value value) {
 }
 
 struct ToStringVisitor {
-    std::string operator()(std::monostate) { return "nil"; }
-    std::string operator()(double d) {
+    std::string operator()(Nil) { return "nil"; }
+    std::string operator()(Number num) {
         char buffer[13]; // %g directive writes between 1 and 13 bytes
-        std::sprintf(buffer, "%g", d);
+        std::sprintf(buffer, "%g", num);
         return std::string(buffer);
     }
     std::string operator()(bool b) { return b ? "true" : "false"; }
+    std::string operator()(const ObjString *str) {
+        return std::string(str->data());
+    }
 };
+
+struct ValueEquality {
+    bool operator()(Nil, Nil) const { return true; }
+
+    template <typename T>
+    bool operator()(T a, T b) const {
+        return a == b;
+    }
+
+    template <typename T, typename U,
+              typename = std::enable_if_t<!std::is_same_v<T, U>>>
+    bool operator()(T /*a*/, U /*b*/) const {
+        return false;
+    }
+};
+
+bool Value::operator==(const Value &other) const {
+    return std::visit(ValueEquality(), *this, other);
+}
+
+bool Value::isFalsey() const {
+    return isType<Nil>() || (isType<bool>() && !asType<bool>());
+}
 
 std::ostream &operator<<(std::ostream &os, const Value &value) {
     os << std::visit(ToStringVisitor(), value);

@@ -72,6 +72,7 @@ public:
     bool compile(Chunk *chunk);
 
     void expression();
+    void string();
     void number();
     void literal();
     void grouping();

@@ -89,6 +89,8 @@ SinglePassCompiler::SinglePassCompiler(const std::string &source)
                              &SinglePassCompiler::binary, Precedence::FACTOR);
     parser.registerParseRule(TokenType::NUMBER, &SinglePassCompiler::number,
                              nullptr, Precedence::NONE);
+    parser.registerParseRule(TokenType::STRING, &SinglePassCompiler::string,
+                             nullptr, Precedence::NONE);
     parser.registerParseRule(TokenType::NIL, &SinglePassCompiler::literal,
                              nullptr, Precedence::NONE);
     parser.registerParseRule(TokenType::TRUE, &SinglePassCompiler::literal,
@@ -191,8 +193,12 @@ void SinglePassCompiler::binary() {
 }
 
 void SinglePassCompiler::number() {
-    double value = std::strtod(parser.previous.lexeme.data(), nullptr);
+    Number value = std::strtod(parser.previous.lexeme.data(), nullptr);
     emitConstant(value);
+}
+
+void SinglePassCompiler::string() {
+    emitConstant(new ObjString(parser.previous.lexeme)); // currently leaking
 }
 
 void SinglePassCompiler::literal() {

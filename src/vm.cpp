@@ -9,30 +9,6 @@
 
 namespace Clox {
 
-static bool isFalsey(Value value) {
-    return std::holds_alternative<Nil>(value) ||
-           (std::holds_alternative<bool>(value) && !std::get<bool>(value));
-}
-
-struct ValueEquality {
-    bool operator()(Nil, Nil) const { return true; }
-
-    template <typename T>
-    bool operator()(const T &a, const T &b) const {
-        return a == b;
-    }
-
-    template <typename T, typename U,
-              typename = std::enable_if_t<!std::is_same_v<T, U>>>
-    bool operator()(const T & /*a*/, const U & /*b*/) const {
-        return false;
-    }
-};
-
-static bool valuesEqual(Value a, Value b) {
-    return std::visit(ValueEquality(), a, b);
-}
-
 VM::VM() { resetStack(); }
 
 VM::~VM() = default;
@@ -53,12 +29,11 @@ InterpretResult VM::run() {
 #define READ_CONSTANT() (chunk->constants.values[READ_BYTE()])
 #define BINARY_OP(valueType, op)                                               \
     do {                                                                       \
-        if (!std::holds_alternative<double>(peek(0)) ||                        \
-            !std::holds_alternative<double>(peek(1))) {                        \
+        if (!peek(0).isType<Number>() || !peek(1).isType<Number>()) {          \
             runtimeError("Operands must be numbers.");                         \
         }                                                                      \
-        double b = std::get<double>(pop());                                    \
-        double a = std::get<double>(pop());                                    \
+        auto b = pop().asType<Number>();                                       \
+        auto a = pop().asType<Number>();                                       \
         push(static_cast<valueType>(a op b));                                  \
     } while (false)
 
@@ -94,7 +69,7 @@ InterpretResult VM::run() {
         case OP_EQUAL: {
             Value b = pop();
             Value a = pop();
-            push(valuesEqual(a, b));
+            push(a == b);
             break;
         }
         case OP_GREATER: {
@@ -106,35 +81,49 @@ InterpretResult VM::run() {
             break;
         }
         case OP_ADD: {
-            BINARY_OP(double, +);
+            if (peek(0).isType<ObjString *>() &&
+                peek(1).isType<ObjString *>()) {
+                ObjString *b = pop().asType<ObjString *>();
+                ObjString *a = pop().asType<ObjString *>();
+                ObjString *result =
+                    new ObjString(ObjString::concatenate(*a, *b)); // leak
+                push(result);
+            } else if (peek(0).isType<Number>() && peek(1).isType<Number>()) {
+                auto b = pop().asType<Number>();
+                auto a = pop().asType<Number>();
+                push(a + b);
+            } else {
+                runtimeError("Operands must be two numbers or two strings.");
+                return InterpretResult::RUNTIME_ERROR;
+            }
             break;
         }
         case OP_SUBTRACT: {
-            BINARY_OP(double, -);
+            BINARY_OP(Number, -);
             break;
         }
         case OP_MULTIPLY: {
-            BINARY_OP(double, *);
+            BINARY_OP(Number, *);
             break;
         }
         case OP_DIVIDE: {
-            BINARY_OP(double, /);
+            BINARY_OP(Number, /);
             break;
         }
         case OP_NOT: {
-            push(isFalsey(pop()));
+            push(pop().isFalsey());
             break;
         }
         case OP_NEGATE: {
-            if (!std::holds_alternative<double>(peek(0))) {
+            if (!peek(0).isType<Number>()) {
                 runtimeError("Operand must be a number.");
                 return InterpretResult::RUNTIME_ERROR;
             }
-            push(-std::get<double>(pop()));
+            push(-pop().asType<Number>());
             break;
         }
         case OP_RETURN: {
-            std::cout << pop() << "\n";
+            std::cout << pop() << "\n"; // temporarily
             return InterpretResult::OK;
         }
         }
@@ -143,7 +132,7 @@ InterpretResult VM::run() {
 #undef READ_BYTE
 #undef READ_CONSTANT
 #undef BINARY_OP
-} // namespace Clox
+}
 
 void VM::push(Value value) {
     *stackTop = value;

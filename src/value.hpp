@@ -5,6 +5,8 @@
 #include <string>
 #include <variant>
 
+#include "object.hpp"
+
 namespace Jlox {
 
 // forward declare some types here, to be included in Value
@@ -23,8 +25,40 @@ std::ostream &operator<<(std::ostream &os, const Value &value);
 
 namespace Clox {
 
+template <typename... Types>
+class ValueVariant : public std::variant<Types...> {
+public:
+    using std::variant<Types...>::variant;
+
+    template <typename T>
+    bool isType() const {
+        return std::holds_alternative<T>(*this);
+    }
+
+    template <typename T>
+    T &asType() {
+        return std::get<T>(*this);
+    }
+
+    template <typename T>
+    const T &asType() const {
+        return std::get<T>(*this);
+    }
+};
+
 using Nil = std::monostate;
-using Value = std::variant<Nil, double, bool>;
+using Number = double;
+using ValueTypes = ValueVariant<Nil, Number, bool, ObjString *>;
+class Value : public ValueTypes {
+public:
+    Value() : ValueTypes(std::in_place_type<Nil>) {}
+
+    template <typename T>
+    Value(T &&arg) : ValueTypes(std::forward<T>(arg)) {}
+
+    bool operator==(const Value &other) const;
+    bool isFalsey() const;
+};
 
 std::ostream &operator<<(std::ostream &os, const Value &value);
 
@@ -39,5 +73,5 @@ struct ValueArray {
 };
 
 } // namespace Clox
-//
+
 #endif // !CLOXPP_VALUE_H
