@@ -21,7 +21,7 @@ public:
     ObjString();
     ObjString(char *chars, int length);
     ObjString(std::string_view str);
-    ~ObjString();
+    ~ObjString() override;
 
     bool operator==(const ObjString &other) const;
 
