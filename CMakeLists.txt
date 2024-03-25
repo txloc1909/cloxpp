@@ -38,6 +38,7 @@ target_link_options(scanner PRIVATE -fsanitize=undefined -fsanitize=address)
 
 add_executable(clox
     src/main_clox.cpp
+    src/stack_vm.cpp
     src/chunk.cpp
     src/memory.cpp
     src/debug.cpp

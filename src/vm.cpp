@@ -37,24 +37,6 @@ VM::VM() { resetStack(); }
 
 VM::~VM() = default;
 
-void VM::runFile(const char *path) {
-    auto result = interpret(readFile(path));
-
-    if (result == InterpretResult::COMPILE_ERROR)
-        std::exit(65);
-    if (result == InterpretResult::RUNTIME_ERROR)
-        std::exit(70);
-}
-
-void VM::repl() {
-    std::string line;
-    while (std::cin) {
-        std::cout << ">>> ";
-        std::getline(std::cin, line);
-        interpret(line);
-    }
-}
-
 InterpretResult VM::interpret(const std::string &source) {
     Chunk newChunk{};
     if (!SinglePassCompiler(source).compile(&newChunk)) {

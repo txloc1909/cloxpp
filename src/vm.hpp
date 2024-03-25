@@ -15,14 +15,7 @@ class VM {
 public:
     VM();
     ~VM();
-    void runFile(const char *path);
-    void repl();
     InterpretResult interpret(const std::string &source);
-    InterpretResult run();
-
-    void push(Value value);
-    Value pop();
-    Value peek(int distance);
 
 private:
     static constexpr std::size_t STACK_MAX = 256;
@@ -31,6 +24,12 @@ private:
     uint8_t *ip;
     Value stack[STACK_MAX];
     Value *stackTop;
+
+    InterpretResult run();
+
+    void push(Value value);
+    Value pop();
+    Value peek(int distance);
 
     void resetStack();
     void runtimeError(const char *format, ...);
