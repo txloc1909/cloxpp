@@ -3,8 +3,6 @@
 
 #include "chunk.hpp"
 
-#define STACK_MAX 256
-
 namespace Clox {
 
 enum class InterpretResult {
@@ -27,6 +25,8 @@ public:
     Value peek(int distance);
 
 private:
+    static constexpr std::size_t STACK_MAX = 256;
+
     Chunk *chunk;
     uint8_t *ip;
     Value stack[STACK_MAX];
