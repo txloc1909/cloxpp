@@ -8,14 +8,14 @@ ObjString::ObjString() : chars(nullptr), length(0) {}
 ObjString::ObjString(char *chars, int length) : chars(chars), length(length) {}
 
 ObjString::ObjString(std::string_view str)
-    : chars(ALLOCATE(char, str.length() + 1)), length(str.length()) {
+    : chars(Allocator::allocate<char>(str.length() + 1)), length(str.length()) {
     std::copy(str.begin(), str.end(), chars);
-    chars[str.length()] = '\0';
+    chars[length] = '\0';
 }
 
 ObjString::~ObjString() {
     if (chars) {
-        FREE_ARRAY(char, chars, length);
+        Allocator::freeArray<char>(chars, length);
         length = 0;
     }
 }
@@ -31,7 +31,7 @@ int ObjString::size() const { return length; }
 
 ObjString ObjString::concatenate(const ObjString &str1, const ObjString &str2) {
     int length = str1.size() + str2.size();
-    char *chars = ALLOCATE(char, length + 1);
+    char *chars = Allocator::allocate<char>(length + 1);
 
     auto *mid = std::copy(str1.data(), str1.data() + str1.size(), chars);
     auto *end = std::copy(str2.data(), str2.data() + str2.size(), mid);

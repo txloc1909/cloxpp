@@ -7,8 +7,8 @@ Chunk::Chunk()
     : count(0), capacity(0), code(nullptr), lines(nullptr), constants({}) {}
 
 Chunk::~Chunk() {
-    FREE_ARRAY(uint8_t, code, capacity);
-    FREE_ARRAY(int, lines, capacity);
+    Allocator::freeArray<uint8_t>(code, capacity);
+    Allocator::freeArray<int>(lines, capacity);
     count = 0;
     capacity = 0;
 }
@@ -16,9 +16,9 @@ Chunk::~Chunk() {
 void Chunk::write(uint8_t byte, int line) {
     if (capacity < count + 1) {
         auto oldCapacity = capacity;
-        capacity = GROW_CAPACITY(oldCapacity);
-        code = GROW_ARRAY(uint8_t, code, oldCapacity, capacity);
-        lines = GROW_ARRAY(int, lines, oldCapacity, capacity);
+        capacity = Allocator::growCapacity(oldCapacity);
+        code = Allocator::growArray<uint8_t>(code, oldCapacity, capacity);
+        lines = Allocator::growArray<int>(lines, oldCapacity, capacity);
     }
 
     code[count] = byte;

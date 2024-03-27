@@ -33,7 +33,7 @@ namespace Clox {
 ValueArray::ValueArray() : capacity(0), count(0), values(nullptr) {}
 
 ValueArray::~ValueArray() {
-    FREE_ARRAY(Value, values, capacity);
+    Allocator::freeArray<Value>(values, capacity);
     capacity = 0;
     count = 0;
 }
@@ -41,8 +41,8 @@ ValueArray::~ValueArray() {
 void ValueArray::write(Value value) {
     if (capacity < count + 1) {
         int oldCapacity = capacity;
-        capacity = GROW_CAPACITY(oldCapacity);
-        values = GROW_ARRAY(Value, values, oldCapacity, capacity);
+        capacity = Allocator::growCapacity(oldCapacity);
+        values = Allocator::growArray<Value>(values, oldCapacity, capacity);
     }
 
     values[count] = value;

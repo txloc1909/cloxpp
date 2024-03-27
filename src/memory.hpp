@@ -5,19 +5,30 @@
 
 namespace Clox {
 
-#define ALLOCATE(type, count)                                                  \
-    (static_cast<type *>(reallocate(NULL, 0, sizeof(type) * (count))))
+class Allocator {
+public:
+    static constexpr size_t growCapacity(size_t capacity) {
+        return capacity < 8 ? 8 : (capacity * 2);
+    }
 
-#define GROW_CAPACITY(capacity) ((capacity) < 8 ? 8 : (capacity) * 2)
+    template <typename T>
+    static T *allocate(int count) {
+        return static_cast<T *>(reallocate(NULL, 0, sizeof(T) * count));
+    }
 
-#define GROW_ARRAY(type, pointer, oldCount, newCount)                          \
-    static_cast<type *>(reallocate(pointer, sizeof(type) * (oldCount),         \
-                                   sizeof(type) * (newCount)))
+    template <typename T>
+    static T *growArray(T *pointer, size_t oldCount, size_t newCount) {
+        return static_cast<T *>(
+            reallocate(pointer, sizeof(T) * oldCount, sizeof(T) * newCount));
+    }
 
-#define FREE_ARRAY(type, pointer, oldCount)                                    \
-    reallocate(pointer, sizeof(type) * (oldCount), 0)
+    template <typename T>
+    static void freeArray(T *pointer, size_t oldCount) {
+        reallocate(pointer, sizeof(T) * oldCount, 0);
+    }
 
-void *reallocate(void *pointer, size_t oldSize, size_t newSize);
+    static void *reallocate(void *pointer, size_t oldSize, size_t newSize);
+};
 
 } // namespace Clox
 #endif // !CLOXPP_MEMORY_H
