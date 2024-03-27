@@ -3,6 +3,7 @@
 
 #include "compiler.hpp"
 #include "debug.hpp" // IWYU pragma: keep
+#include "memory.hpp"
 
 namespace Clox {
 
@@ -198,7 +199,7 @@ void SinglePassCompiler::number() {
 }
 
 void SinglePassCompiler::string() {
-    emitConstant(new ObjString(parser.previous.lexeme)); // currently leaking
+    emitConstant(Allocator::create<ObjString>(parser.previous.lexeme));
 }
 
 void SinglePassCompiler::literal() {

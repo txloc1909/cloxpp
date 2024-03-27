@@ -29,7 +29,8 @@ const char *ObjString::data() const { return chars; }
 
 int ObjString::size() const { return length; }
 
-ObjString ObjString::concatenate(const ObjString &str1, const ObjString &str2) {
+ObjString *ObjString::concatenate(const ObjString &str1,
+                                  const ObjString &str2) {
     int length = str1.size() + str2.size();
     char *chars = Allocator::allocate<char>(length + 1);
 
@@ -37,7 +38,7 @@ ObjString ObjString::concatenate(const ObjString &str1, const ObjString &str2) {
     auto *end = std::copy(str2.data(), str2.data() + str2.size(), mid);
     *end = '\0';
 
-    return ObjString(chars, length);
+    return Allocator::create<ObjString>(chars, length);
 }
 
 } // namespace Clox

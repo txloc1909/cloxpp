@@ -4,6 +4,8 @@
 
 namespace Clox {
 
+std::vector<Obj *> Allocator::objects = {};
+
 void *Allocator::reallocate(void *pointer, size_t /*oldSize*/, size_t newSize) {
     if (newSize == 0) {
         std::free(pointer);
@@ -15,6 +17,13 @@ void *Allocator::reallocate(void *pointer, size_t /*oldSize*/, size_t newSize) {
         exit(1);
     }
     return result;
+}
+
+void Allocator::cleanUp() {
+    for (auto *obj : objects) {
+        delete obj;
+    }
+    objects.clear();
 }
 
 } // namespace Clox

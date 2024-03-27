@@ -4,14 +4,14 @@
 
 #include "compiler.hpp"
 #include "debug.hpp" // IWYU pragma: keep
-#include "utils.hpp"
+#include "memory.hpp"
 #include "vm.hpp"
 
 namespace Clox {
 
 VM::VM() { resetStack(); }
 
-VM::~VM() = default;
+VM::~VM() { Allocator::cleanUp(); }
 
 InterpretResult VM::interpret(const std::string &source) {
     Chunk newChunk{};
@@ -85,8 +85,7 @@ InterpretResult VM::run() {
                 peek(1).isType<ObjString *>()) {
                 ObjString *b = pop().asType<ObjString *>();
                 ObjString *a = pop().asType<ObjString *>();
-                ObjString *result =
-                    new ObjString(ObjString::concatenate(*a, *b)); // leak
+                ObjString *result = ObjString::concatenate(*a, *b);
                 push(result);
             } else if (peek(0).isType<Number>() && peek(1).isType<Number>()) {
                 auto b = pop().asType<Number>();

@@ -2,6 +2,9 @@
 #define CLOXPP_MEMORY_H
 
 #include <cstddef>
+#include <vector>
+
+#include "object.hpp"
 
 namespace Clox {
 
@@ -27,7 +30,23 @@ public:
         reallocate(pointer, sizeof(T) * oldCount, 0);
     }
 
+    template <typename T, typename... Args>
+    static T *create(Args... args) {
+        static_assert(std::is_base_of<Obj, T>::value, "T must be an Obj type");
+        T *newT = new T(std::forward<Args>(args)...);
+        objects.push_back(newT);
+        return newT;
+    }
+
     static void *reallocate(void *pointer, size_t oldSize, size_t newSize);
+
+    static void cleanUp();
+
+private:
+    static std::vector<Obj *> objects;
+
+    Allocator(){};
+    ~Allocator(){};
 };
 
 } // namespace Clox
