@@ -5,10 +5,12 @@ namespace Clox {
 
 ObjString::ObjString() : chars(nullptr), length(0) {}
 
-ObjString::ObjString(char *chars, int length) : chars(chars), length(length) {}
+ObjString::ObjString(char *chars, int length)
+    : chars(chars), length(length), hash(hashString(chars, length)) {}
 
 ObjString::ObjString(std::string_view str)
-    : chars(Allocator::allocate<char>(str.length() + 1)), length(str.length()) {
+    : chars(Allocator::allocate<char>(str.length() + 1)), length(str.length()),
+      hash(hashString(str.data(), str.length())) {
     std::copy(str.begin(), str.end(), chars);
     chars[length] = '\0';
 }
@@ -39,6 +41,16 @@ ObjString *ObjString::concatenate(const ObjString &str1,
     *end = '\0';
 
     return Allocator::create<ObjString>(chars, length);
+}
+
+static uint32_t hashString(const char *key, int length) {
+    /* FNV-1a hash function impl */
+    uint32_t hash = 2166136261u;
+    for (int i = 0; i < length; i++) {
+        hash ^= static_cast<uint8_t>(key[i]);
+        hash *= 16777619;
+    }
+    return hash;
 }
 
 } // namespace Clox

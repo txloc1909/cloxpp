@@ -1,6 +1,7 @@
 #ifndef CLOXPP_OBJECT_H
 #define CLOXPP_OBJECT_H
 
+#include <cstdint>
 #include <string_view>
 
 namespace Clox {
@@ -33,7 +34,10 @@ public:
 private:
     char *chars;
     int length;
+    uint32_t hash;
 };
+
+static uint32_t hashString(const char *key, int length);
 
 } // namespace Clox
 
