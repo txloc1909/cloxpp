@@ -28,6 +28,7 @@ public:
 
     const char *data() const;
     int size() const;
+    uint32_t getHash() const;
 
     static ObjString *concatenate(const ObjString &str1, const ObjString &str2);
 

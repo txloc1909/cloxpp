@@ -1,14 +1,16 @@
 #ifndef CLOXPP_TABLE_H
 #define CLOXPP_TABLE_H
 
+#include <optional>
+
 #include "object.hpp"
 #include "value.hpp"
 
 namespace Clox {
 
 struct Entry {
-    ObjString *key;
-    Value value;
+    ObjString *key = nullptr;
+    Value value = Nil{};
 };
 
 class Table {
@@ -16,10 +18,20 @@ public:
     Table();
     ~Table();
 
+    bool set(ObjString *key, Value value);
+    std::optional<Value> get(ObjString *key);
+    bool deleteKey(ObjString *key);
+
 private:
+    void adjustCapacity(int capacity);
+
     int count;
     int capacity;
     Entry *entries;
+
+    static constexpr auto TABLE_MAX_LOAD = 0.75;
+    static Entry *findEntry(Entry *entries, int capacity, ObjString *key);
+    static void addAll(const Table &from, Table &to);
 };
 
 } // namespace Clox

@@ -31,6 +31,8 @@ const char *ObjString::data() const { return chars; }
 
 int ObjString::size() const { return length; }
 
+uint32_t ObjString::getHash() const { return hash; }
+
 ObjString *ObjString::concatenate(const ObjString &str1,
                                   const ObjString &str2) {
     int length = str1.size() + str2.size();
