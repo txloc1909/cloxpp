@@ -74,6 +74,7 @@ public:
     void declaration();
     void statement();
     void printStatement();
+    void expressionStatement();
     void expression();
     void string();
     void number();

@@ -141,7 +141,15 @@ void SinglePassCompiler::declaration() { statement(); }
 void SinglePassCompiler::statement() {
     if (parser.match(TokenType::PRINT)) {
         printStatement();
+    } else {
+        expressionStatement();
     }
+}
+
+void SinglePassCompiler::expressionStatement() {
+    expression();
+    parser.consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    emitByte(OP_POP);
 }
 
 void SinglePassCompiler::printStatement() {
