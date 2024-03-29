@@ -199,7 +199,7 @@ void SinglePassCompiler::number() {
 }
 
 void SinglePassCompiler::string() {
-    emitConstant(Allocator::create<ObjString>(parser.previous.lexeme));
+    emitConstant(ObjString::copy(parser.previous.lexeme));
 }
 
 void SinglePassCompiler::literal() {

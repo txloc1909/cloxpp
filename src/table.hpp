@@ -19,8 +19,9 @@ public:
     ~Table();
 
     bool set(ObjString *key, Value value);
-    std::optional<Value> get(ObjString *key);
+    std::optional<Value> get(ObjString *key) const;
     bool deleteKey(ObjString *key);
+    ObjString *findString(const char *chars, int length, uint32_t hash) const;
 
 private:
     void adjustCapacity(int capacity);

@@ -50,6 +50,7 @@ add_executable(clox
     src/scanner.cpp
     src/compiler.cpp
     src/object.cpp
+    src/table.cpp
 
     # TODO: unnecessary dependencies; refactor this
     src/lox_class.cpp

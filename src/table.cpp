@@ -23,12 +23,11 @@ bool Table::set(ObjString *key, Value value) {
     if (isNewKey && entry->value.isType<Nil>())
         count++;
 
-    entry->key = key;
-    entry->value = value;
+    *entry = {key, value};
     return isNewKey;
 }
 
-std::optional<Value> Table::get(ObjString *key) {
+std::optional<Value> Table::get(ObjString *key) const {
     if (count == 0)
         return std::nullopt;
 
@@ -48,9 +47,32 @@ bool Table::deleteKey(ObjString *key) {
         return false;
 
     // Place a tombstone
-    entry->key = nullptr;
-    entry->value = Nil{};
+    *entry = {nullptr, Nil{}};
     return true;
+}
+
+ObjString *Table::findString(const char *chars, int length,
+                             uint32_t hash) const {
+    if (count == 0)
+        return nullptr;
+
+    uint32_t index = hash % capacity;
+    for (;;) {
+        auto *entry = entries + index;
+        if (entry->key == nullptr) {
+            // Stop if we find an empty non-tombstone entry
+            if (entry->value.isType<Nil>())
+                return nullptr;
+        } else if (entry->key->size() == length &&
+                   entry->key->getHash() == hash &&
+                   std::equal(entry->key->data(),
+                              entry->key->data() + entry->key->size(), chars)) {
+            // Found!
+            return entry->key;
+        }
+
+        index = (index + 1) % capacity;
+    }
 }
 
 void Table::adjustCapacity(int capacity) {
@@ -65,8 +87,7 @@ void Table::adjustCapacity(int capacity) {
             continue;
 
         Entry *dest = findEntry(entries, capacity, entry->key);
-        dest->key = entry->key;
-        dest->value = entry->value;
+        *dest = *entry;
         count++;
     }
 
