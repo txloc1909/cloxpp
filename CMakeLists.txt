@@ -23,6 +23,7 @@ add_executable(jlox
     # TODO: unnecessary dependencies; refactor this
     src/memory.cpp
     src/object.cpp
+    src/table.cpp
 )
 target_compile_options(jlox PRIVATE -Wall -Wextra)
 target_link_options(jlox PRIVATE)
