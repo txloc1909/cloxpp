@@ -59,6 +59,29 @@ bool Parser::match(TokenType type) {
     return true;
 }
 
+void Parser::synchronize() {
+    panicMode = false;
+    while (current.type != TokenType::EOF_) {
+        if (previous.type == TokenType::SEMICOLON)
+            return;
+
+        switch (current.type) {
+        case TokenType::CLASS:
+        case TokenType::FUN:
+        case TokenType::VAR:
+        case TokenType::FOR:
+        case TokenType::IF:
+        case TokenType::WHILE:
+        case TokenType::PRINT:
+        case TokenType::RETURN:
+            return;
+        default:; // do nothing
+        }
+
+        advance();
+    }
+}
+
 void Parser::registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
                                Precedence prec) {
     rules[type] = {prefix, infix, prec};
@@ -136,7 +159,11 @@ bool SinglePassCompiler::compile(Chunk *chunk) {
     return !parser.hadError;
 }
 
-void SinglePassCompiler::declaration() { statement(); }
+void SinglePassCompiler::declaration() {
+    statement();
+    if (parser.panicMode)
+        parser.synchronize();
+}
 
 void SinglePassCompiler::statement() {
     if (parser.match(TokenType::PRINT)) {

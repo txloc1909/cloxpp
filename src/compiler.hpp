@@ -57,6 +57,7 @@ struct PrattParser {
     void consume(TokenType type, const char *message);
     bool check(TokenType type) const;
     bool match(TokenType type);
+    void synchronize();
 
     void registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
                            Precedence prec);
