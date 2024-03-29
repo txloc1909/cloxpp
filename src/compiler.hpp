@@ -55,7 +55,7 @@ struct PrattParser {
 
     void advance();
     void consume(TokenType type, const char *message);
-    bool check(TokenType type);
+    bool check(TokenType type) const;
     bool match(TokenType type);
 
     void registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
@@ -71,6 +71,9 @@ public:
     SinglePassCompiler(const std::string &source);
     bool compile(Chunk *chunk);
 
+    void declaration();
+    void statement();
+    void printStatement();
     void expression();
     void string();
     void number();

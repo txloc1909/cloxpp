@@ -121,8 +121,11 @@ InterpretResult VM::run() {
             push(-pop().asType<Number>());
             break;
         }
+        case OP_PRINT: {
+            std::cout << pop() << "\n";
+            break;
+        }
         case OP_RETURN: {
-            std::cout << pop() << "\n"; // temporarily
             return InterpretResult::OK;
         }
         }

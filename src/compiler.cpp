@@ -3,7 +3,6 @@
 
 #include "compiler.hpp"
 #include "debug.hpp" // IWYU pragma: keep
-#include "memory.hpp"
 
 namespace Clox {
 
@@ -49,6 +48,15 @@ void Parser::consume(TokenType type, const char *message) {
         return;
     }
     errorAtCurrent(message);
+}
+
+bool Parser::check(TokenType type) const { return current.type == type; }
+
+bool Parser::match(TokenType type) {
+    if (!check(type))
+        return false;
+    advance();
+    return true;
 }
 
 void Parser::registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
@@ -121,10 +129,25 @@ SinglePassCompiler::SinglePassCompiler(const std::string &source)
 bool SinglePassCompiler::compile(Chunk *chunk) {
     compilingChunk = chunk;
 
-    expression();
-    parser.consume(TokenType::EOF_, "Expect end of expression.");
+    while (!parser.match(TokenType::EOF_)) {
+        declaration();
+    }
     endCompiler();
     return !parser.hadError;
+}
+
+void SinglePassCompiler::declaration() { statement(); }
+
+void SinglePassCompiler::statement() {
+    if (parser.match(TokenType::PRINT)) {
+        printStatement();
+    }
+}
+
+void SinglePassCompiler::printStatement() {
+    expression();
+    parser.consume(TokenType::SEMICOLON, "Expect ';' after value.");
+    emitByte(OP_PRINT);
 }
 
 void SinglePassCompiler::expression() {
