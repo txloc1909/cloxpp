@@ -47,7 +47,7 @@ bool Table::deleteKey(ObjString *key) {
         return false;
 
     // Place a tombstone
-    *entry = {nullptr, Nil{}};
+    *entry = {nullptr, true};
     return true;
 }
 
