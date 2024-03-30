@@ -316,7 +316,12 @@ void SinglePassCompiler::defineVariable(uint8_t global) {
 
 void SinglePassCompiler::namedVariable(const Token &name) {
     uint8_t arg = identifierConstant(name);
-    emitBytes(OP_GET_GLOBAL, arg);
+    if (parser.match(TokenType::EQUAL)) {
+        expression();
+        emitBytes(OP_SET_GLOBAL, arg);
+    } else {
+        emitBytes(OP_GET_GLOBAL, arg);
+    }
 }
 
 uint8_t SinglePassCompiler::makeConstant(Value value) {

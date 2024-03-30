@@ -87,6 +87,16 @@ InterpretResult VM::run() {
             pop();
             break;
         }
+        case OP_SET_GLOBAL: {
+            ObjString *name = READ_STRING();
+            if (globals.set(name, peek(0))) {
+                globals.deleteKey(name);
+                runtimeError("Undefined variable '%s'.", name->data());
+                return InterpretResult::RUNTIME_ERROR;
+            }
+
+            break;
+        }
         case OP_EQUAL: {
             Value b = pop();
             Value a = pop();
