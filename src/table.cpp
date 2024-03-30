@@ -32,7 +32,7 @@ std::optional<Value> Table::get(ObjString *key) const {
         return std::nullopt;
 
     auto *entry = findEntry(entries, capacity, key);
-    if (entry->key == nullptr)
+    if (!entry->key)
         return std::nullopt;
 
     return entry->value;
@@ -58,7 +58,7 @@ ObjString *Table::findString(const char *chars, int length,
 
     uint32_t index = hash % capacity;
     for (;;) {
-        auto *entry = entries + index;
+        auto *entry = &entries[index];
         if (entry->key == nullptr) {
             // Stop if we find an empty non-tombstone entry
             if (entry->value.isType<Nil>())
@@ -75,37 +75,37 @@ ObjString *Table::findString(const char *chars, int length,
     }
 }
 
-void Table::adjustCapacity(int capacity) {
-    auto *entries = Allocator::allocate<Entry>(capacity);
-    for (int i = 0; i < capacity; i++) {
-        entries[i] = Entry{};
+void Table::adjustCapacity(int newCapacity) {
+    auto *newEntries = Allocator::allocate<Entry>(newCapacity);
+    for (int i = 0; i < newCapacity; i++) {
+        newEntries[i] = {};
     }
 
-    for (int i = 0; i < this->capacity; i++) {
-        auto *entry = this->entries + i;
-        if (entry->key == nullptr)
+    for (int i = 0; i < capacity; i++) {
+        auto *entry = &entries[i];
+        if (!entry->key)
             continue;
 
-        Entry *dest = findEntry(entries, capacity, entry->key);
+        Entry *dest = findEntry(newEntries, newCapacity, entry->key);
         *dest = *entry;
         count++;
     }
 
-    Allocator::freeArray<Entry>(this->entries, this->capacity);
-    this->entries = entries;
-    this->capacity = capacity;
+    Allocator::freeArray<Entry>(entries, capacity);
+    entries = newEntries;
+    capacity = newCapacity;
 }
 
 Entry *Table::findEntry(Entry *entries, int capacity, ObjString *key) {
     uint32_t index = key->getHash() % capacity;
     Entry *tombstone = nullptr;
     for (;;) {
-        auto *entry = entries + index;
+        auto *entry = &entries[index];
 
         if (entry->key == nullptr) {
             if (entry->value.isType<Nil>()) {
                 // empty entry
-                return tombstone != nullptr ? tombstone : entry;
+                return tombstone ? tombstone : entry;
             } else {
                 // found a tombstone
                 if (tombstone == nullptr)
@@ -121,8 +121,8 @@ Entry *Table::findEntry(Entry *entries, int capacity, ObjString *key) {
 
 void Table::addAll(const Table &from, Table &to) {
     for (int i = 0; i < from.capacity; i++) {
-        auto *entry = from.entries + i;
-        if (entry->key == nullptr) {
+        auto *entry = &from.entries[i];
+        if (entry->key) {
             to.set(entry->key, entry->value);
         }
     }
