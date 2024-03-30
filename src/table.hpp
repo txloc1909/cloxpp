@@ -9,8 +9,11 @@
 namespace Clox {
 
 struct Entry {
-    ObjString *key = nullptr;
-    Value value = Nil{};
+    ObjString *key;
+    Value value;
+
+    static Entry makeTombstone();
+    bool isTombstone() const;
 };
 
 class Table {

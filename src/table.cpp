@@ -3,6 +3,12 @@
 
 namespace Clox {
 
+inline Entry Entry::makeTombstone() { return {nullptr, true}; }
+
+inline bool Entry::isTombstone() const {
+    return key == nullptr && value == true;
+}
+
 Table::Table() : count(0), capacity(0), entries(nullptr) {}
 
 Table::~Table() {
@@ -20,7 +26,7 @@ bool Table::set(ObjString *key, Value value) {
 
     auto *entry = findEntry(entries, capacity, key);
     bool isNewKey = entry->key == nullptr;
-    if (isNewKey && entry->value.isType<Nil>())
+    if (isNewKey && !entry->isTombstone())
         count++;
 
     *entry = {key, value};
@@ -43,11 +49,10 @@ bool Table::deleteKey(ObjString *key) {
         return false;
 
     auto *entry = findEntry(entries, capacity, key);
-    if (entry->key == nullptr)
+    if (!entry->key)
         return false;
 
-    // Place a tombstone
-    *entry = {nullptr, true};
+    *entry = Entry::makeTombstone();
     return true;
 }
 
@@ -61,7 +66,7 @@ ObjString *Table::findString(const char *chars, int length,
         auto *entry = &entries[index];
         if (entry->key == nullptr) {
             // Stop if we find an empty non-tombstone entry
-            if (entry->value.isType<Nil>())
+            if (!entry->isTombstone())
                 return nullptr;
         } else if (entry->key->size() == length &&
                    entry->key->getHash() == hash &&
@@ -98,22 +103,11 @@ void Table::adjustCapacity(int newCapacity) {
 
 Entry *Table::findEntry(Entry *entries, int capacity, ObjString *key) {
     uint32_t index = key->getHash() % capacity;
-    Entry *tombstone = nullptr;
     for (;;) {
         auto *entry = &entries[index];
 
-        if (entry->key == nullptr) {
-            if (entry->value.isType<Nil>()) {
-                // empty entry
-                return tombstone ? tombstone : entry;
-            } else {
-                // found a tombstone
-                if (tombstone == nullptr)
-                    tombstone = entry;
-            }
-        } else if (entry->key == key) {
+        if (!entry->isTombstone() || entry->key == key)
             return entry;
-        }
 
         index = (index + 1) % capacity;
     }
