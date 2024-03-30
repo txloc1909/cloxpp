@@ -73,6 +73,7 @@ public:
     bool compile(Chunk *chunk);
 
     void declaration();
+    void varDeclaration();
     void statement();
     void printStatement();
     void expressionStatement();
@@ -89,6 +90,10 @@ private:
     Chunk *compilingChunk;
 
     Chunk *currentChunk() const;
+
+    uint8_t parseVariable(const char *errorMessage);
+    uint8_t identifierConstant(const Token &name);
+    void defineVariable(uint8_t global);
 
     uint8_t makeConstant(Value value);
     void emitByte(uint8_t byte);

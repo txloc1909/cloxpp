@@ -27,6 +27,7 @@ InterpretResult VM::interpret(const std::string &source) {
 InterpretResult VM::run() {
 #define READ_BYTE() (*ip++)
 #define READ_CONSTANT() (chunk->constants.values[READ_BYTE()])
+#define READ_STRING() (READ_CONSTANT().asType<ObjString *>())
 #define BINARY_OP(valueType, op)                                               \
     do {                                                                       \
         if (!peek(0).isType<Number>() || !peek(1).isType<Number>()) {          \
@@ -67,6 +68,12 @@ InterpretResult VM::run() {
             break;
         }
         case OP_POP: {
+            pop();
+            break;
+        }
+        case OP_DEFINE_GLOBAL: {
+            ObjString *name = READ_STRING();
+            globals.set(name, peek(0));
             pop();
             break;
         }
@@ -137,6 +144,7 @@ InterpretResult VM::run() {
 
 #undef READ_BYTE
 #undef READ_CONSTANT
+#undef READ_STRING
 #undef BINARY_OP
 }
 

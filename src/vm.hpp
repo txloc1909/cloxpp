@@ -2,6 +2,7 @@
 #define CLOXPP_VM_H
 
 #include "chunk.hpp"
+#include "table.hpp"
 
 namespace Clox {
 
@@ -24,6 +25,7 @@ private:
     uint8_t *ip;
     Value stack[STACK_MAX];
     Value *stackTop;
+    Table globals;
 
     InterpretResult run();
 

@@ -160,9 +160,27 @@ bool SinglePassCompiler::compile(Chunk *chunk) {
 }
 
 void SinglePassCompiler::declaration() {
-    statement();
+    if (parser.match(TokenType::VAR)) {
+        varDeclaration();
+    } else {
+        statement();
+    }
     if (parser.panicMode)
         parser.synchronize();
+}
+
+void SinglePassCompiler::varDeclaration() {
+    uint8_t global = parseVariable("Expect variable name.");
+
+    if (parser.match(TokenType::EQUAL)) {
+        expression();
+    } else {
+        emitByte(OP_NIL);
+    }
+
+    parser.consume(TokenType::SEMICOLON,
+                   "Expect ';' after variable declaration.");
+    defineVariable(global);
 }
 
 void SinglePassCompiler::statement() {
@@ -277,6 +295,19 @@ void SinglePassCompiler::literal() {
 }
 
 Chunk *SinglePassCompiler::currentChunk() const { return compilingChunk; }
+
+uint8_t SinglePassCompiler::parseVariable(const char *errorMessage) {
+    parser.consume(TokenType::IDENTIFIER, errorMessage);
+    return identifierConstant(parser.previous);
+}
+
+uint8_t SinglePassCompiler::identifierConstant(const Token &name) {
+    return makeConstant(ObjString::copy(name.lexeme));
+}
+
+void SinglePassCompiler::defineVariable(uint8_t global) {
+    emitBytes(OP_DEFINE_GLOBAL, global);
+}
 
 uint8_t SinglePassCompiler::makeConstant(Value value) {
     int constant = currentChunk()->addConstant(value);

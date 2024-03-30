@@ -23,16 +23,17 @@ public:
     bool deleteKey(ObjString *key);
     ObjString *findString(const char *chars, int length, uint32_t hash) const;
 
+    static void addAll(const Table &from, Table &to);
+
 private:
+    static constexpr auto TABLE_MAX_LOAD = 0.75;
+    static Entry *findEntry(Entry *entries, int capacity, ObjString *key);
+
     void adjustCapacity(int capacity);
 
     int count;
     int capacity;
     Entry *entries;
-
-    static constexpr auto TABLE_MAX_LOAD = 0.75;
-    static Entry *findEntry(Entry *entries, int capacity, ObjString *key);
-    static void addAll(const Table &from, Table &to);
 };
 
 } // namespace Clox
