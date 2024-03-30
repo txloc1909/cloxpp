@@ -24,7 +24,7 @@ enum class Precedence {
 };
 
 class SinglePassCompiler;
-using ParseFn = std::function<void(SinglePassCompiler &)>;
+using ParseFn = std::function<void(SinglePassCompiler &, bool)>;
 
 struct ParseRule {
     ParseFn prefix;
@@ -72,19 +72,13 @@ public:
     SinglePassCompiler(const std::string &source);
     bool compile(Chunk *chunk);
 
-    void declaration();
-    void varDeclaration();
-    void statement();
-    void variable();
-    void printStatement();
-    void expressionStatement();
-    void expression();
-    void string();
-    void number();
-    void literal();
-    void grouping();
-    void unary();
-    void binary();
+    void variable(bool canAssign);
+    void string(bool canAssign);
+    void number(bool canAssign);
+    void literal(bool canAssign);
+    void grouping(bool canAssign);
+    void unary(bool canAssign);
+    void binary(bool canAssign);
 
 private:
     Parser parser;
@@ -92,10 +86,17 @@ private:
 
     Chunk *currentChunk() const;
 
+    void declaration();
+    void varDeclaration();
+    void statement();
+    void printStatement();
+    void expressionStatement();
+    void expression();
+
     uint8_t parseVariable(const char *errorMessage);
     uint8_t identifierConstant(const Token &name);
     void defineVariable(uint8_t global);
-    void namedVariable(const Token &name);
+    void namedVariable(const Token &name, bool canAssign);
 
     uint8_t makeConstant(Value value);
     void emitByte(uint8_t byte);

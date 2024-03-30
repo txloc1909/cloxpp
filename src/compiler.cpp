@@ -97,11 +97,16 @@ void Parser::parsePrecedence(Precedence precedence,
         error("Expect expression.");
         return;
     }
-    prefixRule(compiler);
+    bool canAssign = precedence <= Precedence::ASSIGNMENT;
+    prefixRule(compiler, canAssign);
     while (precedence <= getRule(current.type).precedence) {
         advance();
         ParseFn infixRule = getRule(previous.type).infix;
-        infixRule(compiler);
+        infixRule(compiler, canAssign);
+    }
+
+    if (canAssign && match(TokenType::EQUAL)) {
+        error("Invalid assignment target.");
     }
 }
 
@@ -186,7 +191,9 @@ void SinglePassCompiler::varDeclaration() {
     defineVariable(global);
 }
 
-void SinglePassCompiler::variable() { namedVariable(parser.previous); }
+void SinglePassCompiler::variable(bool canAssign) {
+    namedVariable(parser.previous, canAssign);
+}
 
 void SinglePassCompiler::statement() {
     if (parser.match(TokenType::PRINT)) {
@@ -212,12 +219,12 @@ void SinglePassCompiler::expression() {
     parser.parsePrecedence(Precedence::ASSIGNMENT, *this);
 }
 
-void SinglePassCompiler::grouping() {
+void SinglePassCompiler::grouping(bool /*canAssign*/) {
     expression();
     parser.consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
 }
 
-void SinglePassCompiler::unary() {
+void SinglePassCompiler::unary(bool /*canAssign*/) {
     TokenType operatorType = parser.previous.type;
     parser.parsePrecedence(Precedence::UNARY, *this);
     switch (operatorType) {
@@ -232,7 +239,7 @@ void SinglePassCompiler::unary() {
     }
 }
 
-void SinglePassCompiler::binary() {
+void SinglePassCompiler::binary(bool /*canAssign*/) {
     TokenType operatorType = parser.previous.type;
     ParseRule &rule = parser.getRule(operatorType);
     auto nextPrec = static_cast<int>(rule.precedence) + 1;
@@ -274,16 +281,16 @@ void SinglePassCompiler::binary() {
     }
 }
 
-void SinglePassCompiler::number() {
+void SinglePassCompiler::number(bool /*canAssign*/) {
     Number value = std::strtod(parser.previous.lexeme.data(), nullptr);
     emitConstant(value);
 }
 
-void SinglePassCompiler::string() {
+void SinglePassCompiler::string(bool /*canAssign*/) {
     emitConstant(ObjString::copy(parser.previous.lexeme));
 }
 
-void SinglePassCompiler::literal() {
+void SinglePassCompiler::literal(bool /*canAssign*/) {
     switch (parser.previous.type) {
     case TokenType::FALSE:
         emitByte(OP_FALSE);
@@ -314,9 +321,9 @@ void SinglePassCompiler::defineVariable(uint8_t global) {
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
-void SinglePassCompiler::namedVariable(const Token &name) {
+void SinglePassCompiler::namedVariable(const Token &name, bool canAssign) {
     uint8_t arg = identifierConstant(name);
-    if (parser.match(TokenType::EQUAL)) {
+    if (parser.match(TokenType::EQUAL) && canAssign) {
         expression();
         emitBytes(OP_SET_GLOBAL, arg);
     } else {
