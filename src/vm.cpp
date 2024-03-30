@@ -71,6 +71,16 @@ InterpretResult VM::run() {
             pop();
             break;
         }
+        case OP_GET_GLOBAL: {
+            ObjString *name = READ_STRING();
+            auto maybeVal = globals.get(name);
+            if (!maybeVal.has_value()) {
+                runtimeError("Undefined variable '%s'", name->data());
+                return InterpretResult::RUNTIME_ERROR;
+            }
+            push(maybeVal.value());
+            break;
+        }
         case OP_DEFINE_GLOBAL: {
             ObjString *name = READ_STRING();
             globals.set(name, peek(0));

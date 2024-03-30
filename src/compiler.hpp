@@ -75,6 +75,7 @@ public:
     void declaration();
     void varDeclaration();
     void statement();
+    void variable();
     void printStatement();
     void expressionStatement();
     void expression();
@@ -94,6 +95,7 @@ private:
     uint8_t parseVariable(const char *errorMessage);
     uint8_t identifierConstant(const Token &name);
     void defineVariable(uint8_t global);
+    void namedVariable(const Token &name);
 
     uint8_t makeConstant(Value value);
     void emitByte(uint8_t byte);

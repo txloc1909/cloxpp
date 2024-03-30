@@ -147,6 +147,9 @@ SinglePassCompiler::SinglePassCompiler(const std::string &source)
     parser.registerParseRule(TokenType::LESS_EQUAL, nullptr,
                              &SinglePassCompiler::binary,
                              Precedence::COMPARISON);
+    parser.registerParseRule(TokenType::IDENTIFIER,
+                             &SinglePassCompiler::variable, nullptr,
+                             Precedence::NONE);
 }
 
 bool SinglePassCompiler::compile(Chunk *chunk) {
@@ -182,6 +185,8 @@ void SinglePassCompiler::varDeclaration() {
                    "Expect ';' after variable declaration.");
     defineVariable(global);
 }
+
+void SinglePassCompiler::variable() { namedVariable(parser.previous); }
 
 void SinglePassCompiler::statement() {
     if (parser.match(TokenType::PRINT)) {
@@ -307,6 +312,11 @@ uint8_t SinglePassCompiler::identifierConstant(const Token &name) {
 
 void SinglePassCompiler::defineVariable(uint8_t global) {
     emitBytes(OP_DEFINE_GLOBAL, global);
+}
+
+void SinglePassCompiler::namedVariable(const Token &name) {
+    uint8_t arg = identifierConstant(name);
+    emitBytes(OP_GET_GLOBAL, arg);
 }
 
 uint8_t SinglePassCompiler::makeConstant(Value value) {
