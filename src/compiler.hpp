@@ -1,6 +1,7 @@
 #ifndef CLOXPP_COMPILER_H
 #define CLOXPP_COMPILER_H
 
+#include <cstdint>
 #include <functional>
 #include <string>
 
@@ -57,6 +58,22 @@ struct PrattParser {
     static ParseRule getRule(TokenType type);
 };
 using Parser = PrattParser;
+
+struct Local {
+    Token name;
+    int depth;
+};
+
+class Compiler {
+public:
+    static const auto UINT8_COUNT = UINT8_MAX + 1;
+    Compiler() : localCount(0), scopeDepth(0) {}
+
+private:
+    Local locals[UINT8_COUNT];
+    int localCount;
+    int scopeDepth;
+};
 
 class SinglePassCompiler {
 public:
