@@ -45,9 +45,7 @@ struct PrattParser {
     bool panicMode;
     std::unordered_map<TokenType, ParseRule> rules;
 
-    PrattParser(const std::string &source)
-        : scanner(Scanner(source)), current(scanner.scanOneToken()),
-          previous(current), hadError(false), panicMode(false), rules({}){};
+    PrattParser(const std::string &source);
 
     void errorAt(const Token &token, const char *message);
     void errorAtCurrent(const char *message);

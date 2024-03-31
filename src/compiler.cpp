@@ -6,6 +6,10 @@
 
 namespace Clox {
 
+PrattParser::PrattParser(const std::string &source)
+    : scanner(Scanner(source)), current(scanner.scanOneToken()),
+      previous(current), hadError(false), panicMode(false), rules({}){};
+
 void Parser::errorAt(const Token &token, const char *message) {
     if (panicMode)
         return;
