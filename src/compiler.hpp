@@ -30,11 +30,6 @@ struct ParseRule {
     ParseFn prefix;
     ParseFn infix;
     Precedence precedence;
-
-    ParseRule()
-        : prefix(nullptr), infix(nullptr), precedence(Precedence::NONE) {}
-    ParseRule(ParseFn prefix, ParseFn infix, Precedence prec)
-        : prefix(prefix), infix(infix), precedence(prec) {}
 };
 
 struct PrattParser {
@@ -59,7 +54,7 @@ struct PrattParser {
 
     void registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
                            Precedence prec);
-    ParseRule &getRule(TokenType type);
+    ParseRule getRule(TokenType type) const;
 
     void parsePrecedence(Precedence precedence, SinglePassCompiler &compiler);
 };

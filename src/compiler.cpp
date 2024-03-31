@@ -91,7 +91,12 @@ void Parser::registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
     rules[type] = {prefix, infix, prec};
 }
 
-ParseRule &Parser::getRule(TokenType type) { return rules[type]; }
+ParseRule Parser::getRule(TokenType type) const {
+    if (rules.find(type) == rules.end())
+        return {};
+
+    return rules.at(type);
+}
 
 void Parser::parsePrecedence(Precedence precedence,
                              SinglePassCompiler &compiler) {
