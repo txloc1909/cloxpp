@@ -38,7 +38,6 @@ struct PrattParser {
     Token previous;
     bool hadError;
     bool panicMode;
-    std::unordered_map<TokenType, ParseRule> rules;
 
     PrattParser(const std::string &source);
 
@@ -52,11 +51,10 @@ struct PrattParser {
     bool match(TokenType type);
     void synchronize();
 
-    void registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
-                           Precedence prec);
-    ParseRule getRule(TokenType type) const;
-
     void parsePrecedence(Precedence precedence, SinglePassCompiler &compiler);
+
+    static std::unordered_map<TokenType, ParseRule> rules;
+    static ParseRule getRule(TokenType type);
 };
 using Parser = PrattParser;
 

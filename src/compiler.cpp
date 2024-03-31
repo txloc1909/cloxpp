@@ -6,9 +6,34 @@
 
 namespace Clox {
 
+// clang-format off
+std::unordered_map<TokenType, ParseRule> PrattParser::rules = {
+    { TokenType::LEFT_PAREN,    { &SinglePassCompiler::grouping, nullptr, Precedence::NONE }},
+    { TokenType::MINUS,         { &SinglePassCompiler::unary,   &SinglePassCompiler::binary, Precedence::TERM }},
+    { TokenType::PLUS,          { nullptr, &SinglePassCompiler::binary, Precedence::TERM }},
+    { TokenType::SLASH,         { nullptr, &SinglePassCompiler::binary, Precedence::FACTOR }},
+    { TokenType::STAR,          { nullptr, &SinglePassCompiler::binary, Precedence::FACTOR }},
+    { TokenType::NUMBER,        { &SinglePassCompiler::number, nullptr, Precedence::NONE }},
+    { TokenType::STRING,        { &SinglePassCompiler::string, nullptr, Precedence::NONE }},
+    { TokenType::NIL,           { &SinglePassCompiler::literal, nullptr, Precedence::NONE }},
+    { TokenType::TRUE,          { &SinglePassCompiler::literal, nullptr, Precedence::NONE }},
+    { TokenType::FALSE,         { &SinglePassCompiler::literal, nullptr, Precedence::NONE }},
+    { TokenType::BANG,          { &SinglePassCompiler::unary, nullptr, Precedence::NONE }},
+    { TokenType::BANG_EQUAL,    { nullptr, &SinglePassCompiler::binary, Precedence::EQUALITY }},
+    { TokenType::EQUAL_EQUAL,   { nullptr, &SinglePassCompiler::binary, Precedence::EQUALITY }},
+    { TokenType::GREATER,       { nullptr, &SinglePassCompiler::binary, Precedence::COMPARISON }},
+    { TokenType::GREATER_EQUAL, { nullptr, &SinglePassCompiler::binary, Precedence::COMPARISON }},
+    { TokenType::LESS,          { nullptr, &SinglePassCompiler::binary, Precedence::COMPARISON }},
+    { TokenType::LESS_EQUAL,    { nullptr, &SinglePassCompiler::binary, Precedence::COMPARISON }},
+    { TokenType::IDENTIFIER,    { &SinglePassCompiler::variable, nullptr, Precedence::NONE }},
+};
+// clang-format on
+
+ParseRule Parser::getRule(TokenType type) { return rules[type]; }
+
 PrattParser::PrattParser(const std::string &source)
     : scanner(Scanner(source)), current(scanner.scanOneToken()),
-      previous(current), hadError(false), panicMode(false), rules({}){};
+      previous(current), hadError(false), panicMode(false){};
 
 void Parser::errorAt(const Token &token, const char *message) {
     if (panicMode)
@@ -86,18 +111,6 @@ void Parser::synchronize() {
     }
 }
 
-void Parser::registerParseRule(TokenType type, ParseFn prefix, ParseFn infix,
-                               Precedence prec) {
-    rules[type] = {prefix, infix, prec};
-}
-
-ParseRule Parser::getRule(TokenType type) const {
-    if (rules.find(type) == rules.end())
-        return {};
-
-    return rules.at(type);
-}
-
 void Parser::parsePrecedence(Precedence precedence,
                              SinglePassCompiler &compiler) {
     advance();
@@ -120,51 +133,7 @@ void Parser::parsePrecedence(Precedence precedence,
 }
 
 SinglePassCompiler::SinglePassCompiler(const std::string &source)
-    : parser(Parser(source)) {
-    // register parse rule here:
-    parser.registerParseRule(TokenType::LEFT_PAREN,
-                             &SinglePassCompiler::grouping, nullptr,
-                             Precedence::NONE);
-    parser.registerParseRule(TokenType::MINUS, &SinglePassCompiler::unary,
-                             &SinglePassCompiler::binary, Precedence::TERM);
-    parser.registerParseRule(TokenType::PLUS, nullptr,
-                             &SinglePassCompiler::binary, Precedence::TERM);
-    parser.registerParseRule(TokenType::SLASH, nullptr,
-                             &SinglePassCompiler::binary, Precedence::FACTOR);
-    parser.registerParseRule(TokenType::STAR, nullptr,
-                             &SinglePassCompiler::binary, Precedence::FACTOR);
-    parser.registerParseRule(TokenType::NUMBER, &SinglePassCompiler::number,
-                             nullptr, Precedence::NONE);
-    parser.registerParseRule(TokenType::STRING, &SinglePassCompiler::string,
-                             nullptr, Precedence::NONE);
-    parser.registerParseRule(TokenType::NIL, &SinglePassCompiler::literal,
-                             nullptr, Precedence::NONE);
-    parser.registerParseRule(TokenType::TRUE, &SinglePassCompiler::literal,
-                             nullptr, Precedence::NONE);
-    parser.registerParseRule(TokenType::FALSE, &SinglePassCompiler::literal,
-                             nullptr, Precedence::NONE);
-    parser.registerParseRule(TokenType::BANG, &SinglePassCompiler::unary,
-                             nullptr, Precedence::NONE);
-    parser.registerParseRule(TokenType::BANG_EQUAL, nullptr,
-                             &SinglePassCompiler::binary, Precedence::EQUALITY);
-    parser.registerParseRule(TokenType::EQUAL_EQUAL, nullptr,
-                             &SinglePassCompiler::binary, Precedence::EQUALITY);
-    parser.registerParseRule(TokenType::GREATER, nullptr,
-                             &SinglePassCompiler::binary,
-                             Precedence::COMPARISON);
-    parser.registerParseRule(TokenType::GREATER_EQUAL, nullptr,
-                             &SinglePassCompiler::binary,
-                             Precedence::COMPARISON);
-    parser.registerParseRule(TokenType::LESS, nullptr,
-                             &SinglePassCompiler::binary,
-                             Precedence::COMPARISON);
-    parser.registerParseRule(TokenType::LESS_EQUAL, nullptr,
-                             &SinglePassCompiler::binary,
-                             Precedence::COMPARISON);
-    parser.registerParseRule(TokenType::IDENTIFIER,
-                             &SinglePassCompiler::variable, nullptr,
-                             Precedence::NONE);
-}
+    : parser(Parser(source)) {}
 
 bool SinglePassCompiler::compile(Chunk *chunk) {
     compilingChunk = chunk;
@@ -250,7 +219,7 @@ void SinglePassCompiler::unary(bool /*canAssign*/) {
 
 void SinglePassCompiler::binary(bool /*canAssign*/) {
     TokenType operatorType = parser.previous.type;
-    ParseRule &rule = parser.getRule(operatorType);
+    ParseRule rule = parser.getRule(operatorType);
     auto nextPrec = static_cast<int>(rule.precedence) + 1;
     parser.parsePrecedence(static_cast<Precedence>(nextPrec), *this);
 
