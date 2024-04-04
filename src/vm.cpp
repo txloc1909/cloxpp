@@ -71,6 +71,16 @@ InterpretResult VM::run() {
             pop();
             break;
         }
+        case OP_GET_LOCAL: {
+            uint8_t slot = READ_BYTE();
+            push(stack[slot]);
+            break;
+        }
+        case OP_SET_LOCAL: {
+            uint8_t slot = READ_BYTE();
+            stack[slot] = peek(0);
+            break;
+        }
         case OP_GET_GLOBAL: {
             ObjString *name = READ_STRING();
             auto maybeVal = globals.get(name);

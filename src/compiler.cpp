@@ -317,6 +317,16 @@ void Compiler::endScope() {
     }
 }
 
+int Compiler::resolveLocal(const Token &name) {
+    for (int i = localCount - 1; i >= 0; i--) {
+        Local *local = &locals[i];
+        if (name.lexeme == local->name.lexeme) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void Compiler::addLocal(const Token &name) {
     if (localCount == UINT8_COUNT) {
         parser->error("Too many local variables in function.");
@@ -367,12 +377,22 @@ void Compiler::defineVariable(uint8_t global) {
 }
 
 void Compiler::namedVariable(const Token &name, bool canAssign) {
-    uint8_t arg = identifierConstant(name);
+    uint8_t getOp, setOp;
+    int arg = resolveLocal(name);
+    if (arg != -1) {
+        getOp = OP_GET_LOCAL;
+        setOp = OP_SET_LOCAL;
+    } else {
+        arg = identifierConstant(name);
+        getOp = OP_GET_GLOBAL;
+        setOp = OP_SET_GLOBAL;
+    }
+
     if (parser->match(TokenType::EQUAL) && canAssign) {
         expression();
-        emitBytes(OP_SET_GLOBAL, arg);
+        emitBytes(setOp, static_cast<uint8_t>(arg));
     } else {
-        emitBytes(OP_GET_GLOBAL, arg);
+        emitBytes(getOp, static_cast<uint8_t>(arg));
     }
 }
 
