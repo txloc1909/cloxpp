@@ -66,7 +66,6 @@ struct Local {
 
 class Compiler {
 public:
-    static const auto UINT8_COUNT = UINT8_MAX + 1;
     Compiler();
 
     void variable(bool canAssign);
@@ -80,10 +79,14 @@ public:
 private:
     void declaration();
     void varDeclaration();
+    void block();
     void statement();
     void printStatement();
     void expressionStatement();
     void expression();
+
+    void beginScope();
+    void endScope();
 
     uint8_t parseVariable(const char *errorMessage);
     uint8_t identifierConstant(const Token &name);
@@ -97,6 +100,7 @@ private:
     void emitReturn();
     void endCompiler();
 
+    static const auto UINT8_COUNT = UINT8_MAX + 1;
     Local locals[UINT8_COUNT];
     int localCount;
     int scopeDepth;

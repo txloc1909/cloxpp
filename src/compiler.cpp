@@ -185,9 +185,22 @@ void Compiler::variable(bool canAssign) {
 void Compiler::statement() {
     if (parser->match(TokenType::PRINT)) {
         printStatement();
+    } else if (parser->match(TokenType::LEFT_BRACE)) {
+        beginScope();
+        block();
+        endScope();
     } else {
         expressionStatement();
     }
+}
+
+void Compiler::block() {
+    while (!parser->check(TokenType::RIGHT_BRACE) &&
+           !parser->check(TokenType::EOF_)) {
+        declaration();
+    }
+
+    parser->consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
 }
 
 void Compiler::expressionStatement() {
@@ -292,6 +305,10 @@ void Compiler::literal(bool /*canAssign*/) {
         return;
     }
 }
+
+void Compiler::beginScope() { scopeDepth++; }
+
+void Compiler::endScope() { scopeDepth--; }
 
 uint8_t Compiler::parseVariable(const char *errorMessage) {
     parser->consume(TokenType::IDENTIFIER, errorMessage);
