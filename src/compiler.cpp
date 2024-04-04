@@ -308,10 +308,32 @@ void Compiler::literal(bool /*canAssign*/) {
 
 void Compiler::beginScope() { scopeDepth++; }
 
-void Compiler::endScope() { scopeDepth--; }
+void Compiler::endScope() {
+    scopeDepth--;
+
+    while (localCount > 0 && locals[localCount - 1].depth > scopeDepth) {
+        emitByte(OP_POP);
+        localCount--;
+    }
+}
+
+void Compiler::addLocal(const Token &name) {
+    if (localCount == UINT8_COUNT) {
+        parser->error("Too many local variables in function.");
+        return;
+    }
+
+    Local *local = &locals[localCount++];
+    *local = {name, scopeDepth};
+}
 
 uint8_t Compiler::parseVariable(const char *errorMessage) {
     parser->consume(TokenType::IDENTIFIER, errorMessage);
+
+    declareVariable();
+    if (scopeDepth > 0)
+        return 0;
+
     return identifierConstant(parser->previous);
 }
 
@@ -319,7 +341,28 @@ uint8_t Compiler::identifierConstant(const Token &name) {
     return makeConstant(ObjString::copy(name.lexeme));
 }
 
+void Compiler::declareVariable() {
+    if (scopeDepth == 0)
+        return;
+
+    const Token &name = parser->previous;
+    for (int i = localCount - 1; i >= 0; i--) {
+        Local *local = &locals[i];
+        if (local->depth != -1 && local->depth < scopeDepth) {
+            break;
+        }
+        if (name.lexeme == local->name.lexeme) {
+            parser->error("Already a variable with this name in this scope.");
+        }
+    }
+
+    addLocal(name);
+}
+
 void Compiler::defineVariable(uint8_t global) {
+    if (scopeDepth > 0)
+        return;
+
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
