@@ -67,7 +67,7 @@ struct Local {
 class Compiler {
 public:
     static const auto UINT8_COUNT = UINT8_MAX + 1;
-    Compiler() : localCount(0), scopeDepth(0) {}
+    Compiler();
 
 private:
     Local locals[UINT8_COUNT];
@@ -90,6 +90,7 @@ public:
 
 private:
     Parser parser;
+    std::unique_ptr<Compiler> current;
     Chunk *compilingChunk;
 
     Chunk *currentChunk() const;

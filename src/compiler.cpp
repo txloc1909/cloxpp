@@ -132,15 +132,19 @@ void Parser::parsePrecedence(Precedence precedence,
     }
 }
 
+Compiler::Compiler() : localCount(0), scopeDepth(0) {}
+
 SinglePassCompiler::SinglePassCompiler(const std::string &source)
     : parser(Parser(source)) {}
 
 bool SinglePassCompiler::compile(Chunk *chunk) {
     compilingChunk = chunk;
+    current = std::make_unique<Compiler>();
 
     while (!parser.match(TokenType::EOF_)) {
         declaration();
     }
+
     endCompiler();
     return !parser.hadError;
 }
