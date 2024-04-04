@@ -321,6 +321,11 @@ int Compiler::resolveLocal(const Token &name) {
     for (int i = localCount - 1; i >= 0; i--) {
         Local *local = &locals[i];
         if (name.lexeme == local->name.lexeme) {
+            if (local->depth == -1) {
+                parser->error(
+                    "Can't read local variable in its own initializer.");
+            }
+
             return i;
         }
     }
@@ -334,8 +339,10 @@ void Compiler::addLocal(const Token &name) {
     }
 
     Local *local = &locals[localCount++];
-    *local = {name, scopeDepth};
+    *local = {name, -1};
 }
+
+void Compiler::markInitialized() { locals[localCount - 1].depth = scopeDepth; }
 
 uint8_t Compiler::parseVariable(const char *errorMessage) {
     parser->consume(TokenType::IDENTIFIER, errorMessage);
@@ -370,8 +377,10 @@ void Compiler::declareVariable() {
 }
 
 void Compiler::defineVariable(uint8_t global) {
-    if (scopeDepth > 0)
+    if (scopeDepth > 0) {
+        markInitialized();
         return;
+    }
 
     emitBytes(OP_DEFINE_GLOBAL, global);
 }

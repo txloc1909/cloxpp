@@ -88,8 +88,9 @@ private:
     void beginScope();
     void endScope();
 
-    void addLocal(const Token &name);
     int resolveLocal(const Token &name);
+    void addLocal(const Token &name);
+    void markInitialized();
 
     uint8_t parseVariable(const char *errorMessage);
     uint8_t identifierConstant(const Token &name);
