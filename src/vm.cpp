@@ -15,7 +15,7 @@ VM::~VM() { Allocator::cleanUp(); }
 
 InterpretResult VM::interpret(const std::string &source) {
     Chunk newChunk{};
-    if (!SinglePassCompiler(source).compile(&newChunk)) {
+    if (!SinglePassCompiler::compile(source, &newChunk)) {
         return InterpretResult::COMPILE_ERROR;
     }
 

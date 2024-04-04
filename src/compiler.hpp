@@ -24,8 +24,8 @@ enum class Precedence {
     PRIMARY,
 };
 
-class SinglePassCompiler;
-using ParseFn = std::function<void(SinglePassCompiler &, bool)>;
+class Compiler;
+using ParseFn = std::function<void(Compiler &, bool)>;
 
 struct ParseRule {
     ParseFn prefix;
@@ -52,7 +52,7 @@ struct PrattParser {
     bool match(TokenType type);
     void synchronize();
 
-    void parsePrecedence(Precedence precedence, SinglePassCompiler &compiler);
+    void parsePrecedence(Precedence precedence, Compiler &compiler);
 
     static std::unordered_map<TokenType, ParseRule> rules;
     static ParseRule getRule(TokenType type);
@@ -69,17 +69,6 @@ public:
     static const auto UINT8_COUNT = UINT8_MAX + 1;
     Compiler();
 
-private:
-    Local locals[UINT8_COUNT];
-    int localCount;
-    int scopeDepth;
-};
-
-class SinglePassCompiler {
-public:
-    SinglePassCompiler(const std::string &source);
-    bool compile(Chunk *chunk);
-
     void variable(bool canAssign);
     void string(bool canAssign);
     void number(bool canAssign);
@@ -89,12 +78,6 @@ public:
     void binary(bool canAssign);
 
 private:
-    Parser parser;
-    std::unique_ptr<Compiler> current;
-    Chunk *compilingChunk;
-
-    Chunk *currentChunk() const;
-
     void declaration();
     void varDeclaration();
     void statement();
@@ -113,6 +96,25 @@ private:
     void emitConstant(Value value);
     void emitReturn();
     void endCompiler();
+
+    Local locals[UINT8_COUNT];
+    int localCount;
+    int scopeDepth;
+    Chunk *compilingChunk;
+    Parser *parser;
+
+    friend class SinglePassCompiler;
+};
+
+class SinglePassCompiler {
+public:
+    static bool compile(const std::string &source, Chunk *chunk);
+
+    Chunk *currentChunk() const;
+
+private:
+    static std::unique_ptr<Parser> parser;
+    static std::unique_ptr<Compiler> current;
 };
 
 } // namespace Clox
