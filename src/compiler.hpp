@@ -86,6 +86,7 @@ private:
     void printStatement();
     void ifStatement();
     void whileStatement();
+    void forStatement();
     void expressionStatement();
     void expression();
 

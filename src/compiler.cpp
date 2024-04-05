@@ -187,6 +187,8 @@ void Compiler::variable(bool canAssign) {
 void Compiler::statement() {
     if (parser->match(TokenType::PRINT)) {
         printStatement();
+    } else if (parser->match(TokenType::FOR)) {
+        forStatement();
     } else if (parser->match(TokenType::IF)) {
         ifStatement();
     } else if (parser->match(TokenType::WHILE)) {
@@ -253,6 +255,57 @@ void Compiler::whileStatement() {
 
     patchJump(exitJump);
     emitByte(OP_POP);
+}
+
+void Compiler::forStatement() {
+    beginScope();
+    parser->consume(TokenType::LEFT_PAREN, "Expect '(' after 'for'.");
+
+    // 1. initializer
+    if (parser->match(TokenType::SEMICOLON)) {
+        // no initializer
+    } else if (parser->match(TokenType::VAR)) {
+        varDeclaration();
+    } else {
+        expressionStatement();
+    }
+
+    int loopStart = compilingChunk->count;
+    int exitJump = -1;
+
+    // 2. condition
+    if (!parser->match(TokenType::SEMICOLON)) {
+        expression();
+        parser->consume(TokenType::SEMICOLON,
+                        "Expect ';' after loop condition.");
+
+        exitJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP);
+    }
+
+    // 3. increment
+    if (!parser->match(TokenType::RIGHT_PAREN)) {
+        int bodyJump = emitJump(OP_JUMP);
+        int incrementStart = compilingChunk->count;
+
+        expression();
+        emitByte(OP_POP);
+        parser->consume(TokenType::RIGHT_PAREN,
+                        "Expect ')' after for clauses.");
+
+        emitLoop(loopStart);
+        loopStart = incrementStart;
+        patchJump(bodyJump);
+    }
+
+    statement();
+    emitLoop(loopStart);
+
+    if (exitJump != -1) {
+        patchJump(exitJump);
+        emitByte(OP_POP);
+    }
+    endScope();
 }
 
 void Compiler::expression() {
