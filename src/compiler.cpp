@@ -189,6 +189,8 @@ void Compiler::statement() {
         printStatement();
     } else if (parser->match(TokenType::IF)) {
         ifStatement();
+    } else if (parser->match(TokenType::WHILE)) {
+        whileStatement();
     } else if (parser->match(TokenType::LEFT_BRACE)) {
         beginScope();
         block();
@@ -236,6 +238,21 @@ void Compiler::ifStatement() {
         statement();
 
     patchJump(elseJump);
+}
+
+void Compiler::whileStatement() {
+    int loopStart = compilingChunk->count;
+    parser->consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'.");
+    expression();
+    parser->consume(TokenType::RIGHT_PAREN, "Expect ')' after condition.");
+
+    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    statement();
+    emitLoop(loopStart);
+
+    patchJump(exitJump);
+    emitByte(OP_POP);
 }
 
 void Compiler::expression() {
@@ -484,6 +501,17 @@ void Compiler::patchJump(int offset) {
 
     compilingChunk->code[offset] = (jump >> 8) & 0xff;
     compilingChunk->code[offset + 1] = jump & 0xff;
+}
+
+void Compiler::emitLoop(int loopStart) {
+    emitByte(OP_LOOP);
+
+    int offset = compilingChunk->count - loopStart + 2;
+    if (offset > UINT16_MAX)
+        parser->error("Loop body too large.");
+
+    emitByte((offset >> 8) & 0xff);
+    emitByte(offset & 0xff);
 }
 
 void Compiler::emitReturn() { emitByte(OP_RETURN); }

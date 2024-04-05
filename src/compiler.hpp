@@ -85,6 +85,7 @@ private:
     void statement();
     void printStatement();
     void ifStatement();
+    void whileStatement();
     void expressionStatement();
     void expression();
 
@@ -107,6 +108,7 @@ private:
     void emitConstant(Value value);
     int emitJump(uint8_t instruction);
     void patchJump(int offset);
+    void emitLoop(int loopStart);
     void emitReturn();
     void endCompiler();
 
