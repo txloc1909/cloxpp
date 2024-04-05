@@ -25,8 +25,12 @@ std::ostream &operator<<(std::ostream &os, const Value &value);
 
 namespace Clox {
 
+/*
+ * Create my own Variant type, in order to rename
+ * std::hold_alternative and std::get to better names
+ */
 template <typename... Types>
-class ValueVariant : public std::variant<Types...> {
+class Variant : public std::variant<Types...> {
 public:
     using std::variant<Types...>::variant;
 
@@ -48,7 +52,7 @@ public:
 
 using Nil = std::monostate;
 using Number = double;
-using ValueTypes = ValueVariant<Nil, Number, bool, ObjString *>;
+using ValueTypes = Variant<Nil, Number, bool, ObjString *>;
 class Value : public ValueTypes {
 public:
     Value() : ValueTypes(std::in_place_type<Nil>) {}
