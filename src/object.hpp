@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string_view>
 
+#include "chunk.hpp"
+
 namespace Clox {
 
 class Obj {
@@ -26,13 +28,26 @@ private:
     int length;
     uint32_t hash;
 
-    // constructors are private; ObjString should be created by
+    // constructors are private; ObjString should be created only by
     // `ObjString::copy` and `ObjString::take`
     ObjString(char *chars, int length, uint32_t hash);
     ObjString(std::string_view str, uint32_t hash);
     ~ObjString() override;
 
     friend class Allocator;
+};
+
+class ObjFunction : public Obj {
+public:
+    ObjFunction();
+    ~ObjFunction() override;
+
+    const char *getName() const;
+
+private:
+    int arity;
+    Chunk chunk;
+    ObjString *name;
 };
 
 } // namespace Clox

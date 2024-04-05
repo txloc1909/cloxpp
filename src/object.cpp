@@ -1,6 +1,5 @@
 #include "object.hpp"
 #include "memory.hpp"
-#include <iostream>
 
 namespace Clox {
 
@@ -70,6 +69,17 @@ ObjString *ObjString::concatenate(const ObjString &str1,
 
     return Allocator::create<ObjString>(chars, length,
                                         hashString(chars, length));
+}
+
+ObjFunction::ObjFunction() : arity(0), chunk({}), name(nullptr) {}
+
+ObjFunction::~ObjFunction() {
+    // ObjFunction doesn't own anything, not even its name,
+    // so do nothing here
+}
+
+const char *ObjFunction::getName() const {
+    return name ? name->data() : nullptr;
 }
 
 } // namespace Clox

@@ -5,8 +5,6 @@
 #include <string>
 #include <variant>
 
-#include "object.hpp"
-
 namespace Jlox {
 
 // forward declare some types here, to be included in Value
@@ -50,9 +48,14 @@ public:
     }
 };
 
+// forward declare Obj types
+class Obj;
+class ObjString;
+class ObjFunction;
+
 using Nil = std::monostate;
 using Number = double;
-using ValueTypes = Variant<Nil, Number, bool, ObjString *>;
+using ValueTypes = Variant<Nil, Number, bool, ObjString *, ObjFunction *>;
 class Value : public ValueTypes {
 public:
     Value() : ValueTypes(std::in_place_type<Nil>) {}

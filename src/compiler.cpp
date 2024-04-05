@@ -3,6 +3,7 @@
 
 #include "compiler.hpp"
 #include "debug.hpp" // IWYU pragma: keep
+#include "object.hpp"
 
 namespace Clox {
 

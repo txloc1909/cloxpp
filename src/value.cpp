@@ -60,6 +60,10 @@ struct ToStringVisitor {
     std::string operator()(const ObjString *str) {
         return std::string(str->data());
     }
+
+    std::string operator()(const ObjFunction *func) {
+        return "<fn " + std::string(func->getName()) + ">";
+    }
 };
 
 struct ValueEquality {
