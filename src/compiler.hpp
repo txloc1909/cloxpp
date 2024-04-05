@@ -75,6 +75,8 @@ public:
     void grouping(bool canAssign);
     void unary(bool canAssign);
     void binary(bool canAssign);
+    void andOp(bool canAssign);
+    void orOp(bool canAssign);
 
 private:
     void declaration();

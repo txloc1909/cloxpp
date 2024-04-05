@@ -29,6 +29,8 @@ std::unordered_map<TokenType, ParseRule> PrattParser::rules = {
     { TokenType::LESS,          { nullptr, &Compiler::binary, Precedence::COMPARISON }},
     { TokenType::LESS_EQUAL,    { nullptr, &Compiler::binary, Precedence::COMPARISON }},
     { TokenType::IDENTIFIER,    { &Compiler::variable, nullptr, Precedence::NONE }},
+    { TokenType::AND,           { nullptr, &Compiler::andOp, Precedence::AND}},
+    { TokenType::OR,            { nullptr, &Compiler::orOp, Precedence::OR }},
 };
 // clang-format on
 
@@ -300,6 +302,24 @@ void Compiler::binary(bool /*canAssign*/) {
     default:
         return;
     }
+}
+
+void Compiler::andOp(bool /*canAssign*/) {
+    int endJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    parser->parsePrecedence(Precedence::AND, *this);
+    patchJump(endJump);
+}
+
+void Compiler::orOp(bool /*canAssign*/) {
+    int elseJump = emitJump(OP_JUMP_IF_FALSE);
+    int endJump = emitJump(OP_JUMP);
+
+    patchJump(elseJump);
+    emitByte(OP_POP);
+
+    parser->parsePrecedence(Precedence::OR, *this);
+    patchJump(endJump);
 }
 
 void Compiler::number(bool /*canAssign*/) {
