@@ -82,6 +82,7 @@ private:
     void block();
     void statement();
     void printStatement();
+    void ifStatement();
     void expressionStatement();
     void expression();
 
@@ -102,6 +103,8 @@ private:
     void emitByte(uint8_t byte);
     void emitBytes(uint8_t byte1, uint8_t byte2);
     void emitConstant(Value value);
+    int emitJump(uint8_t instruction);
+    void patchJump(int offset);
     void emitReturn();
     void endCompiler();
 

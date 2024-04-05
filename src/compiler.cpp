@@ -185,6 +185,8 @@ void Compiler::variable(bool canAssign) {
 void Compiler::statement() {
     if (parser->match(TokenType::PRINT)) {
         printStatement();
+    } else if (parser->match(TokenType::IF)) {
+        ifStatement();
     } else if (parser->match(TokenType::LEFT_BRACE)) {
         beginScope();
         block();
@@ -213,6 +215,25 @@ void Compiler::printStatement() {
     expression();
     parser->consume(TokenType::SEMICOLON, "Expect ';' after value.");
     emitByte(OP_PRINT);
+}
+
+void Compiler::ifStatement() {
+    parser->consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'.");
+    expression();
+    parser->consume(TokenType::RIGHT_PAREN, "Expect ')' after condition.");
+
+    int thenJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    statement();
+
+    int elseJump = emitJump(OP_JUMP);
+    patchJump(thenJump);
+    emitByte(OP_POP);
+
+    if (parser->match(TokenType::ELSE))
+        statement();
+
+    patchJump(elseJump);
 }
 
 void Compiler::expression() {
@@ -426,6 +447,23 @@ void Compiler::emitBytes(uint8_t byte1, uint8_t byte2) {
 
 void Compiler::emitConstant(Value value) {
     emitBytes(OP_CONSTANT, makeConstant(value));
+}
+
+int Compiler::emitJump(uint8_t instruction) {
+    emitByte(instruction);
+    emitBytes(0xff, 0xff);
+    return compilingChunk->count - 2;
+}
+
+void Compiler::patchJump(int offset) {
+    int jump = compilingChunk->count - offset - 2;
+
+    if (jump > UINT16_MAX) {
+        parser->error("Too many code to jump over.");
+    }
+
+    compilingChunk->code[offset] = (jump >> 8) & 0xff;
+    compilingChunk->code[offset + 1] = jump & 0xff;
 }
 
 void Compiler::emitReturn() { emitByte(OP_RETURN); }

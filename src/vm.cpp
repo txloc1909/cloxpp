@@ -28,6 +28,7 @@ InterpretResult VM::run() {
 #define READ_BYTE() (*ip++)
 #define READ_CONSTANT() (chunk->constants.values[READ_BYTE()])
 #define READ_STRING() (READ_CONSTANT().asType<ObjString *>())
+#define READ_SHORT() (ip += 2, static_cast<uint16_t>((ip[-2] << 8) | ip[-1]))
 #define BINARY_OP(valueType, op)                                               \
     do {                                                                       \
         if (!peek(0).isType<Number>() || !peek(1).isType<Number>()) {          \
@@ -166,6 +167,17 @@ InterpretResult VM::run() {
             std::cout << pop() << "\n";
             break;
         }
+        case OP_JUMP: {
+            uint16_t offset = READ_SHORT();
+            ip += offset;
+            break;
+        }
+        case OP_JUMP_IF_FALSE: {
+            uint64_t offset = READ_SHORT();
+            if (peek(0).isFalsey())
+                ip += offset;
+            break;
+        }
         case OP_RETURN: {
             return InterpretResult::OK;
         }
@@ -175,6 +187,7 @@ InterpretResult VM::run() {
 #undef READ_BYTE
 #undef READ_CONSTANT
 #undef READ_STRING
+#undef READ_SHORT
 #undef BINARY_OP
 }
 
