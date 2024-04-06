@@ -79,6 +79,8 @@ public:
     void orOp(bool canAssign);
 
 private:
+    Chunk *currentChunk() const;
+
     void declaration();
     void varDeclaration();
     void block();
@@ -126,8 +128,6 @@ private:
 class SinglePassCompiler {
 public:
     static bool compile(const std::string &source, Chunk *chunk);
-
-    Chunk *currentChunk() const;
 
 private:
     static std::unique_ptr<Parser> parser;

@@ -151,10 +151,6 @@ bool SinglePassCompiler::compile(const std::string &source, Chunk *chunk) {
     return !parser->hadError;
 }
 
-Chunk *SinglePassCompiler::currentChunk() const {
-    return current->compilingChunk;
-}
-
 Compiler::Compiler() : localCount(0), scopeDepth(0) {}
 
 void Compiler::declaration() {
@@ -244,7 +240,7 @@ void Compiler::ifStatement() {
 }
 
 void Compiler::whileStatement() {
-    int loopStart = compilingChunk->count;
+    int loopStart = currentChunk()->count;
     parser->consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'.");
     expression();
     parser->consume(TokenType::RIGHT_PAREN, "Expect ')' after condition.");
@@ -271,7 +267,7 @@ void Compiler::forStatement() {
         expressionStatement();
     }
 
-    int loopStart = compilingChunk->count;
+    int loopStart = currentChunk()->count;
     int exitJump = -1;
 
     // 2. condition
@@ -287,7 +283,7 @@ void Compiler::forStatement() {
     // 3. increment
     if (!parser->match(TokenType::RIGHT_PAREN)) {
         int bodyJump = emitJump(OP_JUMP);
-        int incrementStart = compilingChunk->count;
+        int incrementStart = currentChunk()->count;
 
         expression();
         emitByte(OP_POP);
@@ -418,6 +414,8 @@ void Compiler::literal(bool /*canAssign*/) {
     }
 }
 
+Chunk *Compiler::currentChunk() const { return compilingChunk; }
+
 void Compiler::beginScope() { scopeDepth++; }
 
 void Compiler::endScope() {
@@ -518,7 +516,7 @@ void Compiler::namedVariable(const Token &name, bool canAssign) {
 }
 
 uint8_t Compiler::makeConstant(Value value) {
-    int constant = compilingChunk->addConstant(value);
+    int constant = currentChunk()->addConstant(value);
     if (constant > UINT8_MAX) {
         parser->error("Too many constants in one chunk.");
         return 0;
@@ -528,7 +526,7 @@ uint8_t Compiler::makeConstant(Value value) {
 }
 
 void Compiler::emitByte(uint8_t byte) {
-    compilingChunk->write(byte, parser->previous.line);
+    currentChunk()->write(byte, parser->previous.line);
 }
 
 void Compiler::emitBytes(uint8_t byte1, uint8_t byte2) {
@@ -543,24 +541,24 @@ void Compiler::emitConstant(Value value) {
 int Compiler::emitJump(uint8_t instruction) {
     emitByte(instruction);
     emitBytes(0xff, 0xff);
-    return compilingChunk->count - 2;
+    return currentChunk()->count - 2;
 }
 
 void Compiler::patchJump(int offset) {
-    int jump = compilingChunk->count - offset - 2;
+    int jump = currentChunk()->count - offset - 2;
 
     if (jump > UINT16_MAX) {
         parser->error("Too many code to jump over.");
     }
 
-    compilingChunk->code[offset] = (jump >> 8) & 0xff;
-    compilingChunk->code[offset + 1] = jump & 0xff;
+    currentChunk()->code[offset] = (jump >> 8) & 0xff;
+    currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
 void Compiler::emitLoop(int loopStart) {
     emitByte(OP_LOOP);
 
-    int offset = compilingChunk->count - loopStart + 2;
+    int offset = currentChunk()->count - loopStart + 2;
     if (offset > UINT16_MAX)
         parser->error("Loop body too large.");
 
@@ -574,7 +572,7 @@ void Compiler::endCompiler() {
     emitReturn();
 #ifdef DEBUG_PRINT_CODE
     if (!parser->hadError) {
-        disassembleChunk(compilingChunk, "code");
+        disassembleChunk(currentChunk(), "code");
     }
 #endif
 }
