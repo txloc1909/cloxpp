@@ -5,9 +5,9 @@
 #include <functional>
 #include <string>
 
-#include "chunk.hpp"
 #include "object.hpp"
 #include "scanner.hpp"
+#include "value.hpp"
 
 namespace Clox {
 
@@ -116,7 +116,6 @@ private:
     void emitReturn();
     ObjFunction *endCompiler();
 
-    static const auto UINT8_COUNT = UINT8_MAX + 1;
     ObjFunction *function;
     FunctionType type;
     Local locals[UINT8_COUNT];

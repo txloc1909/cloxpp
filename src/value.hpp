@@ -5,6 +5,8 @@
 #include <string>
 #include <variant>
 
+#define UINT8_COUNT (UINT8_MAX + 1)
+
 namespace Jlox {
 
 // forward declare some types here, to be included in Value

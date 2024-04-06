@@ -1,7 +1,7 @@
 #ifndef CLOXPP_VM_H
 #define CLOXPP_VM_H
 
-#include "chunk.hpp"
+#include "object.hpp"
 #include "table.hpp"
 
 namespace Clox {
@@ -12,6 +12,12 @@ enum class InterpretResult {
     RUNTIME_ERROR,
 };
 
+struct CallFrame {
+    ObjFunction *function;
+    uint8_t *ip;
+    Value *slots;
+};
+
 class VM {
 public:
     VM();
@@ -19,9 +25,10 @@ public:
     InterpretResult interpret(const std::string &source);
 
 private:
-    static constexpr std::size_t STACK_MAX = 256;
-    const Chunk *chunk;
-    uint8_t *ip;
+    static constexpr std::size_t FRAMES_MAX = 64;
+    static constexpr std::size_t STACK_MAX = FRAMES_MAX * UINT8_COUNT;
+    CallFrame frames[FRAMES_MAX];
+    int frameCount;
     Value stack[STACK_MAX];
     Value *stackTop;
     Table globals;
