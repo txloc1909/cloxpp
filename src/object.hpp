@@ -37,12 +37,18 @@ private:
     friend class Allocator;
 };
 
+enum class FunctionType {
+    SCRIPT,
+    FUNCTION,
+};
+
 class ObjFunction : public Obj {
 public:
     ObjFunction();
     ~ObjFunction() override;
 
     const char *getName() const;
+    Chunk *getChunk();
 
 private:
     int arity;

@@ -3,6 +3,7 @@
 
 #include "compiler.hpp"
 #include "debug.hpp" // IWYU pragma: keep
+#include "memory.hpp"
 #include "object.hpp"
 
 namespace Clox {
@@ -137,21 +138,28 @@ void Parser::parsePrecedence(Precedence precedence, Compiler &compiler) {
     }
 }
 
-bool SinglePassCompiler::compile(const std::string &source, Chunk *chunk) {
+ObjFunction *SinglePassCompiler::compile(const std::string &source) {
     parser = std::make_unique<Parser>(source);
-    current = std::make_unique<Compiler>();
-    current->compilingChunk = chunk;
+    current = std::make_unique<Compiler>(FunctionType::SCRIPT);
     current->parser = parser.get();
 
     while (!parser->match(TokenType::EOF_)) {
         current->declaration();
     }
 
-    current->endCompiler();
-    return !parser->hadError;
+    auto *function = current->endCompiler();
+    return parser->hadError ? nullptr : function;
 }
 
-Compiler::Compiler() : localCount(0), scopeDepth(0) {}
+Compiler::Compiler(FunctionType type)
+    : function(nullptr), type(type), localCount(0), scopeDepth(0) {
+    function = Allocator::create<ObjFunction>();
+
+    // claim stack slot 0 for internal use
+    Local *local = &locals[localCount++];
+    local->name.lexeme = "";
+    local->depth = 0;
+}
 
 void Compiler::declaration() {
     if (parser->match(TokenType::VAR)) {
@@ -414,7 +422,7 @@ void Compiler::literal(bool /*canAssign*/) {
     }
 }
 
-Chunk *Compiler::currentChunk() const { return compilingChunk; }
+Chunk *Compiler::currentChunk() const { return function->getChunk(); }
 
 void Compiler::beginScope() { scopeDepth++; }
 
@@ -568,13 +576,14 @@ void Compiler::emitLoop(int loopStart) {
 
 void Compiler::emitReturn() { emitByte(OP_RETURN); }
 
-void Compiler::endCompiler() {
+ObjFunction *Compiler::endCompiler() {
     emitReturn();
 #ifdef DEBUG_PRINT_CODE
     if (!parser->hadError) {
-        disassembleChunk(currentChunk(), "code");
+        disassembleChunk(currentChunk(), function->getName());
     }
 #endif
+    return function;
 }
 
 } // namespace Clox

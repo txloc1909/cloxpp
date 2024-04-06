@@ -20,8 +20,7 @@ public:
 
 private:
     static constexpr std::size_t STACK_MAX = 256;
-
-    Chunk *chunk;
+    const Chunk *chunk;
     uint8_t *ip;
     Value stack[STACK_MAX];
     Value *stackTop;

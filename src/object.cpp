@@ -78,8 +78,10 @@ ObjFunction::~ObjFunction() {
     // so do nothing here
 }
 
+Chunk *ObjFunction::getChunk() { return &chunk; }
+
 const char *ObjFunction::getName() const {
-    return name ? name->data() : nullptr;
+    return name ? name->data() : "<script>";
 }
 
 } // namespace Clox

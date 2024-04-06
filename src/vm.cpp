@@ -14,12 +14,12 @@ VM::VM() { resetStack(); }
 VM::~VM() { Allocator::cleanUp(); }
 
 InterpretResult VM::interpret(const std::string &source) {
-    Chunk newChunk{};
-    if (!SinglePassCompiler::compile(source, &newChunk)) {
+    ObjFunction *function = SinglePassCompiler::compile(source);
+    if (!function) {
         return InterpretResult::COMPILE_ERROR;
     }
 
-    chunk = &newChunk;
+    chunk = function->getChunk();
     ip = chunk->code;
     return run();
 }

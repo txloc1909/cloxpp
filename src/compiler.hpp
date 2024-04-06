@@ -6,6 +6,7 @@
 #include <string>
 
 #include "chunk.hpp"
+#include "object.hpp"
 #include "scanner.hpp"
 
 namespace Clox {
@@ -66,7 +67,7 @@ struct Local {
 
 class Compiler {
 public:
-    Compiler();
+    Compiler(FunctionType type);
 
     void variable(bool canAssign);
     void string(bool canAssign);
@@ -113,13 +114,14 @@ private:
     void patchJump(int offset);
     void emitLoop(int loopStart);
     void emitReturn();
-    void endCompiler();
+    ObjFunction *endCompiler();
 
     static const auto UINT8_COUNT = UINT8_MAX + 1;
+    ObjFunction *function;
+    FunctionType type;
     Local locals[UINT8_COUNT];
     int localCount;
     int scopeDepth;
-    Chunk *compilingChunk;
     Parser *parser;
 
     friend class SinglePassCompiler;
@@ -127,7 +129,7 @@ private:
 
 class SinglePassCompiler {
 public:
-    static bool compile(const std::string &source, Chunk *chunk);
+    static ObjFunction *compile(const std::string &source);
 
 private:
     static std::unique_ptr<Parser> parser;
