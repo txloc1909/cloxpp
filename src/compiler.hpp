@@ -116,7 +116,7 @@ private:
     void emitReturn();
     ObjFunction *endCompiler();
 
-    ObjFunction *function;
+    ObjFunction *compilingFunction;
     FunctionType type;
     Local locals[UINT8_COUNT];
     int localCount;

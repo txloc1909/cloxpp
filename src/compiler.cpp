@@ -152,8 +152,8 @@ ObjFunction *SinglePassCompiler::compile(const std::string &source) {
 }
 
 Compiler::Compiler(FunctionType type)
-    : function(nullptr), type(type), localCount(0), scopeDepth(0) {
-    function = Allocator::create<ObjFunction>();
+    : compilingFunction(nullptr), type(type), localCount(0), scopeDepth(0) {
+    compilingFunction = Allocator::create<ObjFunction>();
 
     // claim stack slot 0 for internal use
     Local *local = &locals[localCount++];
@@ -422,7 +422,7 @@ void Compiler::literal(bool /*canAssign*/) {
     }
 }
 
-Chunk *Compiler::currentChunk() const { return function->getChunk(); }
+Chunk *Compiler::currentChunk() const { return compilingFunction->getChunk(); }
 
 void Compiler::beginScope() { scopeDepth++; }
 
@@ -583,7 +583,7 @@ ObjFunction *Compiler::endCompiler() {
         disassembleChunk(currentChunk(), function->getName());
     }
 #endif
-    return function;
+    return compilingFunction;
 }
 
 } // namespace Clox
