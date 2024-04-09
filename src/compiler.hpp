@@ -67,7 +67,7 @@ struct Local {
 
 class Compiler {
 public:
-    Compiler(FunctionType type);
+    Compiler(FunctionType type, Compiler *enclosing);
 
     void variable(bool canAssign);
     void string(bool canAssign);
@@ -84,6 +84,7 @@ private:
 
     void declaration();
     void varDeclaration();
+    void funDeclaration();
     void block();
     void statement();
     void printStatement();
@@ -99,6 +100,8 @@ private:
     int resolveLocal(const Token &name);
     void addLocal(const Token &name);
     void markInitialized();
+
+    void function(FunctionType type);
 
     uint8_t parseVariable(const char *errorMessage);
     uint8_t identifierConstant(const Token &name);
@@ -122,6 +125,7 @@ private:
     int localCount;
     int scopeDepth;
     Parser *parser;
+    Compiler *enclosing;
 
     friend class SinglePassCompiler;
 };

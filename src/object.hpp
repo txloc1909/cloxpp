@@ -54,6 +54,8 @@ private:
     int arity;
     Chunk chunk;
     ObjString *name;
+
+    friend class Compiler;
 };
 
 } // namespace Clox

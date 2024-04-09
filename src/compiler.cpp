@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdio>
 #include <string>
 
@@ -140,7 +141,10 @@ void Parser::parsePrecedence(Precedence precedence, Compiler &compiler) {
 
 ObjFunction *SinglePassCompiler::compile(const std::string &source) {
     parser = std::make_unique<Parser>(source);
-    current = std::make_unique<Compiler>(FunctionType::SCRIPT);
+    current =
+        std::make_unique<Compiler>(FunctionType::SCRIPT, /*enclosing=*/nullptr);
+
+    // TODO: this assignment should be somewhere else
     current->parser = parser.get();
 
     while (!parser->match(TokenType::EOF_)) {
@@ -151,9 +155,20 @@ ObjFunction *SinglePassCompiler::compile(const std::string &source) {
     return parser->hadError ? nullptr : function;
 }
 
-Compiler::Compiler(FunctionType type)
-    : compilingFunction(nullptr), type(type), localCount(0), scopeDepth(0) {
+Compiler::Compiler(FunctionType type, Compiler *enclosing)
+    : compilingFunction(nullptr), type(type), localCount(0), scopeDepth(0),
+      parser(nullptr), enclosing(enclosing) {
     compilingFunction = Allocator::create<ObjFunction>();
+
+    // access parser from enclosing compiler
+    if (enclosing) {
+        parser = enclosing->parser;
+    }
+
+    if (type != FunctionType::SCRIPT) {
+        assert(enclosing); // should have an enclosing compiler
+        compilingFunction->name = ObjString::copy(parser->previous.lexeme);
+    }
 
     // claim stack slot 0 for internal use
     Local *local = &locals[localCount++];
@@ -162,7 +177,9 @@ Compiler::Compiler(FunctionType type)
 }
 
 void Compiler::declaration() {
-    if (parser->match(TokenType::VAR)) {
+    if (parser->match(TokenType::FUN)) {
+        funDeclaration();
+    } else if (parser->match(TokenType::VAR)) {
         varDeclaration();
     } else {
         statement();
@@ -182,6 +199,13 @@ void Compiler::varDeclaration() {
 
     parser->consume(TokenType::SEMICOLON,
                     "Expect ';' after variable declaration.");
+    defineVariable(global);
+}
+
+void Compiler::funDeclaration() {
+    uint8_t global = parseVariable("Expect function name.");
+    markInitialized();
+    function(FunctionType::FUNCTION);
     defineVariable(global);
 }
 
@@ -460,7 +484,40 @@ void Compiler::addLocal(const Token &name) {
     *local = {name, -1};
 }
 
-void Compiler::markInitialized() { locals[localCount - 1].depth = scopeDepth; }
+void Compiler::markInitialized() {
+    if (scopeDepth == 0)
+        return;
+    locals[localCount - 1].depth = scopeDepth;
+}
+
+void Compiler::function(FunctionType type) {
+    Compiler funCompiler = Compiler(type, this);
+    Parser *funParser = funCompiler.parser;
+    ObjFunction *currFunction = funCompiler.compilingFunction;
+
+    funCompiler.beginScope();
+    funParser->consume(TokenType::LEFT_PAREN,
+                       "Expect '(' after function name.");
+    if (!funParser->check(TokenType::RIGHT_PAREN)) {
+        do {
+            currFunction->arity++;
+            if (currFunction->arity > 255) {
+                funParser->errorAtCurrent(
+                    "Can't have more than 255 parameters.");
+            }
+
+            uint8_t constant = parseVariable("Expect parameter name.");
+            defineVariable(constant);
+        } while (funParser->match(TokenType::COMMA));
+    }
+    funParser->consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
+    funParser->consume(TokenType::LEFT_BRACE,
+                       "Expect '{' before function body.");
+    funCompiler.block();
+
+    ObjFunction *function = funCompiler.endCompiler();
+    this->emitBytes(OP_CONSTANT, this->makeConstant(function));
+}
 
 uint8_t Compiler::parseVariable(const char *errorMessage) {
     parser->consume(TokenType::IDENTIFIER, errorMessage);
@@ -580,7 +637,8 @@ ObjFunction *Compiler::endCompiler() {
     emitReturn();
 #ifdef DEBUG_PRINT_CODE
     if (!parser->hadError) {
-        disassembleChunk(currentChunk(), function->getName());
+        disassembleChunk(&compilingFunction->chunk,
+                         compilingFunction->getName());
     }
 #endif
     return compilingFunction;
