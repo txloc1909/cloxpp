@@ -20,6 +20,7 @@ InterpretResult VM::interpret(const std::string &source) {
     }
 
     push(function);
+    call(function, 0);
     CallFrame *frame = &frames[frameCount++];
     *frame = {function, function->getChunk()->code, stack};
     return run();
@@ -191,6 +192,14 @@ InterpretResult VM::run() {
             frame->ip -= offset;
             break;
         }
+        case OP_CALL: {
+            int argCount = READ_BYTE();
+            if (!callValue(peek(argCount), argCount)) {
+                return InterpretResult::RUNTIME_ERROR;
+            }
+            frame = &frames[frameCount - 1];
+            break;
+        }
         case OP_RETURN: {
             return InterpretResult::OK;
         }
@@ -202,6 +211,24 @@ InterpretResult VM::run() {
 #undef READ_STRING
 #undef READ_SHORT
 #undef BINARY_OP
+}
+
+bool VM::callValue(Value callee, int argCount) {
+    // TODO: dispatch by switch-case
+    if (callee.isType<ObjFunction *>()) {
+        return call(callee.asType<ObjFunction *>(), argCount);
+    }
+
+    runtimeError("Can only call functions and classes.");
+    return false;
+}
+
+bool VM::call(ObjFunction *function, int argCount) {
+    CallFrame *frame = &frames[frameCount++];
+    *frame = {.function = function,
+              .ip = function->getChunk()->code,
+              .slots = stackTop - argCount - 1};
+    return true;
 }
 
 void VM::push(Value value) {

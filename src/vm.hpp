@@ -35,6 +35,9 @@ private:
 
     InterpretResult run();
 
+    bool callValue(Value callee, int argCount);
+    bool call(ObjFunction *function, int argCount);
+
     void push(Value value);
     Value pop();
     Value peek(int distance);

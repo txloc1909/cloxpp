@@ -78,6 +78,7 @@ public:
     void binary(bool canAssign);
     void andOp(bool canAssign);
     void orOp(bool canAssign);
+    void call(bool canAssign);
 
 private:
     Chunk *currentChunk() const;
@@ -102,6 +103,7 @@ private:
     void markInitialized();
 
     void function(FunctionType type);
+    uint8_t argumentList();
 
     uint8_t parseVariable(const char *errorMessage);
     uint8_t identifierConstant(const Token &name);

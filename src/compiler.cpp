@@ -14,7 +14,7 @@ std::unique_ptr<Compiler> SinglePassCompiler::current = nullptr;
 
 // clang-format off
 std::unordered_map<TokenType, ParseRule> PrattParser::rules = {
-    { TokenType::LEFT_PAREN,    { &Compiler::grouping, nullptr, Precedence::NONE }},
+    { TokenType::LEFT_PAREN,    { &Compiler::grouping, &Compiler::call, Precedence::CALL }},
     { TokenType::MINUS,         { &Compiler::unary,   &Compiler::binary, Precedence::TERM }},
     { TokenType::PLUS,          { nullptr, &Compiler::binary, Precedence::TERM }},
     { TokenType::SLASH,         { nullptr, &Compiler::binary, Precedence::FACTOR }},
@@ -337,6 +337,11 @@ void Compiler::forStatement() {
     endScope();
 }
 
+void Compiler::call(bool /*canAssign*/) {
+    uint8_t argCount = argumentList();
+    emitBytes(OP_CALL, argCount);
+}
+
 void Compiler::expression() {
     parser->parsePrecedence(Precedence::ASSIGNMENT, *this);
 }
@@ -517,6 +522,21 @@ void Compiler::function(FunctionType type) {
 
     ObjFunction *function = funCompiler.endCompiler();
     this->emitBytes(OP_CONSTANT, this->makeConstant(function));
+}
+
+uint8_t Compiler::argumentList() {
+    uint8_t argCount = 0;
+    if (!parser->check(TokenType::RIGHT_PAREN)) {
+        do {
+            expression();
+            if (argCount == 255) {
+                parser->error("Can't have more than 255 arguments.");
+            }
+            argCount++;
+        } while (parser->match(TokenType::COMMA));
+    }
+    parser->consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
+    return argCount;
 }
 
 uint8_t Compiler::parseVariable(const char *errorMessage) {
