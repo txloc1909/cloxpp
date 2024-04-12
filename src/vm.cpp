@@ -21,8 +21,6 @@ InterpretResult VM::interpret(const std::string &source) {
 
     push(function);
     call(function, 0);
-    CallFrame *frame = &frames[frameCount++];
-    *frame = {function, function->getChunk()->code, stack};
     return run();
 }
 

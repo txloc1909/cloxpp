@@ -48,6 +48,7 @@ public:
     ~ObjFunction() override;
 
     const char *getName() const;
+    int getArity() const;
     Chunk *getChunk();
 
 private:

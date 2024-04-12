@@ -80,6 +80,8 @@ ObjFunction::~ObjFunction() {
 
 Chunk *ObjFunction::getChunk() { return &chunk; }
 
+int ObjFunction::getArity() const { return arity; }
+
 const char *ObjFunction::getName() const {
     return name ? name->data() : "<script>";
 }
