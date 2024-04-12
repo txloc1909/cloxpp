@@ -222,6 +222,17 @@ bool VM::callValue(Value callee, int argCount) {
 }
 
 bool VM::call(ObjFunction *function, int argCount) {
+    int arity = function->getArity();
+    if (argCount != arity) {
+        runtimeError("Expected %d arguments but got %d.", arity, argCount);
+        return false;
+    }
+
+    if (frameCount == FRAMES_MAX) {
+        runtimeError("Stack overflow.");
+        return false;
+    }
+
     CallFrame *frame = &frames[frameCount++];
     *frame = {.function = function,
               .ip = function->getChunk()->code,
@@ -253,10 +264,19 @@ void VM::runtimeError(const char *format, ...) {
     va_end(args);
     std::fputs("\n", stderr);
 
-    CallFrame *frame = &frames[frameCount - 1];
-    std::size_t instruction = frame->ip - frame->function->getChunk()->code - 1;
-    int line = frame->function->getChunk()->lines[instruction];
-    std::fprintf(stderr, "[line %d] in script\n", line);
+    for (int i = frameCount - 1; i >= 0; i--) {
+        CallFrame *frame = &frames[i];
+        ObjFunction *function = frame->function;
+        size_t instruction = frame->ip - function->getChunk()->code - 1;
+        std::fprintf(stderr, "[line %d] in ",
+                     function->getChunk()->lines[instruction]);
+        if (std::string(function->getName()) == "<script>") {
+            std::fprintf(stderr, "script.\n");
+        } else {
+            std::fprintf(stderr, "%s.\n", function->getName());
+        }
+    }
+
     resetStack();
 }
 
