@@ -60,6 +60,6 @@ add_executable(clox
     src/interpreter.cpp
     src/error_handler.cpp
 )
-target_compile_options(clox PRIVATE -DDEBUG_TRACE_EXECUTION -DDEBUG_PRINT_CODE -Wall -Wextra
+target_compile_options(clox PRIVATE -g -DDEBUG_TRACE_EXECUTION -DDEBUG_PRINT_CODE -Wall -Wextra
     -fsanitize=undefined -fsanitize=address)
 target_link_options(clox PRIVATE -fsanitize=undefined -fsanitize=address)
