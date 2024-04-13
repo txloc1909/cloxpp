@@ -199,7 +199,17 @@ InterpretResult VM::run() {
             break;
         }
         case OP_RETURN: {
-            return InterpretResult::OK;
+            Value result = pop();
+            frameCount--;
+            if (frameCount == 0) {
+                pop(); // pop the main script function
+                return InterpretResult::OK;
+            }
+
+            stackTop = frame->slots;
+            push(result);
+            frame = &frames[frameCount - 1];
+            break;
         }
         }
     }

@@ -220,6 +220,8 @@ void Compiler::statement() {
         forStatement();
     } else if (parser->match(TokenType::IF)) {
         ifStatement();
+    } else if (parser->match(TokenType::RETURN)) {
+        returnStatement();
     } else if (parser->match(TokenType::WHILE)) {
         whileStatement();
     } else if (parser->match(TokenType::LEFT_BRACE)) {
@@ -335,6 +337,20 @@ void Compiler::forStatement() {
         emitByte(OP_POP);
     }
     endScope();
+}
+
+void Compiler::returnStatement() {
+    if (type == FunctionType::SCRIPT) {
+        parser->error("Can't return from top-level code.");
+    }
+
+    if (parser->match(TokenType::SEMICOLON)) {
+        emitReturn();
+    } else {
+        expression();
+        parser->consume(TokenType::SEMICOLON, "Expect ';' after return value;");
+        emitByte(OP_RETURN);
+    }
 }
 
 void Compiler::call(bool /*canAssign*/) {
@@ -651,7 +667,10 @@ void Compiler::emitLoop(int loopStart) {
     emitByte(offset & 0xff);
 }
 
-void Compiler::emitReturn() { emitByte(OP_RETURN); }
+void Compiler::emitReturn() {
+    emitByte(OP_NIL);
+    emitByte(OP_RETURN);
+}
 
 ObjFunction *Compiler::endCompiler() {
     emitReturn();

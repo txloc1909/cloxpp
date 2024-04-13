@@ -92,6 +92,7 @@ private:
     void ifStatement();
     void whileStatement();
     void forStatement();
+    void returnStatement();
     void expressionStatement();
     void expression();
 
