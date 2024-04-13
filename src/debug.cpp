@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <iostream>
 
-#include "compiler.hpp"
 #include "debug.hpp"
+#include "object.hpp"
 
 namespace Clox {
 
@@ -74,6 +74,10 @@ int disassembleInstruction(const Chunk *chunk, int offset) {
         return constantInstruction("OP_DEFINE_GLOBAL", chunk, offset);
     case OP_SET_GLOBAL:
         return constantInstruction("OP_SET_GLOBAL", chunk, offset);
+    case OP_GET_UPVALUE:
+        return byteInstruction("OP_GET_UPVALUE", chunk, offset);
+    case OP_SET_UPVALUE:
+        return byteInstruction("OP_SET_UPVALUE", chunk, offset);
     case OP_EQUAL:
         return simpleInstruction("OP_EQUAL", offset);
     case OP_GREATER:
@@ -108,6 +112,16 @@ int disassembleInstruction(const Chunk *chunk, int offset) {
         std::printf("%-16s %4d ", "OP_CLOSURE", constant);
         std::cout << chunk->constants.values[constant]; // this is ugly :(
         std::printf("\n");
+
+        auto *function =
+            chunk->constants.values[constant].asType<ObjFunction *>();
+        for (int j = 0; j < function->getUpvalueCount(); j++) {
+            int isLocal = chunk->code[offset++];
+            int index = chunk->code[offset++];
+            std::printf("%04d      |                     %s %d\n", offset - 2,
+                        isLocal ? "local" : "upvalue", index);
+        }
+
         return offset;
     }
     case OP_RETURN:

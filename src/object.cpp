@@ -71,7 +71,8 @@ ObjString *ObjString::concatenate(const ObjString &str1,
                                         hashString(chars, length));
 }
 
-ObjFunction::ObjFunction() : arity(0), chunk({}), name(nullptr) {}
+ObjFunction::ObjFunction()
+    : arity(0), upvalueCount(0), chunk({}), name(nullptr) {}
 
 ObjFunction::~ObjFunction() {
     // ObjFunction doesn't own anything, not even its name,
@@ -85,6 +86,8 @@ int ObjFunction::getArity() const { return arity; }
 const char *ObjFunction::getName() const {
     return name ? name->data() : "<script>";
 }
+
+int ObjFunction::getUpvalueCount() const { return upvalueCount; }
 
 ObjNative::ObjNative(NativeFn function) : function(function) {}
 

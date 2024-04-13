@@ -51,9 +51,11 @@ public:
     const char *getName() const;
     int getArity() const;
     Chunk *getChunk();
+    int getUpvalueCount() const;
 
 private:
     int arity;
+    int upvalueCount;
     Chunk chunk;
     ObjString *name;
 

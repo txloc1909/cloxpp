@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <string>
 
+#include "chunk.hpp"
 #include "compiler.hpp"
 #include "debug.hpp" // IWYU pragma: keep
 #include "memory.hpp"
@@ -480,6 +481,23 @@ void Compiler::endScope() {
     }
 }
 
+int Compiler::resolveUpvalue(const Token &name) {
+    if (!enclosing)
+        return -1;
+
+    int local = enclosing->resolveLocal(name);
+    if (local != -1) {
+        return addUpvalue(static_cast<uint8_t>(local), true);
+    }
+
+    int upvalue = enclosing->resolveUpvalue(name);
+    if (upvalue != -1) {
+        return addUpvalue(static_cast<uint8_t>(upvalue), false);
+    }
+
+    return -1;
+}
+
 int Compiler::resolveLocal(const Token &name) {
     for (int i = localCount - 1; i >= 0; i--) {
         Local *local = &locals[i];
@@ -493,6 +511,25 @@ int Compiler::resolveLocal(const Token &name) {
         }
     }
     return -1;
+}
+
+int Compiler::addUpvalue(uint8_t index, bool isLocal) {
+    int upvalueCount = compilingFunction->upvalueCount;
+
+    for (int i = 0; i < upvalueCount; i++) {
+        Upvalue *upvalue = &upvalues[i];
+        if (upvalue->index == index && upvalue->isLocal == isLocal) {
+            return i;
+        }
+    }
+
+    if (upvalueCount == UINT8_COUNT) {
+        parser->error("Too many closure variables in function.");
+        return 0;
+    }
+
+    upvalues[upvalueCount] = {index, isLocal};
+    return compilingFunction->upvalueCount++;
 }
 
 void Compiler::addLocal(const Token &name) {
@@ -536,9 +573,13 @@ void Compiler::function(FunctionType type) {
     funParser->consume(TokenType::LEFT_BRACE,
                        "Expect '{' before function body.");
     funCompiler.block();
-
     currFunction = funCompiler.endCompiler();
+
     this->emitBytes(OP_CLOSURE, this->makeConstant(currFunction));
+    for (int i = 0; i < currFunction->upvalueCount; i++) {
+        emitByte(funCompiler.upvalues[i].isLocal ? 1 : 0);
+        emitByte(funCompiler.upvalues[i].index);
+    }
 }
 
 uint8_t Compiler::argumentList() {
@@ -603,6 +644,9 @@ void Compiler::namedVariable(const Token &name, bool canAssign) {
     if (arg != -1) {
         getOp = OP_GET_LOCAL;
         setOp = OP_SET_LOCAL;
+    } else if ((arg = resolveUpvalue(name)) != -1) {
+        getOp = OP_GET_UPVALUE;
+        setOp = OP_SET_UPVALUE;
     } else {
         arg = identifierConstant(name);
         getOp = OP_GET_GLOBAL;

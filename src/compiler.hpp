@@ -65,6 +65,11 @@ struct Local {
     int depth;
 };
 
+struct Upvalue {
+    uint8_t index;
+    bool isLocal;
+};
+
 class Compiler {
 public:
     Compiler(FunctionType type, Compiler *enclosing);
@@ -99,7 +104,9 @@ private:
     void beginScope();
     void endScope();
 
+    int resolveUpvalue(const Token &name);
     int resolveLocal(const Token &name);
+    int addUpvalue(uint8_t index, bool isLocal);
     void addLocal(const Token &name);
     void markInitialized();
 
@@ -126,6 +133,7 @@ private:
     FunctionType type;
     Local locals[UINT8_COUNT];
     int localCount;
+    Upvalue upvalues[UINT8_COUNT];
     int scopeDepth;
     Parser *parser;
     Compiler *enclosing;
