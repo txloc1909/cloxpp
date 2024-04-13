@@ -95,8 +95,25 @@ ObjNative::~ObjNative() {} // do nothing
 
 const char *ObjNative::getName() const { return "<native fn>"; }
 
-ObjClosure::ObjClosure(ObjFunction *function) : function(function) {}
+ObjClosure::ObjClosure(ObjFunction *function)
+    : function(function), upvalues(nullptr), upvalueCount(0) {
+    upvalueCount = function->getUpvalueCount();
+    upvalues = Allocator::allocate<ObjUpvalue *>(upvalueCount);
 
-ObjClosure::~ObjClosure() {} // do nothing
+    // NOTE: a bit redundant, might remove later
+    for (int i = 0; i < upvalueCount; i++) {
+        upvalues[i] = nullptr;
+    }
+}
+
+ObjClosure::~ObjClosure() {
+    if (upvalues) {
+        Allocator::freeArray<ObjUpvalue *>(upvalues, upvalueCount);
+    }
+}
+
+ObjUpvalue::ObjUpvalue(Value *slot) : location(slot) {}
+
+ObjUpvalue::~ObjUpvalue() {} // do nothing
 
 } // namespace Clox

@@ -130,6 +130,16 @@ InterpretResult VM::run() {
 
             break;
         }
+        case OP_GET_UPVALUE: {
+            uint8_t slot = READ_BYTE();
+            push(*frame->closure->upvalues[slot]->location);
+            break;
+        }
+        case OP_SET_UPVALUE: {
+            uint8_t slot = READ_BYTE();
+            *frame->closure->upvalues[slot]->location = peek(0);
+            break;
+        }
         case OP_EQUAL: {
             Value b = pop();
             Value a = pop();
@@ -217,6 +227,15 @@ InterpretResult VM::run() {
             ObjFunction *function = READ_CONSTANT().asType<ObjFunction *>();
             ObjClosure *closure = Allocator::create<ObjClosure>(function);
             push(closure);
+            for (int i = 0; i < closure->upvalueCount; i++) {
+                auto isLocal = READ_BYTE();
+                auto index = READ_BYTE();
+                if (isLocal) {
+                    closure->upvalues[i] = captureUpvalue(frame->slots + index);
+                } else {
+                    closure->upvalues[i] = frame->closure->upvalues[index];
+                }
+            }
             break;
         }
         case OP_RETURN: {
@@ -284,6 +303,11 @@ bool VM::call(ObjClosure *closure, int argCount) {
               .ip = closure->function->getChunk()->code,
               .slots = stackTop - argCount - 1};
     return true;
+}
+
+ObjUpvalue *VM::captureUpvalue(Value *local) {
+    auto createdUpvalue = Allocator::create<ObjUpvalue>(local);
+    return createdUpvalue;
 }
 
 void VM::push(Value value) {

@@ -72,6 +72,8 @@ struct ToStringVisitor {
     std::string operator()(const ObjClosure *closure) {
         return this->operator()(closure->function);
     }
+
+    std::string operator()(const ObjUpvalue * /*upvalue*/) { return "upvalue"; }
 };
 
 struct ValueEquality {

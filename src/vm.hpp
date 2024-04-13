@@ -39,6 +39,8 @@ private:
     bool callValue(Value callee, int argCount);
     bool call(ObjClosure *closure, int argCount);
 
+    ObjUpvalue *captureUpvalue(Value *local);
+
     void push(Value value);
     Value pop();
     Value peek(int distance);

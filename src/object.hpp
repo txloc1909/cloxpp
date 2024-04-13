@@ -80,6 +80,16 @@ public:
     ~ObjClosure() override;
 
     ObjFunction *function;
+    ObjUpvalue **upvalues;
+    int upvalueCount;
+};
+
+class ObjUpvalue : public Obj {
+public:
+    ObjUpvalue(Value *slot);
+    ~ObjUpvalue() override;
+
+    Value *location;
 };
 
 } // namespace Clox
