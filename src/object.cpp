@@ -92,4 +92,8 @@ ObjNative::~ObjNative() {} // do nothing
 
 const char *ObjNative::getName() const { return "<native fn>"; }
 
+ObjClosure::ObjClosure(ObjFunction *function) : function(function) {}
+
+ObjClosure::~ObjClosure() {} // do nothing
+
 } // namespace Clox

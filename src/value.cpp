@@ -68,6 +68,10 @@ struct ToStringVisitor {
     std::string operator()(const ObjNative *native) {
         return native->getName();
     }
+
+    std::string operator()(const ObjClosure *closure) {
+        return this->operator()(closure->function);
+    }
 };
 
 struct ValueEquality {

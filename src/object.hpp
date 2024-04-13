@@ -72,6 +72,14 @@ public:
     NativeFn function;
 };
 
+class ObjClosure : public Obj {
+public:
+    ObjClosure(ObjFunction *function);
+    ~ObjClosure() override;
+
+    ObjFunction *function;
+};
+
 } // namespace Clox
 
 #endif // !CLOXPP_OBJECT_H

@@ -55,11 +55,12 @@ class Obj;
 class ObjString;
 class ObjFunction;
 class ObjNative;
+class ObjClosure;
 
 using Nil = std::monostate;
 using Number = double;
-using ValueTypes =
-    Variant<Nil, Number, bool, ObjString *, ObjFunction *, ObjNative *>;
+using ValueTypes = Variant<Nil, Number, bool, ObjString *, ObjFunction *,
+                           ObjNative *, ObjClosure *>;
 class Value : public ValueTypes {
 public:
     Value() : ValueTypes(std::in_place_type<Nil>) {}
