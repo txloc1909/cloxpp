@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cstdarg>
 #include <cstdio>
 #include <iostream>
@@ -9,7 +10,17 @@
 
 namespace Clox {
 
-VM::VM() { resetStack(); }
+VM::VM() {
+    resetStack();
+    defineNative("clock", [](int, Value *) -> Value {
+        return static_cast<double>(
+                   std::chrono::duration_cast<std::chrono::milliseconds>(
+                       std::chrono::high_resolution_clock::now()
+                           .time_since_epoch())
+                       .count()) /
+               1000.0;
+    });
+}
 
 VM::~VM() { Allocator::cleanUp(); }
 
@@ -221,14 +232,29 @@ InterpretResult VM::run() {
 #undef BINARY_OP
 }
 
-bool VM::callValue(Value callee, int argCount) {
-    // TODO: dispatch by switch-case
-    if (callee.isType<ObjFunction *>()) {
-        return call(callee.asType<ObjFunction *>(), argCount);
+struct Caller {
+    VM *vm;
+    int argCount;
+
+    bool operator()(ObjFunction *func) { return vm->call(func, argCount); }
+
+    bool operator()(ObjNative *native) {
+        NativeFn func = native->function;
+        Value result = func(argCount, vm->stackTop - argCount);
+        vm->stackTop -= argCount + 1;
+        vm->push(result);
+        return true;
     }
 
-    runtimeError("Can only call functions and classes.");
-    return false;
+    template <typename T>
+    bool operator()(const T /*callee*/) {
+        vm->runtimeError("Can only call functions and classes.");
+        return false;
+    }
+};
+
+bool VM::callValue(Value callee, int argCount) {
+    return std::visit(Caller{this, argCount}, callee);
 }
 
 bool VM::call(ObjFunction *function, int argCount) {
@@ -288,6 +314,14 @@ void VM::runtimeError(const char *format, ...) {
     }
 
     resetStack();
+}
+
+void VM::defineNative(std::string_view name, NativeFn function) {
+    push(ObjString::copy(name));
+    push(Allocator::create<ObjNative>(function));
+    globals.set(peek(1).asType<ObjString *>(), peek(0));
+    pop();
+    pop();
 }
 
 } // namespace Clox

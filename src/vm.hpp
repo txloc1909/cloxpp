@@ -18,6 +18,7 @@ struct CallFrame {
     Value *slots;
 };
 
+struct Caller;
 class VM {
 public:
     VM();
@@ -44,6 +45,10 @@ private:
 
     void resetStack();
     void runtimeError(const char *format, ...);
+
+    void defineNative(std::string_view name, NativeFn function);
+
+    friend struct Caller;
 };
 
 } // namespace Clox

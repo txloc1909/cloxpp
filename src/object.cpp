@@ -86,4 +86,10 @@ const char *ObjFunction::getName() const {
     return name ? name->data() : "<script>";
 }
 
+ObjNative::ObjNative(NativeFn function) : function(function) {}
+
+ObjNative::~ObjNative() {} // do nothing
+
+const char *ObjNative::getName() const { return "<native fn>"; }
+
 } // namespace Clox

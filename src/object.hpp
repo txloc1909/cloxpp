@@ -2,6 +2,7 @@
 #define CLOXPP_OBJECT_H
 
 #include <cstdint>
+#include <functional>
 #include <string_view>
 
 #include "chunk.hpp"
@@ -57,6 +58,18 @@ private:
     ObjString *name;
 
     friend class Compiler;
+};
+
+using NativeFn = std::function<Value(int, Value *)>;
+
+class ObjNative : public Obj {
+public:
+    ObjNative(NativeFn function);
+    ~ObjNative() override;
+
+    const char *getName() const;
+
+    NativeFn function;
 };
 
 } // namespace Clox
