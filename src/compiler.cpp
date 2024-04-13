@@ -527,8 +527,9 @@ void Compiler::function(FunctionType type) {
                     "Can't have more than 255 parameters.");
             }
 
-            uint8_t constant = parseVariable("Expect parameter name.");
-            defineVariable(constant);
+            uint8_t constant =
+                funCompiler.parseVariable("Expect parameter name.");
+            funCompiler.defineVariable(constant);
         } while (funParser->match(TokenType::COMMA));
     }
     funParser->consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
@@ -536,8 +537,8 @@ void Compiler::function(FunctionType type) {
                        "Expect '{' before function body.");
     funCompiler.block();
 
-    ObjFunction *function = funCompiler.endCompiler();
-    this->emitBytes(OP_CONSTANT, this->makeConstant(function));
+    currFunction = funCompiler.endCompiler();
+    this->emitBytes(OP_CONSTANT, this->makeConstant(currFunction));
 }
 
 uint8_t Compiler::argumentList() {
