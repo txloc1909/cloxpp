@@ -538,7 +538,7 @@ void Compiler::function(FunctionType type) {
     funCompiler.block();
 
     currFunction = funCompiler.endCompiler();
-    this->emitBytes(OP_CONSTANT, this->makeConstant(currFunction));
+    this->emitBytes(OP_CLOSURE, this->makeConstant(currFunction));
 }
 
 uint8_t Compiler::argumentList() {

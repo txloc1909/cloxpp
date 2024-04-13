@@ -31,7 +31,10 @@ InterpretResult VM::interpret(const std::string &source) {
     }
 
     push(function);
-    call(function, 0);
+    ObjClosure *closure = Allocator::create<ObjClosure>(function);
+    pop();
+    push(closure);
+    call(closure, 0);
     return run();
 }
 
@@ -40,7 +43,7 @@ InterpretResult VM::run() {
 
 #define READ_BYTE() (*frame->ip++)
 #define READ_CONSTANT()                                                        \
-    (frame->function->getChunk()->constants.values[READ_BYTE()])
+    (frame->closure->function->getChunk()->constants.values[READ_BYTE()])
 #define READ_STRING() (READ_CONSTANT().asType<ObjString *>())
 #define READ_SHORT()                                                           \
     (frame->ip += 2,                                                           \
@@ -63,8 +66,9 @@ InterpretResult VM::run() {
         }
         std::cout << "\n";
         disassembleInstruction(
-            frame->function->getChunk(),
-            static_cast<int>(frame->ip - frame->function->getChunk()->code));
+            frame->closure->function->getChunk(),
+            static_cast<int>(frame->ip -
+                             frame->closure->function->getChunk()->code));
 #endif // DEBUG_TRACE_EXECUTION
 
         uint8_t instruction;
@@ -209,6 +213,12 @@ InterpretResult VM::run() {
             frame = &frames[frameCount - 1];
             break;
         }
+        case OP_CLOSURE: {
+            ObjFunction *function = READ_CONSTANT().asType<ObjFunction *>();
+            ObjClosure *closure = Allocator::create<ObjClosure>(function);
+            push(closure);
+            break;
+        }
         case OP_RETURN: {
             Value result = pop();
             frameCount--;
@@ -236,7 +246,7 @@ struct Caller {
     VM *vm;
     int argCount;
 
-    bool operator()(ObjFunction *func) { return vm->call(func, argCount); }
+    bool operator()(ObjClosure *closure) { return vm->call(closure, argCount); }
 
     bool operator()(ObjNative *native) {
         NativeFn func = native->function;
@@ -257,8 +267,8 @@ bool VM::callValue(Value callee, int argCount) {
     return std::visit(Caller{this, argCount}, callee);
 }
 
-bool VM::call(ObjFunction *function, int argCount) {
-    int arity = function->getArity();
+bool VM::call(ObjClosure *closure, int argCount) {
+    int arity = closure->function->getArity();
     if (argCount != arity) {
         runtimeError("Expected %d arguments but got %d.", arity, argCount);
         return false;
@@ -270,8 +280,8 @@ bool VM::call(ObjFunction *function, int argCount) {
     }
 
     CallFrame *frame = &frames[frameCount++];
-    *frame = {.function = function,
-              .ip = function->getChunk()->code,
+    *frame = {.closure = closure,
+              .ip = closure->function->getChunk()->code,
               .slots = stackTop - argCount - 1};
     return true;
 }
@@ -302,7 +312,7 @@ void VM::runtimeError(const char *format, ...) {
 
     for (int i = frameCount - 1; i >= 0; i--) {
         CallFrame *frame = &frames[i];
-        ObjFunction *function = frame->function;
+        ObjFunction *function = frame->closure->function;
         size_t instruction = frame->ip - function->getChunk()->code - 1;
         std::fprintf(stderr, "[line %d] in ",
                      function->getChunk()->lines[instruction]);

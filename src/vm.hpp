@@ -13,7 +13,7 @@ enum class InterpretResult {
 };
 
 struct CallFrame {
-    ObjFunction *function;
+    ObjClosure *closure;
     uint8_t *ip;
     Value *slots;
 };
@@ -37,7 +37,7 @@ private:
     InterpretResult run();
 
     bool callValue(Value callee, int argCount);
-    bool call(ObjFunction *function, int argCount);
+    bool call(ObjClosure *closure, int argCount);
 
     void push(Value value);
     Value pop();
