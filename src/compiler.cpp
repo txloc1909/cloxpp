@@ -175,6 +175,7 @@ Compiler::Compiler(FunctionType type, Compiler *enclosing)
     Local *local = &locals[localCount++];
     local->name.lexeme = "";
     local->depth = 0;
+    local->isCaptured = false;
 }
 
 void Compiler::declaration() {
@@ -476,7 +477,11 @@ void Compiler::endScope() {
     scopeDepth--;
 
     while (localCount > 0 && locals[localCount - 1].depth > scopeDepth) {
-        emitByte(OP_POP);
+        if (locals[localCount - 1].isCaptured) {
+            emitByte(OP_CLOSE_UPVALUE);
+        } else {
+            emitByte(OP_POP);
+        }
         localCount--;
     }
 }
@@ -487,6 +492,7 @@ int Compiler::resolveUpvalue(const Token &name) {
 
     int local = enclosing->resolveLocal(name);
     if (local != -1) {
+        enclosing->locals[local].isCaptured = true;
         return addUpvalue(static_cast<uint8_t>(local), true);
     }
 
@@ -539,7 +545,7 @@ void Compiler::addLocal(const Token &name) {
     }
 
     Local *local = &locals[localCount++];
-    *local = {name, -1};
+    *local = {name, -1, false};
 }
 
 void Compiler::markInitialized() {

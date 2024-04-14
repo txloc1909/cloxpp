@@ -1,6 +1,8 @@
 #ifndef CLOXPP_VM_H
 #define CLOXPP_VM_H
 
+#include <forward_list>
+
 #include "object.hpp"
 #include "table.hpp"
 
@@ -33,6 +35,7 @@ private:
     Value stack[STACK_MAX];
     Value *stackTop;
     Table globals;
+    std::forward_list<ObjUpvalue *> openUpvalues;
 
     InterpretResult run();
 
@@ -40,6 +43,7 @@ private:
     bool call(ObjClosure *closure, int argCount);
 
     ObjUpvalue *captureUpvalue(Value *local);
+    void closeUpvalues(Value *last);
 
     void push(Value value);
     Value pop();

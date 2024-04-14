@@ -10,7 +10,7 @@
 
 namespace Clox {
 
-VM::VM() {
+VM::VM() : frameCount(0), globals({}), openUpvalues({}) {
     resetStack();
     defineNative("clock", [](int, Value *) -> Value {
         return static_cast<double>(
@@ -238,9 +238,15 @@ InterpretResult VM::run() {
             }
             break;
         }
+        case OP_CLOSE_UPVALUE: {
+            closeUpvalues(stackTop - 1);
+            pop();
+            break;
+        }
         case OP_RETURN: {
             Value result = pop();
             frameCount--;
+            closeUpvalues(frame->slots);
             if (frameCount == 0) {
                 pop(); // pop the main script function
                 return InterpretResult::OK;
@@ -306,8 +312,30 @@ bool VM::call(ObjClosure *closure, int argCount) {
 }
 
 ObjUpvalue *VM::captureUpvalue(Value *local) {
-    auto createdUpvalue = Allocator::create<ObjUpvalue>(local);
+    auto prev = openUpvalues.cbefore_begin();
+    auto curr = openUpvalues.cbegin();
+    while (curr != openUpvalues.cend() && (*curr)->location > local) {
+        prev = curr;
+        curr++;
+    }
+
+    if (curr != openUpvalues.cend() && (*curr)->location == local) {
+        return *curr;
+    }
+
+    ObjUpvalue *createdUpvalue = Allocator::create<ObjUpvalue>(local);
+    openUpvalues.insert_after(prev, createdUpvalue);
     return createdUpvalue;
+}
+
+void VM::closeUpvalues(Value *last) {
+    while (!openUpvalues.empty() && openUpvalues.front()->location >= last) {
+        ObjUpvalue *upvalue = openUpvalues.front();
+        upvalue->closed = *upvalue->location;
+        upvalue->location = &upvalue->closed;
+
+        openUpvalues.pop_front();
+    }
 }
 
 void VM::push(Value value) {

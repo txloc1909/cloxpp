@@ -63,6 +63,7 @@ using Parser = PrattParser;
 struct Local {
     Token name;
     int depth;
+    bool isCaptured;
 };
 
 struct Upvalue {

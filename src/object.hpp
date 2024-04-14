@@ -90,6 +90,7 @@ public:
     ~ObjUpvalue() override;
 
     Value *location;
+    Value closed;
 };
 
 } // namespace Clox

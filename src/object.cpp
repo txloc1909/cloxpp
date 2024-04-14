@@ -112,7 +112,7 @@ ObjClosure::~ObjClosure() {
     }
 }
 
-ObjUpvalue::ObjUpvalue(Value *slot) : location(slot) {}
+ObjUpvalue::ObjUpvalue(Value *slot) : location(slot), closed(Nil{}) {}
 
 ObjUpvalue::~ObjUpvalue() {} // do nothing
 
